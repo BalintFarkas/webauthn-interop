@@ -23,7 +23,7 @@ Author = 'Michael Grafnetter'
 CompanyName = 'DSInternals'
 
 # Copyright statement for this module
-Copyright = 'Copyright (c) 2021-2025 Michael Grafnetter. All rights reserved.'
+Copyright = 'Copyright (c) 2021-2026 Michael Grafnetter. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Allows administrative registration of passkeys (i.e. FIDO2 security keys and Microsoft Authenticator mobile app) in Microsoft Entra ID (formerly Azure Active Directory) through the Microsoft Graph API.'

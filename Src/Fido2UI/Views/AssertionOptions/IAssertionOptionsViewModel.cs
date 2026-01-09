@@ -10,11 +10,11 @@
 
         AuthenticatorAttachment AuthenticatorAttachment { get; set; }
 
-        AuthenticationExtensionsClientInputs ClientExtensions { get; set; }
+        AuthenticationExtensionsClientInputs? ClientExtensions { get; set; }
 
         CredentialLargeBlobOperation LargeBlobOperation { get; set; }
 
-        byte[] LargeBlob { get; set; }
+        byte[]? LargeBlob { get; set; }
 
         int Timeout { get; set; }
 

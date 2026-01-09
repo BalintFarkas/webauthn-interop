@@ -15,17 +15,21 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(OperationCanceledException))]
         public void ApiHelper_Validate_Cancelled()
         {
-            ApiHelper.Validate(HResult.ActionCancelled);
+            Assert.ThrowsExactly<OperationCanceledException>(() =>
+            {
+                ApiHelper.Validate(HResult.ActionCancelled);
+            });
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Win32Exception))]
         public void ApiHelper_Validate_OtherError()
         {
-            ApiHelper.Validate(HResult.KeyStorageFull);
+            Assert.ThrowsExactly<Win32Exception>(() =>
+            {
+                ApiHelper.Validate(HResult.KeyStorageFull);
+            });
         }
     }
 }

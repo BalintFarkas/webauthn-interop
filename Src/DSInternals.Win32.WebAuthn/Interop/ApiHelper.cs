@@ -40,7 +40,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
             }
         }
 
-        public static DisposableList<ExtensionIn> Translate(AuthenticationExtensionsClientInputs extensions)
+        public static DisposableList<ExtensionIn> Translate(AuthenticationExtensionsClientInputs? extensions)
         {
             var nativeExtensions = new DisposableList<ExtensionIn>();
 
@@ -77,7 +77,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
             return nativeExtensions;
         }
 
-        public static HmacSecretSaltIn Translate(HMACGetSecretInput salts)
+        public static HmacSecretSaltIn? Translate(HMACGetSecretInput? salts)
         {
             if(salts == null)
             {
@@ -109,7 +109,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
             };
         }
 
-        public static IList<CredentialDetails> Translate(CredentialDetailsOut[] credentials)
+        public static IList<CredentialDetails>? Translate(CredentialDetailsOut[] credentials)
         {
             if(credentials == null || credentials.Length == 0)
             {

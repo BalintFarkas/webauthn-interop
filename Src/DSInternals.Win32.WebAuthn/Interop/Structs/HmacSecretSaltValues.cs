@@ -18,9 +18,9 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// List of credentials with HMAC secret SALT.
         /// </summary>
-        private CredentialsWithHmacSecretSaltIn _credWithHmacSecretSaltList;
+        private CredentialsWithHmacSecretSaltIn? _credWithHmacSecretSaltList;
 
-        public HmacSecretSaltValuesIn(HmacSecretSaltIn globalHmacSalt, CredentialWithHmacSecretSaltIn[] credsWithHmacSecretSalt)
+        public HmacSecretSaltValuesIn(HmacSecretSaltIn? globalHmacSalt, CredentialWithHmacSecretSaltIn[]? credsWithHmacSecretSalt)
         {
             if (globalHmacSalt != null)
             {

@@ -8,9 +8,6 @@ namespace DSInternals.Win32.WebAuthn.Interop
     /// This class exposes native WebAuthn API implemented in webauthn.dll in Windows 10.
     /// </summary>
     /// <see>https://github.com/microsoft/webauthn/blob/master/webauthn.h</see>
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
-#endif
     internal static class NativeMethods
     {
         private const string WebAuthn = "webauthn.dll";

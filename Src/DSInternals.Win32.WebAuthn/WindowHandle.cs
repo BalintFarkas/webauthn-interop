@@ -10,15 +10,12 @@ namespace DSInternals.Win32.WebAuthn
     /// Represents a window handle.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
-#endif
     public struct WindowHandle
     {
         private IntPtr _handle;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="handle"></param>
         public WindowHandle(IntPtr handle)
@@ -32,7 +29,7 @@ namespace DSInternals.Win32.WebAuthn
         public bool IsValid => _handle != IntPtr.Zero;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
@@ -40,7 +37,7 @@ namespace DSInternals.Win32.WebAuthn
         public static bool operator ==(WindowHandle a, WindowHandle b) => a._handle == b._handle;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
@@ -48,14 +45,14 @@ namespace DSInternals.Win32.WebAuthn
         public static bool operator !=(WindowHandle a, WindowHandle b) => a._handle != b._handle;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
         public override bool Equals(object obj) => obj is WindowHandle handle && handle._handle == _handle;
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public override int GetHashCode() => _handle.GetHashCode();

@@ -23,10 +23,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             private set;
         }
 
-#if NET5_0_OR_GREATER
-        [SupportedOSPlatform("windows")]
-#endif
-        public RSACng RSA
+        public RSACng? RSA
         {
             get
             {
@@ -46,7 +43,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             }
         }
 
-        public ECDsa ECDsa
+        public ECDsa? ECDsa
         {
             get
             {
@@ -105,7 +102,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             }
         }
 
-        public RSASignaturePadding Padding
+        public RSASignaturePadding? Padding
         {
             get
             {
@@ -133,7 +130,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             }
         }
 
-        public byte[] EdDSAPublicKey
+        public byte[]? EdDSAPublicKey
         {
             get
             {

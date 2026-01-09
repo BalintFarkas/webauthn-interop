@@ -20,7 +20,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         private int _clientDataLength;
 
-        private ByteArrayIn _clientData;
+        private ByteArrayIn? _clientData;
 
         /// <summary>
         /// Hash algorithm ID used to hash the ClientDataJSON field.
@@ -30,7 +30,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// JSON serialization of the client data.
         /// </summary>
-        public string ClientDataJson
+        public string? ClientDataJson
         {
             set
             {
@@ -41,7 +41,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// UTF-8 encoded JSON serialization of the client data.
         /// </summary>
-        public byte[] ClientDataRaw
+        public byte[]? ClientDataRaw
         {
             get
             {

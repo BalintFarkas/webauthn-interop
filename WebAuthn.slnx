@@ -1,0 +1,34 @@
+<Solution xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/microsoft/vs-solutionpersistence/refs/heads/main/src/Microsoft.VisualStudio.SolutionPersistence/Serializer/Xml/Slnx.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Configurations>
+    <Platform Name="AnyCPU" />
+  </Configurations>
+  <Folder Name="/Config/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Src/Directory.Build.props" />
+    <File Path="global.json" />
+  </Folder>
+  <Folder Name="/Documentation/">
+    <File Path="LICENSE" />
+    <File Path=".github/README.md" />
+    <File Path="Documentation/CHANGELOG.md" />
+  </Folder>
+  <Folder Name="/Workflows/">
+    <File Path=".github/workflows/autobuild.yml" />
+    <File Path=".github/workflows/release.yml" />
+  </Folder>
+  <Folder Name="/Module/">
+    <File Path="Src/DSInternals.Passkeys/DSInternals.Passkeys.psd1" />
+    <File Path="Src/DSInternals.Passkeys/DSInternals.Passkeys.psm1" />
+    <File Path="Src/DSInternals.Passkeys/DSInternals.Passkeys.Tests.ps1" />
+  </Folder>
+  <Folder Name="/Scripts/">
+    <File Path="Scripts/Build-PowerShellModule.ps1" />
+    <File Path="Scripts/Update-PowerShellDocumentation.ps1" />
+  </Folder>
+  <Project Path="Src/DSInternals.Win32.WebAuthn/DSInternals.Win32.WebAuthn.csproj" />
+  <Project Path="Src/DSInternals.Win32.WebAuthn.Tests/DSInternals.Win32.WebAuthn.Tests.csproj" />
+  <Project Path="Src/Fido2UI/Fido2UI.csproj" DefaultStartup="true" />
+  <Project Path="Src/DSInternals.Win32.WebAuthn.Adapter/DSInternals.Win32.WebAuthn.Adapter.csproj" />
+  <Project Path="Src/DSInternals.Win32.WebAuthn.Adapter.Tests/DSInternals.Win32.WebAuthn.Adaper.Tests.csproj" />
+</Solution>

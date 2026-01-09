@@ -77,11 +77,9 @@ jobs:
           cache-dependency-path: 'Src/*/packages.lock.json'
 
     - name: Restore NuGet Packages
-      working-directory: Src
       run: dotnet restore --locked-mode
 
     - name: Build Binaries
-      working-directory: Src
       run: dotnet build --configuration Release --no-restore
 
     - name: Build PowerShell Module
@@ -194,7 +192,6 @@ jobs:
         path: Build/bin/PSModule/Release
 
     - name: Create NuGet Packages
-      working-directory: Src
       run: dotnet pack --configuration Release --no-build
 
     - name: Sign NuGet Packages

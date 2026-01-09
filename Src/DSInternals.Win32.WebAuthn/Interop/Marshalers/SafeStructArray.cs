@@ -13,7 +13,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         {
         }
 
-        public T[] Items
+        public T[]? Items
         {
             get
             {
@@ -44,9 +44,9 @@ namespace DSInternals.Win32.WebAuthn.Interop
         protected int _length;
         protected IntPtr _nativeArray = IntPtr.Zero;
 
-        public SafeStructArrayIn(T[] items)
+        public SafeStructArrayIn(T[]? items)
         {
-            if ((items?.Length ?? 0) <= 0)
+            if (items == null || items.Length == 0)
             {
                 return;
             }

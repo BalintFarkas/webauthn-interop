@@ -17,7 +17,7 @@ namespace DSInternals.Win32.WebAuthn.Fido2UI
 
         EnterpriseAttestationType EnterpriseAttestation { get; set; }
 
-        AuthenticationExtensionsClientInputs ClientExtensions { get; set; }
+        AuthenticationExtensionsClientInputs? ClientExtensions { get; set; }
 
         AuthenticatorAttachment AuthenticatorAttachment { get; set; }
 

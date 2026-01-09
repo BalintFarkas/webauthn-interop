@@ -15,7 +15,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// Credential ID.
         /// </summary>
-        private ByteArrayIn _credentialId;
+        private ByteArrayIn? _credentialId;
 
         /// <summary>
         /// PRF Values for above credential
@@ -25,7 +25,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// Credential ID.
         /// </summary>
-        public byte[] CredentialId
+        public byte[]? CredentialId
         {
             get
             {
@@ -92,7 +92,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
     [StructLayout(LayoutKind.Sequential)]
     internal sealed class CredentialsWithHmacSecretSaltIn : SafeStructArrayIn<CredentialWithHmacSecretSaltIn>
     {
-        public CredentialsWithHmacSecretSaltIn(CredentialWithHmacSecretSaltIn[] credsWithHmacSecretSalt) : base(credsWithHmacSecretSalt)
+        public CredentialsWithHmacSecretSaltIn(CredentialWithHmacSecretSaltIn[]? credsWithHmacSecretSalt) : base(credsWithHmacSecretSalt)
         {
         }
     }

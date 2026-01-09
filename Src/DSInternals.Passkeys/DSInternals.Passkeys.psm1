@@ -1,9 +1,9 @@
 # Load PS host-specific assemblies
 if ($PSVersionTable.PSVersion.Major -ge 6) {
     # PowerShell Core
-    Add-Type -Path "$PSScriptRoot/net6.0/DSInternals.Win32.WebAuthn.dll" -ErrorAction Stop
-    Add-Type -Path "$PSScriptRoot/net6.0/Microsoft.Identity.Client.dll" -ErrorAction Stop
-    Add-Type -Path "$PSScriptRoot/net6.0/System.IdentityModel.Tokens.Jwt.dll" -ErrorAction Stop
+    Add-Type -Path "$PSScriptRoot/net8.0-windows/DSInternals.Win32.WebAuthn.dll" -ErrorAction Stop
+    Add-Type -Path "$PSScriptRoot/net8.0-windows/Microsoft.Identity.Client.dll" -ErrorAction Stop
+    Add-Type -Path "$PSScriptRoot/net8.0-windows/System.IdentityModel.Tokens.Jwt.dll" -ErrorAction Stop
 }
 else {
     # PowerShell Desktop

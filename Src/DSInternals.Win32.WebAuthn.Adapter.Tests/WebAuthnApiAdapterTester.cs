@@ -15,9 +15,6 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
     /// </summary>
     [TestClass]
     [TestCategory("Interactive")]
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
-#endif
     public class WebAuthnApiAdapterTester
     {
         [TestMethod]

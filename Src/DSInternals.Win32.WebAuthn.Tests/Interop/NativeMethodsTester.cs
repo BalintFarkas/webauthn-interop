@@ -6,9 +6,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DSInternals.Win32.WebAuthn.Interop.Tests
 {
     [TestClass]
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
-#endif
     public class NativeMethodsTester
     {
         [TestMethod]
@@ -145,16 +142,16 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         public void NativeMethods_StructSizes()
         {
             // Check that the struct size increases with each version
-            Assert.IsTrue(Marshal.SizeOf<AssertionV1>() < Marshal.SizeOf<AssertionV2>());
-            Assert.IsTrue(Marshal.SizeOf<AssertionV2>() < Marshal.SizeOf<AssertionV3>());
-            Assert.IsTrue(Marshal.SizeOf<AssertionV3>() < Marshal.SizeOf<AssertionV4>());
-            Assert.IsTrue(Marshal.SizeOf<AssertionV4>() < Marshal.SizeOf<Assertion>());
+            Assert.IsLessThan(Marshal.SizeOf<AssertionV2>(), Marshal.SizeOf<AssertionV1>());
+            Assert.IsLessThan(Marshal.SizeOf<AssertionV3>(), Marshal.SizeOf<AssertionV2>());
+            Assert.IsLessThan(Marshal.SizeOf<AssertionV4>(), Marshal.SizeOf<AssertionV3>());
+            Assert.IsLessThan(Marshal.SizeOf<Assertion>(), Marshal.SizeOf<AssertionV4>());
 
-            Assert.IsTrue(Marshal.SizeOf<CredentialAttestationV1>() < Marshal.SizeOf<CredentialAttestationV2>());
-            Assert.IsTrue(Marshal.SizeOf<CredentialAttestationV2>() < Marshal.SizeOf<CredentialAttestationV3>());
-            Assert.IsTrue(Marshal.SizeOf<CredentialAttestationV3>() < Marshal.SizeOf<CredentialAttestationV4>());
-            Assert.IsTrue(Marshal.SizeOf<CredentialAttestationV4>() < Marshal.SizeOf<CredentialAttestationV5>());
-            Assert.IsTrue(Marshal.SizeOf<CredentialAttestationV5>() < Marshal.SizeOf<CredentialAttestation>());
+            Assert.IsLessThan(Marshal.SizeOf<CredentialAttestationV2>(), Marshal.SizeOf<CredentialAttestationV1>());
+            Assert.IsLessThan(Marshal.SizeOf<CredentialAttestationV3>(), Marshal.SizeOf<CredentialAttestationV2>());
+            Assert.IsLessThan(Marshal.SizeOf<CredentialAttestationV4>(), Marshal.SizeOf<CredentialAttestationV3>());
+            Assert.IsLessThan(Marshal.SizeOf<CredentialAttestationV5>(), Marshal.SizeOf<CredentialAttestationV4>());
+            Assert.IsLessThan(Marshal.SizeOf<CredentialAttestation>(), Marshal.SizeOf<CredentialAttestationV5>());
         }
     }
 }

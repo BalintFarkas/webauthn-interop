@@ -18,7 +18,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// Optional relying party ID.
         /// </summary>
         [MarshalAs(UnmanagedType.LPWStr)]
-        public string RpId;
+        public string? RpId;
 
         /// <summary>
         /// Indicates whether the browser is in Private Mode. Defaulting to FALSE.

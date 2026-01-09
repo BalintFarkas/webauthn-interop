@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0;net5.0;netcoreapp3.1;net48;net472</TargetFrameworks>
-    <Platform>windows</Platform>
     <AssemblyName>DSInternals.Win32.WebAuthn</AssemblyName>
     <RootNamespace>DSInternals.Win32.WebAuthn</RootNamespace>
     <PackageId>DSInternals.Win32.WebAuthn</PackageId>
@@ -34,26 +32,18 @@
     <AnalysisMode>All</AnalysisMode>
   </PropertyGroup>
 
-  <!-- Suppress some warnings -->
-  <PropertyGroup>
-    <!-- CA1819: Properties should not return arrays -->
-    <NoWarn>CA1819</NoWarn>
-    <!-- CA1028: Enum storage should be Int32 -->
-    <NoWarn>CA1028</NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.66.1" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.106">
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.80.0" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.264">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <!-- TODO: Replace with System.Formats.Cbor -->
-    <PackageReference Include="PeterO.Cbor" Version="4.5.3" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.2.0" />
+    <PackageReference Include="PeterO.Cbor" Version="4.5.5" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
     <!-- Note: Classes from this namespace are part of .NET Framework -->
-    <PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" Condition="'$(TargetFramework)' != 'net472' AND '$(TargetFramework)' != 'net48'" />
-      <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Security.Cryptography.Cng" Version="5.0.0" Condition="'$(TargetFramework)' != 'net48'" />
+      <PackageReference Include="System.Text.Json" Version="10.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(Configuration)' == 'Release'">

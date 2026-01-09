@@ -24,14 +24,14 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// The list of allowed credentials to be used in the assertion.
         /// </summary>
-        private Credentials _allowCredentials;
+        private Credentials? _allowCredentials;
 
         /// <summary>
         /// A CBOR map from extension identifiers to their authenticator extension inputs,
         /// created by the client based on the extensions requested by the Relying Party.
         /// These are optional extensions to parse when performing the operation.
         /// </summary>
-        private ExtensionsIn _extensions;
+        private ExtensionsIn? _extensions;
 
         /// <summary>
         /// Platform vs Cross-Platform Authenticators. (Optional)
@@ -53,7 +53,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_2.</remarks>
         [MarshalAs(UnmanagedType.LPUTF8Str)]
-        private string _u2fAppId;
+        private string? _u2fAppId;
 
         /// <summary>
         /// If the following is non-NULL, then, set to TRUE if the above U2fAppid was used instead of RpId
@@ -91,7 +91,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// A pointer to the large credential blob.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_5.</remarks>
-        private ByteArrayIn _largeBlob;
+        private ByteArrayIn? _largeBlob;
 
         /// <summary>
         /// PRF values which will be converted into HMAC-SECRET values according to WebAuthn Specification.
@@ -127,13 +127,13 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// JSON extension.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
-        private ByteArrayIn _jsonExt;
+        private ByteArrayIn? _jsonExt;
 
 
         /// <summary>
         /// Optional identifier for the U2F AppId. Converted to UTF8 before being hashed. Not lower cased.
         /// </summary>
-        public string U2fAppId
+        public string? U2fAppId
         {
             get
             {
@@ -246,7 +246,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// Credential Large Blob.
         /// </summary>
-        public byte[] LargeBlob
+        public byte[]? LargeBlob
         {
             get
             {
@@ -299,7 +299,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
 
-        public HybridStorageLinkedData LinkedDevice
+        public HybridStorageLinkedData? LinkedDevice
         {
             set
             {
@@ -323,7 +323,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// JSON extension.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
-        public byte[] JsonExt
+        public byte[]? JsonExt
         {
             get
             {

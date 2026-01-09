@@ -20,10 +20,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.122" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
-    <PackageReference Include="Prism.Unity" Version="8.1.97" />
-    <PackageReference Include="Prism.Wpf" Version="8.1.97" />
+    <PackageReference Include="Prism.Unity" Version="9.0.537" />
+    <PackageReference Include="Prism.Wpf" Version="9.0.537" />
   </ItemGroup>
 
   <ItemGroup>

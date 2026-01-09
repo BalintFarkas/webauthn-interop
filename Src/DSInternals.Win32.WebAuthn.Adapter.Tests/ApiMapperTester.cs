@@ -9,9 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace DSInternals.Win32.WebAuthn.Adapter.Tests
 {
     [TestClass]
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
-#endif
     public class ApiMapperTester
     {
         [TestMethod]

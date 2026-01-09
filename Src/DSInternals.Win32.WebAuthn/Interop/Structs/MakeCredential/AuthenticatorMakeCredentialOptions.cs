@@ -24,12 +24,12 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// Credentials used for exclusion.
         /// </summary>
-        private Credentials _excludeCredentials;
+        private Credentials? _excludeCredentials;
 
         /// <summary>
         /// Optional extensions to parse when performing the operation.
         /// </summary>
-        private ExtensionsIn _extensions;
+        private ExtensionsIn? _extensions;
 
         /// <summary>
         /// Platform vs Cross-Platform Authenticators. (Optional)
@@ -114,7 +114,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// JSON extension.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
-        private ByteArrayIn _jsonExt;
+        private ByteArrayIn? _jsonExt;
 
         public AuthenticatorMakeCredentialOptions() { }
 
@@ -197,7 +197,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// Linked Device Connection Info.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
-        public HybridStorageLinkedData LinkedDevice
+        public HybridStorageLinkedData? LinkedDevice
         {
             set
             {
@@ -221,7 +221,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// JSON extension.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
-        public byte[] JsonExt
+        public byte[]? JsonExt
         {
             get
             {

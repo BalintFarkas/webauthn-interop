@@ -12,9 +12,9 @@ namespace DSInternals.Win32.WebAuthn.Interop
         // This class is only created by marshaling.
         protected ByteArrayOut() { }
 
-        public byte[] Read(int length)
+        public byte[]? Read(int length)
         {
-            if (_nativeArray == IntPtr.Zero ||length <= 0)
+            if (_nativeArray == IntPtr.Zero || length <= 0)
             {
                 return null;
             }
@@ -29,13 +29,15 @@ namespace DSInternals.Win32.WebAuthn.Interop
     [StructLayout(LayoutKind.Sequential)]
     internal sealed class ByteArrayIn : ByteArrayOut, IDisposable
     {
-        public ByteArrayIn(byte[] data)
+        public ByteArrayIn(byte[]? data)
         {
-            if((data?.Length ?? 0) > 0)
+            if (data == null || data.Length == 0)
             {
-                _nativeArray = Marshal.AllocHGlobal(data.Length);
-                Marshal.Copy(data, 0, _nativeArray, data.Length);
+                return;
             }
+
+            _nativeArray = Marshal.AllocHGlobal(data.Length);
+            Marshal.Copy(data, 0, _nativeArray, data.Length);
         }
 
         public void Dispose()

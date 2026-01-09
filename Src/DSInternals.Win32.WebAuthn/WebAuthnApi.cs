@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Versioning;
 using DSInternals.Win32.WebAuthn.FIDO;
 using DSInternals.Win32.WebAuthn.Interop;
 
@@ -13,12 +12,8 @@ namespace DSInternals.Win32.WebAuthn
     /// <remarks>
     /// Requires Windows 10 1903+ to work.
     /// </remarks>
-#if NET5_0_OR_GREATER
-    [SupportedOSPlatform("windows")]
-#endif
     public partial class WebAuthnApi
     {
-        private static ApiVersion? _apiVersionCache;
         private Guid? _cancellationId;
 
         /// <summary>
@@ -31,16 +26,16 @@ namespace DSInternals.Win32.WebAuthn
         {
             get
             {
-                if (_apiVersionCache.HasValue)
+                if (field.HasValue)
                 {
-                    return _apiVersionCache;
+                    // Cached value
+                    return field;
                 }
                 else
                 {
                     try
                     {
-                        _apiVersionCache = NativeMethods.GetApiVersionNumber();
-                        return _apiVersionCache.Value;
+                        return field = NativeMethods.GetApiVersionNumber();
                     }
                     catch (TypeLoadException)
                     {
@@ -141,6 +136,8 @@ namespace DSInternals.Win32.WebAuthn
         /// </remarks>
         public static bool IsHybridStorageLinkedDataSupported => ApiVersion >= WebAuthn.ApiVersion.Version7;
 
+        public static bool IsAuthenticatorListSupported => ApiVersion >= WebAuthn.ApiVersion.Version9;
+
         /// <summary>
         /// Indicates the availability of user-verifying platform authenticator (e.g. Windows Hello).
         /// </summary>
@@ -212,17 +209,17 @@ namespace DSInternals.Win32.WebAuthn
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
             bool requireResidentKey = false,
-            COSE.Algorithm[] pubKeyCredParams = null,
+            COSE.Algorithm[]? pubKeyCredParams = null,
             AttestationConveyancePreference attestationConveyancePreference = AttestationConveyancePreference.Any,
             int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
-            IReadOnlyList<PublicKeyCredentialDescriptor> excludeCredentials = null,
+            IReadOnlyList<PublicKeyCredentialDescriptor>? excludeCredentials = null,
             EnterpriseAttestationType enterpriseAttestation = EnterpriseAttestationType.None,
-            AuthenticationExtensionsClientInputs extensions = null,
+            AuthenticationExtensionsClientInputs? extensions = null,
             LargeBlobSupport largeBlobSupport = LargeBlobSupport.None,
             bool preferResidentKey = false,
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
-            HybridStorageLinkedData linkedDevice = null,
+            HybridStorageLinkedData? linkedDevice = null,
             WindowHandle windowHandle = default
         )
         {
@@ -291,17 +288,17 @@ namespace DSInternals.Win32.WebAuthn
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
             bool requireResidentKey = false,
-            COSE.Algorithm[] pubKeyCredParams = null,
+            COSE.Algorithm[]? pubKeyCredParams = null,
             AttestationConveyancePreference attestationConveyancePreference = AttestationConveyancePreference.Any,
             int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
-            IReadOnlyList<PublicKeyCredentialDescriptor> excludeCredentials = null,
+            IReadOnlyList<PublicKeyCredentialDescriptor>? excludeCredentials = null,
             EnterpriseAttestationType enterpriseAttestation = EnterpriseAttestationType.None,
-            AuthenticationExtensionsClientInputs extensions = null,
+            AuthenticationExtensionsClientInputs? extensions = null,
             LargeBlobSupport largeBlobSupport = LargeBlobSupport.None,
             bool preferResidentKey = false,
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
-            HybridStorageLinkedData linkedDevice = null,
+            HybridStorageLinkedData? linkedDevice = null,
             WindowHandle windowHandle = default
             )
         {
@@ -458,12 +455,12 @@ namespace DSInternals.Win32.WebAuthn
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
             int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
-            IReadOnlyList<PublicKeyCredentialDescriptor> allowCredentials = null,
-            AuthenticationExtensionsClientInputs extensions = null,
+            IReadOnlyList<PublicKeyCredentialDescriptor>? allowCredentials = null,
+            AuthenticationExtensionsClientInputs? extensions = null,
             CredentialLargeBlobOperation largeBlobOperation = CredentialLargeBlobOperation.None,
-            byte[] largeBlob = null,
+            byte[]? largeBlob = null,
             bool browserInPrivateMode = false,
-            HybridStorageLinkedData linkedDevice = null,
+            HybridStorageLinkedData? linkedDevice = null,
             WindowHandle windowHandle = default
         )
         {
@@ -518,12 +515,12 @@ namespace DSInternals.Win32.WebAuthn
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
             int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
-            IReadOnlyList<PublicKeyCredentialDescriptor> allowCredentials = null,
-            AuthenticationExtensionsClientInputs extensions = null,
+            IReadOnlyList<PublicKeyCredentialDescriptor>? allowCredentials = null,
+            AuthenticationExtensionsClientInputs? extensions = null,
             CredentialLargeBlobOperation largeBlobOperation = CredentialLargeBlobOperation.None,
-            byte[] largeBlob = null,
+            byte[]? largeBlob = null,
             bool browserInPrivateMode = false,
-            HybridStorageLinkedData linkedDevice = null,
+            HybridStorageLinkedData? linkedDevice = null,
             WindowHandle windowHandle = default
             )
         {
@@ -632,7 +629,7 @@ namespace DSInternals.Win32.WebAuthn
                             }
                         };
 
-                        byte[] credBlob = assertion.Extensions?.CredBlob;
+                        byte[]? credBlob = assertion.Extensions?.CredBlob;
 
                         // Wrap the raw results
                         return new AuthenticatorAssertionResponse()
@@ -658,7 +655,7 @@ namespace DSInternals.Win32.WebAuthn
         /// <param name="rpId">Optional Id of the relying party that is making the request.</param>
         /// <param name="browserInPrivateMode">Indicates whether the browser is in private mode.</param>
         /// <exception cref="NotSupportedException"></exception>
-        public static IList<CredentialDetails> GetPlatformCredentialList(string rpId = null, bool browserInPrivateMode = false)
+        public static IList<CredentialDetails>? GetPlatformCredentialList(string? rpId = null, bool browserInPrivateMode = false)
         {
             if (IsPlatformCredentialManagementSupported == false)
             {
