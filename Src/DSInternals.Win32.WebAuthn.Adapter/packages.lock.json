@@ -11,16 +11,6 @@
           "Newtonsoft.Json": "12.0.3"
         }
       },
-      "PeterO.Cbor": {
-        "type": "Direct",
-        "requested": "[4.5.3, )",
-        "resolved": "4.5.3",
-        "contentHash": "YJDqWlXbLMzYXSOIHy8/U/zU3DGV0Kb6cUqyoB12hNIsPQvGmYlaR7u4LbQmc3kvJuLdX6LtYshjp5rynyQ8jA==",
-        "dependencies": {
-          "PeterO.Numbers": "1.8.2",
-          "PeterO.URIUtility": "1.0.0"
-        }
-      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "10.0.1",
@@ -93,6 +83,15 @@
         "type": "Transitive",
         "resolved": "12.0.3",
         "contentHash": "6mgjfnRB4jKMlzHSl+VD+oUc1IebOZabkbyWj2RiTgWwYPPuaK1H97G1sHqGwPlS5npiF5Q0OrxN1wni2n5QWg=="
+      },
+      "PeterO.Cbor": {
+        "type": "Transitive",
+        "resolved": "4.5.5",
+        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
+        "dependencies": {
+          "PeterO.Numbers": "1.8.2",
+          "PeterO.URIUtility": "1.0.0"
+        }
       },
       "PeterO.Numbers": {
         "type": "Transitive",
@@ -216,16 +215,6 @@
       }
     },
     "net10.0-windows7.0": {
-      "PeterO.Cbor": {
-        "type": "Direct",
-        "requested": "[4.5.3, )",
-        "resolved": "4.5.3",
-        "contentHash": "YJDqWlXbLMzYXSOIHy8/U/zU3DGV0Kb6cUqyoB12hNIsPQvGmYlaR7u4LbQmc3kvJuLdX6LtYshjp5rynyQ8jA==",
-        "dependencies": {
-          "PeterO.Numbers": "1.8.2",
-          "PeterO.URIUtility": "1.0.0"
-        }
-      },
       "System.Security.Cryptography.Cng": {
         "type": "Direct",
         "requested": "[5.0.0, )",
@@ -283,6 +272,15 @@
           "Microsoft.IdentityModel.Logging": "8.15.0"
         }
       },
+      "PeterO.Cbor": {
+        "type": "Transitive",
+        "resolved": "4.5.5",
+        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
+        "dependencies": {
+          "PeterO.Numbers": "1.8.2",
+          "PeterO.URIUtility": "1.0.0"
+        }
+      },
       "PeterO.Numbers": {
         "type": "Transitive",
         "resolved": "1.8.2",
@@ -312,16 +310,6 @@
       }
     },
     "net8.0-windows7.0": {
-      "PeterO.Cbor": {
-        "type": "Direct",
-        "requested": "[4.5.3, )",
-        "resolved": "4.5.3",
-        "contentHash": "YJDqWlXbLMzYXSOIHy8/U/zU3DGV0Kb6cUqyoB12hNIsPQvGmYlaR7u4LbQmc3kvJuLdX6LtYshjp5rynyQ8jA==",
-        "dependencies": {
-          "PeterO.Numbers": "1.8.2",
-          "PeterO.URIUtility": "1.0.0"
-        }
-      },
       "System.Security.Cryptography.Cng": {
         "type": "Direct",
         "requested": "[5.0.0, )",
@@ -377,6 +365,15 @@
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "8.0.0",
           "Microsoft.IdentityModel.Logging": "8.15.0"
+        }
+      },
+      "PeterO.Cbor": {
+        "type": "Transitive",
+        "resolved": "4.5.5",
+        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
+        "dependencies": {
+          "PeterO.Numbers": "1.8.2",
+          "PeterO.URIUtility": "1.0.0"
         }
       },
       "PeterO.Numbers": {

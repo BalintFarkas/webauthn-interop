@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Windows.Input;
 using DSInternals.Win32.WebAuthn.COSE;
@@ -6,399 +6,418 @@ using DSInternals.Win32.WebAuthn.Interop;
 using Prism.Commands;
 using Prism.Mvvm;
 
-namespace DSInternals.Win32.WebAuthn.Fido2UI
+namespace DSInternals.Win32.WebAuthn.Fido2UI;
+
+public class AttestationOptionsViewModel : BindableBase, IAttestationOptionsViewModel
 {
-    public class AttestationOptionsViewModel : BindableBase, IAttestationOptionsViewModel
+    private const int RandomUserIdLength = 32;
+
+    public AttestationOptionsViewModel(IAlgorithmSelectorViewModel algorithmSelectorViewModel)
     {
-        private const int RandomChallengeLength = 128;
+        // Save dependencies
+        AlgorithmSelectorViewModel = algorithmSelectorViewModel;
 
-        private const int RandomUserIdLength = 32;
+        // Configure default values
+        Timeout = ApiConstants.DefaultTimeoutMilliseconds;
 
-        public AttestationOptionsViewModel(IAlgorithmSelectorViewModel algorithmSelectorViewModel)
-        {
-            // Save dependencies
-            AlgorithmSelectorViewModel = algorithmSelectorViewModel;
+        // Initialize commands
+        ResetOptionsCommand = new DelegateCommand(OnResetOptions);
+        GenerateChallengeCommand = new DelegateCommand(OnGenerateChallenge);
+        GenerateUserIdCommand = new DelegateCommand(OnGenerateUserId);
+    }
 
-            // Configure default values
-            Timeout = ApiConstants.DefaultTimeoutMilliseconds;
+    public IAlgorithmSelectorViewModel AlgorithmSelectorViewModel { get; private set; }
 
-            // Initialize commands
-            GenerateChallengeCommand = new DelegateCommand(OnGenerateChallenge);
-            GenerateUserIdCommand = new DelegateCommand(OnGenerateUserId);
-        }
+    public ICommand ResetOptionsCommand { get; private set; }
+    public ICommand GenerateChallengeCommand { get; private set; }
+    public ICommand GenerateUserIdCommand { get; private set; }
 
-        public IAlgorithmSelectorViewModel AlgorithmSelectorViewModel { get; private set; }
-
-        public ICommand GenerateChallengeCommand { get; private set; }
-        public ICommand GenerateUserIdCommand { get; private set; }
-
-        private void OnGenerateChallenge()
-        {
-            Challenge = GetRandomBytes(RandomChallengeLength);
-        }
-
-        private void OnGenerateUserId()
-        {
-            UserId = GetRandomBytes(RandomUserIdLength);
-        }
-
-        private string _rpId;
-        public string RpId
-        {
-            get => _rpId;
-            set => SetProperty(ref _rpId, value);
-        }
-
-        private string _rpName;
-        public string RpName
-        {
-            get => _rpName;
-            set => SetProperty(ref _rpName, value);
-        }
-
-        private string _userName;
-        public string UserName
-        {
-            get => _userName;
-            set => SetProperty(ref _userName, value);
-        }
-
-        private string _userDisplayName;
-        public string UserDisplayName
-        {
-            get => _userDisplayName;
-            set => SetProperty(ref _userDisplayName, value);
-        }
-
-        private byte[] _userId;
-
-        public byte[] UserId
-        {
-            get => _userId;
-            set
-            {
-                bool changed = SetProperty(ref _userId, value, nameof(UserId));
-
-                if (changed)
-                {
-                    RaisePropertyChanged(nameof(UserIdString));
-                }
-            }
-        }
-
-        public string UserIdString
-        {
-            get => _userId != null ? Base64UrlConverter.ToBase64UrlString(_userId) : string.Empty;
-            set
-            {
-                byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
-                bool changed = SetProperty(ref _userId, binaryValue, nameof(UserId));
-
-                if (changed)
-                {
-                    RaisePropertyChanged(nameof(UserIdString));
-                }
-            }
-        }
-
-        private byte[] _challenge;
-        public byte[] Challenge
-        {
-            get => _challenge;
-            set
-            {
-                bool changed = SetProperty(ref _challenge, value, nameof(Challenge));
-
-                if (changed)
-                {
-                    RaisePropertyChanged(nameof(ChallengeString));
-                }
-            }
-        }
-
-        public string ChallengeString
-        {
-            get => _challenge != null ? Base64UrlConverter.ToBase64UrlString(_challenge) : string.Empty;
-            set
-            {
-                byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
-                bool changed = SetProperty(ref _challenge, binaryValue, nameof(Challenge));
-
-                if (changed)
-                {
-                   RaisePropertyChanged(nameof(ChallengeString));
-                }
-            }
-        }
-
-        private bool _requireResidentKey;
-        public bool RequireResidentKey
-        {
-            get => _requireResidentKey;
-            set => SetProperty(ref _requireResidentKey, value);
-        }
-
-        private bool _preferResidentKey;
-        public bool PreferResidentKey
-        {
-            get => _preferResidentKey;
-            set => SetProperty(ref _preferResidentKey, value);
-        }
-
-        private AuthenticatorAttachment _authenticatorAttachment;
-        public AuthenticatorAttachment AuthenticatorAttachment
-        {
-            get => _authenticatorAttachment;
-            set => SetProperty(ref _authenticatorAttachment, value);
-        }
-
-        public IList<KeyValuePair<AuthenticatorAttachment?, string>> AuthenticatorAttachments
-         => EnumAdapter.GetComboBoxItems<AuthenticatorAttachment>();
-
-        private UserVerificationRequirement _userVerification;
-        public UserVerificationRequirement UserVerificationRequirement
+    private void OnGenerateChallenge()
     {
-            get => _userVerification;
-            set => SetProperty(ref _userVerification, value);
-        }
+        Challenge = GetRandomBytes(ApiConstants.DefaultChallengeLength);
+    }
 
-        public IList<KeyValuePair<UserVerificationRequirement?, string>> UserVerificationRequirements
-        => EnumAdapter.GetComboBoxItems<UserVerificationRequirement>();
+    private void OnGenerateUserId()
+    {
+        UserId = GetRandomBytes(RandomUserIdLength);
+    }
 
+    private void OnResetOptions()
+    {
+        RpId = null;
+        RpName = null;
+        UserName = null;
+        UserDisplayName = null;
+        UserId = null;
+        Challenge = null;
+        RequireResidentKey = false;
+        PreferResidentKey = false;
+        AuthenticatorAttachment = AuthenticatorAttachment.Any;
+        UserVerificationRequirement = UserVerificationRequirement.Preferred;
+        PublicKeyCredentialParameters = [Algorithm.ES256];
+        AttestationConveyancePreference = AttestationConveyancePreference.None;
+        EnterpriseAttestation = EnterpriseAttestationType.None;
+        Timeout = ApiConstants.DefaultTimeoutMilliseconds;
+        CredProtectPolicy = UserVerification.Any;
+        EnforceCredProtect = false;
+        MinPinLength = false;
+        HmacSecret = false;
+        EnablePseudoRandomFunction = false;
+        LargeBlobSupport = LargeBlobSupport.None;
+        CredentialBlob = null;
+        IsBrowserPrivateMode = false;
+        CredentialHint = PublicKeyCredentialHint.None;
+        ThirdPartyPayment = false;
+        RemoteWebOrigin = null;
+    }
 
-        private AttestationConveyancePreference _attestation;
-        public AttestationConveyancePreference AttestationConveyancePreference
+    public string RpId
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public string RpName
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public string UserName
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public string UserDisplayName
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    private byte[] _userId;
+
+    public byte[] UserId
+    {
+        get => _userId;
+        set
         {
-            get => _attestation;
-            set => SetProperty(ref _attestation, value);
-        }
-
-        public IList<KeyValuePair<AttestationConveyancePreference?, string>> AttestationTypes
-        => EnumAdapter.GetComboBoxItems<AttestationConveyancePreference>();
-
-        private EnterpriseAttestationType _enterpriseAttestation;
-        public EnterpriseAttestationType EnterpriseAttestation
-        {
-            get => _enterpriseAttestation;
-            set => SetProperty(ref _enterpriseAttestation, value);
-        }
-
-        public IList<KeyValuePair<EnterpriseAttestationType?, string>> EnterpriseAttestationTypes
-        => EnumAdapter.GetComboBoxItems<EnterpriseAttestationType>();
-
-        private int _timeout;
-        public int Timeout
-        {
-            get => _timeout;
-            set => SetProperty(ref _timeout, value);
-        }
-
-        public IList<KeyValuePair<UserVerification?, string>> CredProtectPolicies
-        => EnumAdapter.GetComboBoxItems<UserVerification>();
-
-        public IList<KeyValuePair<LargeBlobSupport?, string>> LargeBlobSupportPolicies
-        => EnumAdapter.GetComboBoxItems<LargeBlobSupport>();
-
-        public RelyingPartyInformation RelyingPartyEntity
-        {
-            get
+            if (SetProperty(ref _userId, value, nameof(UserId)))
             {
-                return new RelyingPartyInformation()
-                {
-                    Id = RpId,
-                    Name = RpName
-                };
-            }
-            set
-            {
-                if (value != null)
-                {
-                    RpId = value.Id;
-                    RpName = value.Name;
-                }
-                else
-                {
-                    // Load default values
-                    RpId = null;
-                    RpName = null;
-                }
-            }
-        }
-
-        public UserInformation UserEntity
-        {
-            get
-            {
-                return new UserInformation()
-                {
-                    Id = UserId,
-                    DisplayName = UserDisplayName,
-                    Name = UserName
-                };
-            }
-            set
-            {
-                if (value != null)
-                {
-                    UserId = value.Id;
-                    UserName = value.Name;
-                    UserDisplayName = value.DisplayName;
-                }
-                else
-                {
-                    // Load default values
-                    UserId = null;
-                    UserName = null;
-                    UserDisplayName = null;
-                }
+                RaisePropertyChanged(nameof(UserIdString));
             }
         }
+    }
 
-        public List<Algorithm> PublicKeyCredentialParameters
+    public string UserIdString
+    {
+        get => _userId != null ? Base64UrlConverter.ToBase64UrlString(_userId) : string.Empty;
+        set
         {
-            get => AlgorithmSelectorViewModel.SelectedAlgorithms;
-            set => AlgorithmSelectorViewModel.SelectedAlgorithms = value;
-        }
-
-        public AuthenticationExtensionsClientInputs ClientExtensions
-        {
-            get
+            byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
+            if (SetProperty(ref _userId, binaryValue, nameof(UserId)))
             {
-                if (CredProtectPolicy == UserVerification.Any && HmacSecret == false && MinPinLength == false && CredentialBlob == null)
-                {
-                    // No extensions are set
-                    return null;
-                }
-
-                return new AuthenticationExtensionsClientInputs()
-                {
-                    CredProtect = this.CredProtectPolicy,
-                    EnforceCredProtect = this.EnforceCredProtect,
-                    HmacCreateSecret = this.HmacSecret,
-                    MinimumPinLength = this.MinPinLength,
-                    CredentialBlob = this.CredentialBlob?.Length > 0 ? this.CredentialBlob : null
-                };
-            }
-            set
-            {
-                if (value != null)
-                {
-                    HmacSecret = value.HmacCreateSecret == true;
-                    CredProtectPolicy = value.CredProtect;
-                    EnforceCredProtect = value.EnforceCredProtect == true;
-                    MinPinLength = value.MinimumPinLength == true;
-                    CredentialBlob = value.CredentialBlob;
-                }
-                else
-                {
-                    // Load default values
-                    CredProtectPolicy = UserVerification.Any;
-                    HmacSecret = false;
-                    MinPinLength = false;
-                    CredentialBlob = null;
-                }
+                RaisePropertyChanged(nameof(UserIdString));
             }
         }
+    }
 
-        private UserVerification _credProtect;
-        public UserVerification CredProtectPolicy
+    private byte[] _challenge;
+    public byte[] Challenge
+    {
+        get => _challenge;
+        set
         {
-            get => _credProtect;
-            set
+            if (SetProperty(ref _challenge, value, nameof(Challenge)))
             {
-                SetProperty(ref _credProtect, value);
-
-                if (EnforceCredProtect && value == UserVerification.Any)
-                {
-                    // Uncheck Enforce CredProtect
-                    this.EnforceCredProtect = false;
-                }
-
-                RaisePropertyChanged(nameof(EnforceCredProtectEnabled));
+                RaisePropertyChanged(nameof(ChallengeString));
             }
         }
+    }
 
-        private bool _enforceCredProtect;
-        public bool EnforceCredProtect
+    public string ChallengeString
+    {
+        get => _challenge != null ? Base64UrlConverter.ToBase64UrlString(_challenge) : string.Empty;
+        set
         {
-            get => _enforceCredProtect;
-            set => SetProperty(ref _enforceCredProtect, value);
-        }
-
-        // Do not allow enforcement of credProtect if it is not enabled.
-        public bool EnforceCredProtectEnabled => CredProtectPolicy != UserVerification.Any;
-
-        private bool _minPinLength;
-        public bool MinPinLength
-        {
-            get => _minPinLength;
-            set => SetProperty(ref _minPinLength, value);
-        }
-
-        private bool _hmacSecret;
-        public bool HmacSecret
-        {
-            get => _hmacSecret;
-            set => SetProperty(ref _hmacSecret, value);
-        }
-
-        private bool _enablePRF;
-        public bool EnablePseudoRandomFunction
-        {
-            get => _enablePRF;
-            set => SetProperty(ref _enablePRF, value);
-        }
-
-        private LargeBlobSupport _largeBlobSupport;
-        public LargeBlobSupport LargeBlobSupport
-        {
-            get => _largeBlobSupport;
-            set => SetProperty(ref _largeBlobSupport, value);
-        }
-
-        private byte[] _credentialBlob;
-        public byte[] CredentialBlob
-        {
-            get => _credentialBlob;
-            set
+            byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
+            if (SetProperty(ref _challenge, binaryValue, nameof(Challenge)))
             {
-                bool changed = SetProperty(ref _credentialBlob, value);
-
-                if (changed)
-                {
-                    RaisePropertyChanged(nameof(CredentialBlobString));
-                }
+               RaisePropertyChanged(nameof(ChallengeString));
             }
         }
+    }
 
-        public string CredentialBlobString
+    public bool RequireResidentKey
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public bool PreferResidentKey
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public AuthenticatorAttachment AuthenticatorAttachment
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public IList<KeyValuePair<AuthenticatorAttachment?, string>> AuthenticatorAttachments
+     => EnumAdapter.GetComboBoxItems<AuthenticatorAttachment>();
+
+    public UserVerificationRequirement UserVerificationRequirement
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public IList<KeyValuePair<UserVerificationRequirement?, string>> UserVerificationRequirements
+    => EnumAdapter.GetComboBoxItems<UserVerificationRequirement>();
+
+    public AttestationConveyancePreference AttestationConveyancePreference
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public IList<KeyValuePair<AttestationConveyancePreference?, string>> AttestationTypes
+    => EnumAdapter.GetComboBoxItems<AttestationConveyancePreference>();
+
+    public EnterpriseAttestationType EnterpriseAttestation
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public IList<KeyValuePair<EnterpriseAttestationType?, string>> EnterpriseAttestationTypes
+    => EnumAdapter.GetComboBoxItems<EnterpriseAttestationType>();
+
+    public int Timeout
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public IList<KeyValuePair<UserVerification?, string>> CredProtectPolicies
+    => EnumAdapter.GetComboBoxItems<UserVerification>();
+
+    public IList<KeyValuePair<LargeBlobSupport?, string>> LargeBlobSupportPolicies
+    => EnumAdapter.GetComboBoxItems<LargeBlobSupport>();
+
+    public RelyingPartyInformation RelyingPartyEntity
+    {
+        get
         {
-            get => _credentialBlob != null ? Base64UrlConverter.ToBase64UrlString(_credentialBlob) : string.Empty;
-            set
+            return new RelyingPartyInformation()
             {
-                byte[] binaryValue = string.IsNullOrEmpty(value) ? null : Base64UrlConverter.FromBase64UrlString(value);
-                bool changed = SetProperty(ref _credentialBlob, binaryValue, nameof(CredentialBlob));
-
-                if (changed)
-                {
-                    RaisePropertyChanged(nameof(CredentialBlobString));
-                }
+                Id = RpId,
+                Name = RpName
+            };
+        }
+        set
+        {
+            if (value != null)
+            {
+                RpId = value.Id;
+                RpName = value.Name;
+            }
+            else
+            {
+                // Load default values
+                RpId = null;
+                RpName = null;
             }
         }
+    }
 
-        private bool _isBrowserPrivateMode;
-        public bool IsBrowserPrivateMode
+    public UserInformation UserEntity
+    {
+        get
         {
-            get => _isBrowserPrivateMode;
-            set => SetProperty(ref _isBrowserPrivateMode, value);
+            return new UserInformation()
+            {
+                Id = UserId,
+                DisplayName = UserDisplayName,
+                Name = UserName
+            };
         }
+        set
+        {
+            if (value != null)
+            {
+                UserId = value.Id;
+                UserName = value.Name;
+                UserDisplayName = value.DisplayName;
+            }
+            else
+            {
+                // Load default values
+                UserId = null;
+                UserName = null;
+                UserDisplayName = null;
+            }
+        }
+    }
 
-        private static byte[] GetRandomBytes(int count)
+    public List<Algorithm> PublicKeyCredentialParameters
+    {
+        get => AlgorithmSelectorViewModel.SelectedAlgorithms;
+        set => AlgorithmSelectorViewModel.SelectedAlgorithms = value;
+    }
+
+    public AuthenticationExtensionsClientInputs ClientExtensions
+    {
+        get
         {
-            using var rng = RandomNumberGenerator.Create();
-            byte[] randomBytes = new byte[count];
-            rng.GetBytes(randomBytes);
-            return randomBytes;
+            if (CredProtectPolicy == UserVerification.Any && HmacSecret == false && MinPinLength == false && CredentialBlob == null)
+            {
+                // No extensions are set
+                return null;
+            }
+
+            return new AuthenticationExtensionsClientInputs()
+            {
+                CredProtect = this.CredProtectPolicy,
+                EnforceCredProtect = this.EnforceCredProtect,
+                HmacCreateSecret = this.HmacSecret,
+                MinimumPinLength = this.MinPinLength,
+                CredentialBlob = this.CredentialBlob?.Length > 0 ? this.CredentialBlob : null
+            };
         }
+        set
+        {
+            if (value != null)
+            {
+                HmacSecret = value.HmacCreateSecret == true;
+                CredProtectPolicy = value.CredProtect;
+                EnforceCredProtect = value.EnforceCredProtect == true;
+                MinPinLength = value.MinimumPinLength == true;
+                CredentialBlob = value.CredentialBlob;
+            }
+            else
+            {
+                // Load default values
+                CredProtectPolicy = UserVerification.Any;
+                HmacSecret = false;
+                MinPinLength = false;
+                CredentialBlob = null;
+            }
+        }
+    }
+
+    private UserVerification _credProtect;
+    public UserVerification CredProtectPolicy
+    {
+        get => _credProtect;
+        set
+        {
+            SetProperty(ref _credProtect, value);
+
+            if (EnforceCredProtect && value == UserVerification.Any)
+            {
+                // Uncheck Enforce CredProtect
+                this.EnforceCredProtect = false;
+            }
+
+            RaisePropertyChanged(nameof(EnforceCredProtectEnabled));
+        }
+    }
+
+    public bool EnforceCredProtect
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    // Do not allow enforcement of credProtect if it is not enabled.
+    public bool EnforceCredProtectEnabled => CredProtectPolicy != UserVerification.Any;
+
+    public bool MinPinLength
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public bool HmacSecret
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public bool EnablePseudoRandomFunction
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public LargeBlobSupport LargeBlobSupport
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    private byte[] _credentialBlob;
+    public byte[] CredentialBlob
+    {
+        get => _credentialBlob;
+        set
+        {
+            if (SetProperty(ref _credentialBlob, value))
+            {
+                RaisePropertyChanged(nameof(CredentialBlobString));
+            }
+        }
+    }
+
+    public string CredentialBlobString
+    {
+        get => _credentialBlob != null ? Base64UrlConverter.ToBase64UrlString(_credentialBlob) : string.Empty;
+        set
+        {
+            byte[] binaryValue = string.IsNullOrEmpty(value) ? null : Base64UrlConverter.FromBase64UrlString(value);
+            if (SetProperty(ref _credentialBlob, binaryValue, nameof(CredentialBlob)))
+            {
+                RaisePropertyChanged(nameof(CredentialBlobString));
+            }
+        }
+    }
+
+    public bool IsBrowserPrivateMode
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public PublicKeyCredentialHint CredentialHint
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public IList<KeyValuePair<PublicKeyCredentialHint?, string>> CredentialHints
+    => EnumAdapter.GetComboBoxItems<PublicKeyCredentialHint>();
+
+    public bool ThirdPartyPayment
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    public string? RemoteWebOrigin
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
+
+    private static byte[] GetRandomBytes(int count)
+    {
+        using var rng = RandomNumberGenerator.Create();
+        byte[] randomBytes = new byte[count];
+        rng.GetBytes(randomBytes);
+        return randomBytes;
     }
 }

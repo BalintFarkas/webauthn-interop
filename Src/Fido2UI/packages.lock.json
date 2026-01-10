@@ -38,6 +38,12 @@
           "Prism.Core": "9.0.537"
         }
       },
+      "SharpVectors.Wpf": {
+        "type": "Direct",
+        "requested": "[1.8.4.2, )",
+        "resolved": "1.8.4.2",
+        "contentHash": "PNxLkMBJnV8A+6yH9OqOlhLJegvWP/dvh0rAJp2l0kcrR+rB4R2tQ9vhUqka+UilH4atN8T6zvjDOizVyfz2Ng=="
+      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "10.0.1",
@@ -349,6 +355,12 @@
           "Prism.Core": "9.0.537"
         }
       },
+      "SharpVectors.Wpf": {
+        "type": "Direct",
+        "requested": "[1.8.4.2, )",
+        "resolved": "1.8.4.2",
+        "contentHash": "PNxLkMBJnV8A+6yH9OqOlhLJegvWP/dvh0rAJp2l0kcrR+rB4R2tQ9vhUqka+UilH4atN8T6zvjDOizVyfz2Ng=="
+      },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
         "resolved": "10.0.0",
@@ -514,6 +526,12 @@
           "Microsoft.Xaml.Behaviors.Wpf": "1.1.122",
           "Prism.Core": "9.0.537"
         }
+      },
+      "SharpVectors.Wpf": {
+        "type": "Direct",
+        "requested": "[1.8.4.2, )",
+        "resolved": "1.8.4.2",
+        "contentHash": "PNxLkMBJnV8A+6yH9OqOlhLJegvWP/dvh0rAJp2l0kcrR+rB4R2tQ9vhUqka+UilH4atN8T6zvjDOizVyfz2Ng=="
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",

@@ -20,9 +20,11 @@ namespace DSInternals.Win32.WebAuthn.Fido2UI
             containerRegistry.Register<IAttestationOptionsViewModel, AttestationOptionsViewModel>();
             containerRegistry.Register<ICredentialManagementViewModel, CredentialManagementViewModel>();
             containerRegistry.Register<IAlgorithmSelectorViewModel, AlgorithmSelectorViewModel>();
+            containerRegistry.Register<IAuthenticatorListViewModel, AuthenticatorListViewModel>();
 
             // Dialogs
             containerRegistry.RegisterDialog<NotificationDialog>();
+            containerRegistry.RegisterDialog<ConfirmationDialog>();
 
             // Services
             containerRegistry.RegisterSingleton<WebAuthnApi>();

@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Input;
 using DSInternals.Win32.WebAuthn.COSE;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Dialogs;
 using Prism.Navigation.Regions;
+using DSInternals.Win32.WebAuthn.Interop;
 
 namespace DSInternals.Win32.WebAuthn.Fido2UI;
 
@@ -45,6 +49,8 @@ public class MainWindowViewModel : BindableBase
         LoadGoogleOptionsCommand = new DelegateCommand(OnLoadGoogleOptions);
         LoadFacebookOptionsCommand = new DelegateCommand(OnLoadFacebookOptions);
         OpenHyperLinkCommand = new DelegateCommand<string>(OnOpenHyperLink);
+        DeleteCredentialCommand = new DelegateCommand<CredentialDetails>(OnDeleteCredential);
+        TestCredentialCommand = new DelegateCommand<CredentialDetails>(OnTestCredential);
     }
 
     public IAttestationOptionsViewModel AttestationOptionsViewModel { get; private set; }
@@ -58,6 +64,14 @@ public class MainWindowViewModel : BindableBase
     public ICommand LoadGoogleOptionsCommand { get; private set; }
     public ICommand LoadFacebookOptionsCommand { get; private set; }
     public ICommand OpenHyperLinkCommand { get; private set; }
+    public ICommand DeleteCredentialCommand { get; private set; }
+    public ICommand TestCredentialCommand { get; private set; }
+
+    public int SelectedTabIndex
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
 
     public string? AttestationResponse
     {
@@ -71,10 +85,97 @@ public class MainWindowViewModel : BindableBase
         set => SetProperty(ref field, value);
     }
 
-    public string? CredentialManagerResponse
+    public ObservableCollection<CredentialDetails> Credentials { get; } = [];
+
+    private void OnDeleteCredential(CredentialDetails? credential)
     {
-        get;
-        set => SetProperty(ref field, value);
+        if (credential?.CredentialId == null)
+        {
+            return;
+        }
+
+        var rpId = credential.RelyingPartyInformation?.Id ?? "Unknown";
+        var userName = credential.UserInformation?.Name ?? "Unknown";
+        var message = $"Are you sure you want to delete this credential?\n\nRP ID: {rpId}\nUser Name: {userName}";
+
+        var parameters = new DialogParameters
+        {
+            { "Message", message },
+            { "Title", "Delete Credential" }
+        };
+
+        DialogService.ShowDialog(nameof(ConfirmationDialog), parameters, result =>
+        {
+            if (result.Result != ButtonResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                WebAuthnApi.DeletePlatformCredential(credential.CredentialId);
+                Credentials.Remove(credential);
+            }
+            catch (Exception ex)
+            {
+                DialogParameters errorParams = new($"Message={ex.Message}");
+                DialogService.ShowDialog(nameof(NotificationDialog), errorParams);
+            }
+        });
+    }
+
+    private void OnTestCredential(CredentialDetails? credential)
+    {
+        if (credential?.CredentialId == null || credential.RelyingPartyInformation?.Id == null)
+        {
+            return;
+        }
+
+        try
+        {
+            // Generate a random challenge for the test
+            byte[] challenge = new byte[ApiConstants.DefaultChallengeLength];
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(challenge);
+            }
+
+            // Create allowed credentials list with the specific credential ID
+            List<PublicKeyCredentialDescriptor> allowCredentials =
+            [
+                new(credential.CredentialId, AuthenticatorTransport.Internal)
+            ];
+
+            // Perform authentication
+            var response = _api.AuthenticatorGetAssertion(
+                credential.RelyingPartyInformation.Id,
+                challenge,
+                UserVerificationRequirement.Preferred,
+                AuthenticatorAttachment.Platform,
+                ApiConstants.DefaultTimeoutMilliseconds,
+                allowCredentials,
+                windowHandle: WindowHandle.MainWindow
+            );
+
+            // On success, show the result in the Authentication tab
+            this.AssertionResponse = JsonSerializer.Serialize(response, _indentedJson);
+
+            // Pre-fill the assertion options view model for easier retesting
+            AssertionOptionsViewModel.ResetOptionsCommand.Execute(null);
+            AssertionOptionsViewModel.RelyingPartyId = credential.RelyingPartyInformation.Id;
+            AssertionOptionsViewModel.Challenge = challenge;
+            AssertionOptionsViewModel.UserVerificationRequirement = UserVerificationRequirement.Preferred;
+            AssertionOptionsViewModel.AuthenticatorAttachment = AuthenticatorAttachment.Platform;
+            AssertionOptionsViewModel.CredentialHint = PublicKeyCredentialHint.ClientDevice;
+
+            // Switch to the Authentication tab (index 2)
+            this.SelectedTabIndex = 2;
+        }
+        catch (Exception ex)
+        {
+            var parameters = new DialogParameters($"Message={ex.Message}");
+            DialogService.ShowDialog(nameof(NotificationDialog), parameters);
+        }
     }
 
     private void OnOpenHyperLink(string link)
@@ -157,14 +258,21 @@ public class MainWindowViewModel : BindableBase
     {
         try
         {
-            // Clear the results window first
-            this.CredentialManagerResponse = null;
+            // Clear the results first
+            this.Credentials.Clear();
 
             var credentials = WebAuthnApi.GetPlatformCredentialList(
                 CredentialManagementViewModel.RelyingPartyId,
                 CredentialManagementViewModel.IsBrowserPrivateMode);
 
-            this.CredentialManagerResponse = JsonSerializer.Serialize(credentials, _indentedJson);
+            // Populate the collection for the grid view
+            if (credentials != null)
+            {
+                foreach (var credential in credentials)
+                {
+                    this.Credentials.Add(credential);
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -175,17 +283,19 @@ public class MainWindowViewModel : BindableBase
 
     private void OnLoadMicrosoftOptions()
     {
+        // Reset the UI first
+        AssertionOptionsViewModel.ResetOptionsCommand.Execute(null);
+        AttestationOptionsViewModel.ResetOptionsCommand.Execute(null);
+        CredentialManagementViewModel.ResetFilterCommand.Execute(null);
+
         // Assertion:
         AssertionOptionsViewModel.RelyingPartyId = "login.microsoft.com";
         AssertionOptionsViewModel.Challenge = Base64UrlConverter.FromBase64UrlString("Ty5leUowZVhBaU9pSktWMVFpTENKaGJHY2lPaUpTVXpJMU5pSXNJbmcxZENJNklqVlBaamxRTlVZNVowTkRkME50UmpKQ1QwaEllRVJFVVMxRWF5SjkuZXlKaGRXUWlPaUoxY200NmJXbGpjbTl6YjJaME9tWnBaRzg2WTJoaGJHeGxibWRsSWl3aWFYTnpJam9pYUhSMGNITTZMeTlzYjJkcGJpNXRhV055YjNOdlpuUXVZMjl0SWl3aWFXRjBJam94TmpBNU1qYzNOVFE0TENKdVltWWlPakUyTURreU56YzFORGdzSW1WNGNDSTZNVFl3T1RJM056ZzBPSDAubDNyeF9JTnNLT0hsZTR5azdvSmk3MG0yMUNsV2lWWklJMGxRdVhJbWZ0N1RMX0ppcTRpc0Uza05vRjR6X0cyYlFhdDdaOG55dVRZamNkTmsxSm5OT0k1ZXBMMUIwNkR4N21OU05sZ3ZlWWhKR05faVB4RC1lOVJkVXJvNjlPLWx1cHRPUjVQX3B6dUpWU0dGTFEwLXBZUHE5NzlEVmI2ZF9pMHYxbjBKakd3bkxIMVE5b3ZRSEJzR1E1YzFvMUhNSDNBdEltZjI0Zk9McHBOT2s3WXM5OXlIdFM5VkFwcTNmbG5vT3VxWVpXQzBDMnJjNXpsdzAwR3p5OGV6NWZra010SDNKRGpmbWZ1aWxfb1RCc20yQUIwX1Y5NjZxRlJuMGxsWXcteXlBTDlISU1LelM1TU01aDhpb1lFakxrZlRGblpJandUVERpOHV3SG1LMkVueFpn");
         AssertionOptionsViewModel.UserVerificationRequirement = UserVerificationRequirement.Required;
-        AssertionOptionsViewModel.AuthenticatorAttachment = AuthenticatorAttachment.Any;
-        AssertionOptionsViewModel.ClientExtensions = null;
         AssertionOptionsViewModel.Timeout = 120000;
-        AssertionOptionsViewModel.LargeBlob = null;
-        AssertionOptionsViewModel.LargeBlobOperation = CredentialLargeBlobOperation.None;
 
         // Attestation:
+        AttestationOptionsViewModel.ResetOptionsCommand.Execute(null);
         AttestationOptionsViewModel.UserEntity = new UserInformation() {
             Name = "john.doe@outlook.com",
             DisplayName = "John Doe",
@@ -209,13 +319,10 @@ public class MainWindowViewModel : BindableBase
         AttestationOptionsViewModel.AuthenticatorAttachment = AuthenticatorAttachment.CrossPlatform;
         AttestationOptionsViewModel.UserVerificationRequirement = UserVerificationRequirement.Required;
         AttestationOptionsViewModel.RequireResidentKey = true;
-        AttestationOptionsViewModel.PreferResidentKey = false;
         AttestationOptionsViewModel.AttestationConveyancePreference = AttestationConveyancePreference.Direct;
         AttestationOptionsViewModel.EnterpriseAttestation = EnterpriseAttestationType.None;
         AttestationOptionsViewModel.PublicKeyCredentialParameters = [Algorithm.ES256, Algorithm.RS256];
         AttestationOptionsViewModel.Timeout = 120000;
-        AttestationOptionsViewModel.LargeBlobSupport = LargeBlobSupport.None;
-        AttestationOptionsViewModel.EnablePseudoRandomFunction = false;
 
         // Credential Management
         CredentialManagementViewModel.RelyingPartyId = "login.microsoft.com";
@@ -223,14 +330,17 @@ public class MainWindowViewModel : BindableBase
 
     private void OnLoadFacebookOptions()
     {
+        // Reset the UI first
+        AssertionOptionsViewModel.ResetOptionsCommand.Execute(null);
+        AttestationOptionsViewModel.ResetOptionsCommand.Execute(null);
+        CredentialManagementViewModel.ResetFilterCommand.Execute(null);
+
         // Assertion:
         AssertionOptionsViewModel.RelyingPartyId = "facebook.com";
         AssertionOptionsViewModel.Challenge = Base64UrlConverter.FromBase64UrlString("QmFQclh3QUFBQURTQkZoZzczeExFUVo2c0dNVndxdjI1ajc0eVhZVkx2c2JUemZtWlc4RkFSM3VDV2ZvTHpENFlXdnZSTTI4bnQzZG1nd1ZoSEg2WWhTRmgxNnpuX3NsVmJJMA");
         AssertionOptionsViewModel.UserVerificationRequirement = UserVerificationRequirement.Preferred;
         AssertionOptionsViewModel.AuthenticatorAttachment = AuthenticatorAttachment.CrossPlatform;
         AssertionOptionsViewModel.Timeout = 60000;
-        AssertionOptionsViewModel.LargeBlob = null;
-        AssertionOptionsViewModel.LargeBlobOperation = CredentialLargeBlobOperation.None;
 
         AssertionOptionsViewModel.ClientExtensions = new AuthenticationExtensionsClientInputs()
         {
@@ -255,15 +365,8 @@ public class MainWindowViewModel : BindableBase
         AttestationOptionsViewModel.Challenge = Base64UrlConverter.FromBase64UrlString("YnFQclh3QUFBQUFpRUZtN1BBSFpURkR1TFlBeFJldzVPdEtWOHY3Y24xV0JUQ0puRVhvN0FSMVN6eVktNGNrSmU3Z1h1NXZPaVJjX2lpUGU2ZzNMaDAySURaQTlQeXVSbVcwUQ");
         AttestationOptionsViewModel.AuthenticatorAttachment = AuthenticatorAttachment.CrossPlatform;
         AttestationOptionsViewModel.UserVerificationRequirement = UserVerificationRequirement.Preferred;
-        AttestationOptionsViewModel.RequireResidentKey = false;
-        AttestationOptionsViewModel.PreferResidentKey = false;
-        AttestationOptionsViewModel.AttestationConveyancePreference = AttestationConveyancePreference.None;
-        AttestationOptionsViewModel.EnterpriseAttestation = EnterpriseAttestationType.None;
         AttestationOptionsViewModel.PublicKeyCredentialParameters = [Algorithm.ES256];
-        AttestationOptionsViewModel.ClientExtensions = null;
         AttestationOptionsViewModel.Timeout = 60000;
-        AttestationOptionsViewModel.LargeBlobSupport = LargeBlobSupport.None;
-        AttestationOptionsViewModel.EnablePseudoRandomFunction = false;
 
         // Credential Management
         CredentialManagementViewModel.RelyingPartyId = "facebook.com";
@@ -271,14 +374,16 @@ public class MainWindowViewModel : BindableBase
 
     private void OnLoadGoogleOptions()
     {
+        // Reset the UI first
+        AssertionOptionsViewModel.ResetOptionsCommand.Execute(null);
+        AttestationOptionsViewModel.ResetOptionsCommand.Execute(null);
+        CredentialManagementViewModel.ResetFilterCommand.Execute(null);
+
         // Assertion:
         AssertionOptionsViewModel.RelyingPartyId = "google.com";
         AssertionOptionsViewModel.Challenge = Base64UrlConverter.FromBase64UrlString("YnFQclh3QUFBQUFpRUZtN1BBSFpURkR1TFlBeFJldzVPdEtWOHY3Y24xV0JUQ0puRVhvN0FSMVN6eVktNGNrSmU3Z1h1NXZPaVJjX2lpUGU2ZzNMaDAySURaQTlQeXVSbVcwUQ");
         AssertionOptionsViewModel.UserVerificationRequirement = UserVerificationRequirement.Discouraged;
-        AssertionOptionsViewModel.AuthenticatorAttachment = AuthenticatorAttachment.Any;
         AssertionOptionsViewModel.Timeout = 30000;
-        AssertionOptionsViewModel.LargeBlob = null;
-        AssertionOptionsViewModel.LargeBlobOperation = CredentialLargeBlobOperation.None;
 
         AssertionOptionsViewModel.ClientExtensions = new AuthenticationExtensionsClientInputs()
         {
@@ -301,15 +406,8 @@ public class MainWindowViewModel : BindableBase
         AttestationOptionsViewModel.Challenge = Base64UrlConverter.FromBase64UrlString("YnFQclh3QUFBQUFpRUZtN1BBSFpURkR1TFlBeFJldzVPdEtWOHY3Y24xV0JUQ0puRVhvN0FSMVN6eVktNGNrSmU3Z1h1NXZPaVJjX2lpUGU2ZzNMaDAySURaQTlQeXVSbVcwUQ");
         AttestationOptionsViewModel.AuthenticatorAttachment = AuthenticatorAttachment.CrossPlatform;
         AttestationOptionsViewModel.UserVerificationRequirement = UserVerificationRequirement.Discouraged;
-        AttestationOptionsViewModel.RequireResidentKey = false;
-        AttestationOptionsViewModel.PreferResidentKey = false;
-        AttestationOptionsViewModel.AttestationConveyancePreference = AttestationConveyancePreference.None;
-        AttestationOptionsViewModel.EnterpriseAttestation = EnterpriseAttestationType.None;
         AttestationOptionsViewModel.PublicKeyCredentialParameters = [Algorithm.ES256];
-        AttestationOptionsViewModel.ClientExtensions = null;
         AttestationOptionsViewModel.Timeout = 30000;
-        AttestationOptionsViewModel.LargeBlobSupport = LargeBlobSupport.None;
-        AttestationOptionsViewModel.EnablePseudoRandomFunction = false;
 
         // Credential Management
         CredentialManagementViewModel.RelyingPartyId = "google.com";

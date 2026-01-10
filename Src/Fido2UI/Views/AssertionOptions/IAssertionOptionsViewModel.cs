@@ -1,4 +1,6 @@
-﻿namespace DSInternals.Win32.WebAuthn.Fido2UI
+﻿using System.Windows.Input;
+
+namespace DSInternals.Win32.WebAuthn.Fido2UI
 {
     public interface IAssertionOptionsViewModel
     {
@@ -19,5 +21,17 @@
         int Timeout { get; set; }
 
         bool IsBrowserPrivateMode { get; set; }
+
+        PublicKeyCredentialHint CredentialHint { get; set; }
+
+        string? RemoteWebOrigin { get; set; }
+
+        ICommand ResetOptionsCommand { get; }
+
+        ICommand GenerateChallengeCommand { get; }
+
+        ICommand GenerateHmacSecretSalt1Command { get; }
+
+        ICommand GenerateHmacSecretSalt2Command { get; }
     }
 }

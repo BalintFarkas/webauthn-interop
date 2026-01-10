@@ -13,7 +13,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// The version of this structure.
         /// </summary>
-        private AuthenticatorGetAssertionOptionsVersion _version = AuthenticatorGetAssertionOptionsVersion.Version7;
+        private AuthenticatorGetAssertionOptionsVersion _version = AuthenticatorGetAssertionOptionsVersion.Version9;
 
         /// <summary>
         /// Time that the operation is expected to complete within.
@@ -129,6 +129,57 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
         private ByteArrayIn? _jsonExt;
 
+        //
+        // The following fields have been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_8
+        //
+
+        /// <summary>
+        /// Number of credential hints.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_8.</remarks>
+        private int _credentialHintsCount = 0;
+
+        /// <summary>
+        /// PublicKeyCredentialHints (https://w3c.github.io/webauthn/#enum-hints).
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_8.</remarks>
+        private IntPtr _credentialHints = IntPtr.Zero;
+
+        //
+        // The following fields have been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9
+        //
+
+        /// <summary>
+        /// Web Origin. For Remote Web App scenario.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        [MarshalAs(UnmanagedType.LPWStr)]
+        private string? _remoteWebOrigin;
+
+        /// <summary>
+        /// Size of PublicKeyCredentialRequestOptionsJSON.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        private int _publicKeyCredentialRequestOptionsJsonLength = 0;
+
+        /// <summary>
+        /// UTF-8 encoded JSON serialization of the PublicKeyCredentialRequestOptions.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        private ByteArrayIn? _publicKeyCredentialRequestOptionsJson;
+
+        /// <summary>
+        /// Size of AuthenticatorId.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        private int _authenticatorIdLength = 0;
+
+        /// <summary>
+        /// Authenticator ID got from WebAuthNGetAuthenticatorList API.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        private ByteArrayIn? _authenticatorId;
+
 
         /// <summary>
         /// Optional identifier for the U2F AppId. Converted to UTF8 before being hashed. Not lower cased.
@@ -212,7 +263,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// Version of this structure, to allow for modifications in the future.
         /// </summary>
-        /// <remarks>This is a V7 struct. If V8 arrives, new fields will need to be added.</remarks>
+        /// <remarks>This is a V9 struct. If V10 arrives, new fields will need to be added.</remarks>
         public AuthenticatorGetAssertionOptionsVersion Version
         {
             get
@@ -221,7 +272,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
             }
             set
             {
-                if (value > AuthenticatorGetAssertionOptionsVersion.Version7)
+                if (value > AuthenticatorGetAssertionOptionsVersion.Version9)
                 {
                     // We only support older struct versions.
                     throw new ArgumentOutOfRangeException(nameof(value), "The requested data structure version is not yet supported.");
@@ -340,6 +391,58 @@ namespace DSInternals.Win32.WebAuthn.Interop
             }
         }
 
+        /// <summary>
+        /// Web Origin. For Remote Web App scenario.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        public string? RemoteWebOrigin
+        {
+            get => _remoteWebOrigin;
+            set => _remoteWebOrigin = value;
+        }
+
+        /// <summary>
+        /// UTF-8 encoded JSON serialization of the PublicKeyCredentialRequestOptions.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        public byte[]? PublicKeyCredentialRequestOptionsJson
+        {
+            get
+            {
+                return _publicKeyCredentialRequestOptionsJson?.Read(_publicKeyCredentialRequestOptionsJsonLength);
+            }
+            set
+            {
+                // Get rid of any previous blob first
+                _publicKeyCredentialRequestOptionsJson?.Dispose();
+
+                // Now replace the previous value with a new one
+                _publicKeyCredentialRequestOptionsJsonLength = value?.Length ?? 0;
+                _publicKeyCredentialRequestOptionsJson = new ByteArrayIn(value);
+            }
+        }
+
+        /// <summary>
+        /// Authenticator ID got from WebAuthNGetAuthenticatorList API.
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
+        public byte[]? AuthenticatorId
+        {
+            get
+            {
+                return _authenticatorId?.Read(_authenticatorIdLength);
+            }
+            set
+            {
+                // Get rid of any previous blob first
+                _authenticatorId?.Dispose();
+
+                // Now replace the previous value with a new one
+                _authenticatorIdLength = value?.Length ?? 0;
+                _authenticatorId = new ByteArrayIn(value);
+            }
+        }
+
         public void Dispose()
         {
             _extensions?.Dispose();
@@ -353,6 +456,12 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
             _jsonExt?.Dispose();
             _jsonExt = null;
+
+            _publicKeyCredentialRequestOptionsJson?.Dispose();
+            _publicKeyCredentialRequestOptionsJson = null;
+
+            _authenticatorId?.Dispose();
+            _authenticatorId = null;
 
             FreeAllowCredentialList();
 

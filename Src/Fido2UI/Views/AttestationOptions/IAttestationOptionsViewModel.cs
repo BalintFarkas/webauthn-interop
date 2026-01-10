@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Windows.Input;
 using DSInternals.Win32.WebAuthn.COSE;
 
 namespace DSInternals.Win32.WebAuthn.Fido2UI
@@ -34,5 +35,17 @@ namespace DSInternals.Win32.WebAuthn.Fido2UI
         LargeBlobSupport LargeBlobSupport { get; set; }
 
         bool IsBrowserPrivateMode { get; set; }
+
+        PublicKeyCredentialHint CredentialHint { get; set; }
+
+        bool ThirdPartyPayment { get; set; }
+
+        string? RemoteWebOrigin { get; set; }
+
+        ICommand ResetOptionsCommand { get; }
+
+        ICommand GenerateChallengeCommand { get; }
+
+        ICommand GenerateUserIdCommand { get; }
     }
 }

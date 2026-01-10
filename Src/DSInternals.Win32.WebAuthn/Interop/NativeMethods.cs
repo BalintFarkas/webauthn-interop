@@ -141,6 +141,18 @@ namespace DSInternals.Win32.WebAuthn.Interop
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         public static extern void FreePlatformCredentialList(IntPtr credentialDetailsList);
 
+        [DllImport(WebAuthn, EntryPoint = "WebAuthNGetAuthenticatorList", CharSet = CharSet.Unicode)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        public static extern HResult GetAuthenticatorList(GetAuthenticatorListOptions getAuthenticatorListOptions, out AuthenticatorDetailsListSafeHandle authenticatorDetailsList);
+
+        /// <summary>
+        /// Frees the allocation for the WEBAUTHN_AUTHENTICATOR_DETAILS_LIST .
+        /// </summary>
+        /// <param name="authenticatorDetailsList">The authenticator details list to be freed.</param>
+        [DllImport(WebAuthn, EntryPoint = "WebAuthNFreeAuthenticatorList")]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        public static extern void FreeAuthenticatorList(IntPtr authenticatorDetailsList);
+
         /// <summary>
         /// Removes a Public Key Credential Source stored on a Virtual Authenticator.
         /// </summary>

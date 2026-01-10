@@ -1,0 +1,115 @@
+<UserControl x:Class="DSInternals.Win32.WebAuthn.Fido2UI.AuthenticatorListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:DSInternals.Win32.WebAuthn.Fido2UI"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <local:ByteArrayToBase64UrlConverter x:Key="ByteArrayToBase64UrlConverter" />
+        <local:ThemeAwareLogoSelector x:Key="ThemeAwareLogoSelector" />
+    </UserControl.Resources>
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button x:Name="ListAuthenticatorsButton" Content="_List authenticators" Command="{Binding ListAuthenticatorsCommand}" Style="{StaticResource AccentButtonStyle}" Margin="0,0,10,0" />
+            <Button x:Name="ListPluginsButton" Content="_List plugin authenticators" Command="{Binding ListPluginAuthenticatorsCommand}" Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
+        <StackPanel Orientation="Vertical">
+            <GroupBox Grid.Row="0" Name="AuthenticatorListResponseGroupBox" Header="Authenticators">
+                <DataGrid x:Name="AuthenticatorsDataGrid"
+                          ItemsSource="{Binding Authenticators}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto"
+                          RowHeight="40">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Logo" Width="60" MinWidth="40">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <svgc:SvgViewbox SvgSource="{Binding AuthenticatorLogo}"
+                                           Width="32" Height="32"
+                                           Stretch="Uniform"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Authenticator ID" Width="280" MinWidth="80" SortMemberPath="AuthenticatorId">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <local:ClipboardEnabledTextBlock Text="{Binding AuthenticatorId, Converter={StaticResource ByteArrayToBase64UrlConverter}}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Name" Binding="{Binding AuthenticatorName}" Width="*" MinWidth="80" />
+                        <DataGridCheckBoxColumn Header="Locked" Binding="{Binding Locked, Mode=OneWay}" Width="70" CanUserResize="False" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+            <GroupBox Grid.Row="1" Name="PluginListResponseGroupBox" Header="Plugin Authenticators">
+                <DataGrid x:Name="PluginAuthenticatorsDataGrid"
+                          ItemsSource="{Binding PluginAuthenticators}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto"
+                          RowHeight="40">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Logo" Width="60" MinWidth="40">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <svgc:SvgViewbox Width="32" Height="32" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <svgc:SvgViewbox.SvgSource>
+                                            <MultiBinding Converter="{StaticResource ThemeAwareLogoSelector}">
+                                                <Binding Path="LightLogo" />
+                                                <Binding Path="DarkLogo" />
+                                            </MultiBinding>
+                                        </svgc:SvgViewbox.SvgSource>
+                                    </svgc:SvgViewbox>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Package" Width="280" MinWidth="80" SortMemberPath="PackageFamilyName">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <local:ClipboardEnabledTextBlock Text="{Binding PackageFamilyName}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="User" Binding="{Binding UserName}" Width="150" MinWidth="80" />
+                        <DataGridTemplateColumn Header="Plugin CLSID" Width="280" MinWidth="80" SortMemberPath="PluginClsid">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <local:ClipboardEnabledTextBlock Text="{Binding PluginClsid}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="AAGUID" Width="280" MinWidth="80" SortMemberPath="AaGuid">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <local:ClipboardEnabledTextBlock Text="{Binding AaGuid}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="Algorithm" Binding="{Binding SigningKeyAlgorithm}" Width="120" MinWidth="80" />
+                        <DataGridTextColumn Header="RP ID" Binding="{Binding RpId}" Width="*" MinWidth="80" />
+                        <DataGridCheckBoxColumn Header="Enabled" Binding="{Binding Enabled}" Width="70" CanUserResize="False" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

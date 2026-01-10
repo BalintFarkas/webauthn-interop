@@ -15,7 +15,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         private CredentialDetailsList() { }
 
-        public CredentialDetailsOut[] Items
+        public CredentialDetailsOut[]? Items
         {
             get
             {
@@ -44,6 +44,12 @@ namespace DSInternals.Win32.WebAuthn.Interop
                             sourceStructSize = Marshal.SizeOf<CredentialDetailsV1>();
                             break;
                         case CredentialDetailsVersion.Version2:
+                            sourceStructSize = Marshal.SizeOf<CredentialDetailsV2>();
+                            break;
+                        case CredentialDetailsVersion.Version3:
+                            sourceStructSize = Marshal.SizeOf<CredentialDetailsV3>();
+                            break;
+                        case CredentialDetailsVersion.Version4:
                         default:
                             sourceStructSize = Marshal.SizeOf<CredentialDetailsOut>();
                             break;

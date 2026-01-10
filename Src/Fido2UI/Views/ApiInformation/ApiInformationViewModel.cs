@@ -6,7 +6,7 @@ namespace DSInternals.Win32.WebAuthn.Fido2UI
     {
         public bool IsApiAvailable => WebAuthnApi.IsAvailable;
 
-        public string ApiVersion => WebAuthnApi.ApiVersion.ToString();
+        public string? ApiVersion => WebAuthnApi.ApiVersion?.ToString();
 
         public bool IsCredProtectExtensionSupported => WebAuthnApi.IsCredProtectExtensionSupported;
 
@@ -27,5 +27,9 @@ namespace DSInternals.Win32.WebAuthn.Fido2UI
         public bool IsUnsignedExtensionOutputSupported => WebAuthnApi.IsUnsignedExtensionOutputSupported;
 
         public bool IsHybridStorageLinkedDataSupported => WebAuthnApi.IsHybridStorageLinkedDataSupported;
+
+        public bool IsPublicKeyCredentialHintSupported => WebAuthnApi.IsPublicKeyCredentialHintSupported;
+
+        public bool IsAuthenticatorListSupported => WebAuthnApi.IsAuthenticatorListSupported;
     }
 }

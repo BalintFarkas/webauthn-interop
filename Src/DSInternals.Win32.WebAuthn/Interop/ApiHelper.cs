@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Security.Principal;
+using System.Text;
 
 namespace DSInternals.Win32.WebAuthn.Interop
 {
@@ -131,6 +133,95 @@ namespace DSInternals.Win32.WebAuthn.Interop
             }
 
             return result;
+        }
+
+        public static IList<AuthenticatorDetails>? Translate(AuthenticatorDetailsOut[] authenticators)
+        {
+            if (authenticators == null || authenticators.Length == 0)
+            {
+                return null;
+            }
+
+            var result = new List<AuthenticatorDetails>();
+
+            foreach (var authenticator in authenticators)
+            {
+                result.Add(new AuthenticatorDetails
+                {
+                    AuthenticatorId = authenticator.AuthenticatorId,
+                    AuthenticatorName = authenticator.AuthenticatorName,
+                    AuthenticatorLogo = DecodeBinaryLogo(authenticator.AuthenticatorLogo),
+                    Locked = authenticator.Locked
+                });
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Converts a byte array logo (expected UTF-8 SVG) to a string.
+        /// </summary>
+        private static string? DecodeBinaryLogo(byte[]? logoBytes)
+        {
+            if (logoBytes == null || logoBytes.Length == 0)
+            {
+                return null;
+            }
+
+            try
+            {
+                return Encoding.UTF8.GetString(logoBytes);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Decodes a Base64-encoded UTF-8 logo string to SVG content.
+        /// </summary>
+        public static string? DecodeBase64Logo(string? base64Logo)
+        {
+            if (string.IsNullOrEmpty(base64Logo))
+            {
+                return null;
+            }
+
+            try
+            {
+                byte[] utf8Bytes = Convert.FromBase64String(base64Logo);
+                string svgContent = Encoding.UTF8.GetString(utf8Bytes);
+
+                return string.IsNullOrWhiteSpace(svgContent) ? null : svgContent;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Resolves a SID string to a user name.
+        /// </summary>
+        public static string? ResolveSidToUserName(string? sidString)
+        {
+            if (string.IsNullOrEmpty(sidString))
+            {
+                return null;
+            }
+
+            try
+            {
+                var sid = new SecurityIdentifier(sidString);
+                var account = (NTAccount)sid.Translate(typeof(NTAccount));
+                return account.Value;
+            }
+            catch
+            {
+                // If translation fails, return the SID string as fallback
+                return sidString;
+            }
         }
     }
 }

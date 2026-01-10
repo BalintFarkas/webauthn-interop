@@ -32,6 +32,11 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// </summary>
         public const int DefaultTimeoutMilliseconds = 60000;
 
+        /// <summary>
+        /// Default length of the random challenges in bytes.
+        /// </summary>
+        public const int DefaultChallengeLength = 128;
+
         /// <remarks>
         /// Corresponds to WEBAUTHN_CTAP_ONE_HMAC_SECRET_LENGTH.
         /// </remarks>

@@ -2,36 +2,33 @@
 using Prism.Commands;
 using Prism.Mvvm;
 
-namespace DSInternals.Win32.WebAuthn.Fido2UI
+namespace DSInternals.Win32.WebAuthn.Fido2UI;
+
+public class CredentialManagementViewModel : BindableBase, ICredentialManagementViewModel
 {
-    public class CredentialManagementViewModel : BindableBase, ICredentialManagementViewModel
+    public CredentialManagementViewModel()
     {
-        public CredentialManagementViewModel()
-        {
-            // Initialize commands
-            ResetFilterCommand = new DelegateCommand(OnResetFilter);
-        }
+        // Initialize commands
+        ResetFilterCommand = new DelegateCommand(OnResetFilter);
+    }
 
-        public ICommand ResetFilterCommand { get; private set; }
+    public ICommand ResetFilterCommand { get; private set; }
 
-        private void OnResetFilter()
-        {
-            this.RelyingPartyId = null;
-            this.IsBrowserPrivateMode = false;
-        }
+    private void OnResetFilter()
+    {
+        this.RelyingPartyId = null;
+        this.IsBrowserPrivateMode = false;
+    }
 
-        private string _relyingPartyId;
-        public string RelyingPartyId
-        {
-            get => _relyingPartyId;
-            set => SetProperty(ref _relyingPartyId, value);
-        }
+    public string? RelyingPartyId
+    {
+        get;
+        set => SetProperty(ref field, value);
+    }
 
-        private bool _isBrowserPrivateMode;
-        public bool IsBrowserPrivateMode
-        {
-            get => _isBrowserPrivateMode;
-            set => SetProperty(ref _isBrowserPrivateMode, value);
-        }
+    public bool IsBrowserPrivateMode
+    {
+        get;
+        set => SetProperty(ref field, value);
     }
 }

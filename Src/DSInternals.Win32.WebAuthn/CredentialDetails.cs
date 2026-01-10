@@ -9,17 +9,17 @@
         /// <summary>
         /// The credential Id.
         /// </summary>
-        public byte[] CredentialId { get; set; }
+        public byte[]? CredentialId { get; set; }
 
         /// <summary>
         /// The relying party information.
         /// </summary>
-        public RelyingPartyInformation RelyingPartyInformation { get; set; }
+        public RelyingPartyInformation? RelyingPartyInformation { get; set; }
 
         /// <summary>
         /// The user information.
         /// </summary>
-        public UserInformation UserInformation { get; set; }
+        public UserInformation? UserInformation { get; set; }
 
         /// <summary>
         ///  Indicates if the credential is removable or not.

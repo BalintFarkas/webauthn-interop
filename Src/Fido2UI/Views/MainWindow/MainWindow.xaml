@@ -6,11 +6,29 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:DSInternals.Win32.WebAuthn.Fido2UI"
     xmlns:ui="http://schemas.modernwpf.com/2019"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
     ui:WindowHelper.UseModernWindowStyle="True"
     prism:ViewModelLocator.AutoWireViewModel="True"
     x:Class="DSInternals.Win32.WebAuthn.Fido2UI.MainWindow"
     mc:Ignorable="d"
     Title="FIDO2 UI" MinHeight="950" MinWidth="1500">
+    <Window.Resources>
+        <local:ByteArrayToBase64UrlConverter x:Key="ByteArrayToBase64UrlConverter" />
+        <Style x:Key="ActionButtonStyle" TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+            <Setter Property="Padding" Value="4,2" />
+            <Setter Property="Margin" Value="2,0" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundTransparentBrush}" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMouseOver, RelativeSource={RelativeSource AncestorType=DataGridRow}}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltChromeWhiteBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Load Default _Options">
@@ -23,7 +41,7 @@
                 <MenuItem Header="WebAuthn Managed API Wrapper" Command="{Binding OpenHyperLinkCommand}" CommandParameter="https://github.com/MichaelGrafnetter/webauthn-interop#webauthn-interop-assembly" ToolTip="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=CommandParameter}" />
             </MenuItem>
         </Menu>
-        <TabControl>
+        <TabControl x:Name="MainTabControl" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
             <TabItem Header="Windows API Information">
                 <local:ApiInformationView x:Name="ApiInformationView" />
             </TabItem>
@@ -45,14 +63,64 @@
                     </GroupBox>
                 </DockPanel>
             </TabItem>
-            <TabItem Header="Management">
+            <TabItem Header="Platform Credentials">
                 <DockPanel>
                     <local:CredentialManagementView x:Name="CredentiaManager" DockPanel.Dock="Top" DataContext="{Binding CredentialManagementViewModel}" />
                     <Button x:Name="ListCredentialsButton" DockPanel.Dock="Top" Content="_List platform credentials" Command="{Binding ListPlatformCredentialsCommand}" HorizontalAlignment="Center" Style="{StaticResource AccentButtonStyle}" />
-                    <GroupBox Name="CredentialManagerResponseGroupBox" Header="Response">
-                        <TextBox Name="CredentialManagerResponseTextBox" Text="{Binding CredentialManagerResponse, Mode=OneWay}" IsReadOnly="True" VerticalScrollBarVisibility="Visible" />
+                    <GroupBox Name="CredentialManagerResponseGroupBox" Header="Credentials">
+                        <DataGrid x:Name="CredentialsDataGrid"
+                                  ItemsSource="{Binding Credentials}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="Horizontal"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Credential ID" Width="*" SortMemberPath="CredentialId" MinWidth="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:ClipboardEnabledTextBlock Text="{Binding CredentialId, Converter={StaticResource ByteArrayToBase64UrlConverter}}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="RP ID" Width="220" SortMemberPath="RelyingPartyInformation.Id" MinWidth="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:ClipboardEnabledTextBlock Text="{Binding RelyingPartyInformation.Id}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="RP Name" Binding="{Binding RelyingPartyInformation.Name}" Width="220" MinWidth="80" />
+                                <DataGridTextColumn Header="User Name" Binding="{Binding UserInformation.Name}" Width="250" MinWidth="80" />
+                                <DataGridTextColumn Header="Display Name" Binding="{Binding UserInformation.DisplayName}" Width="180" MinWidth="80" />
+                                <DataGridCheckBoxColumn Header="Removable" Binding="{Binding Removable, Mode=OneWay}" Width="90" MinWidth="80" />
+                                <DataGridCheckBoxColumn Header="Backed Up" Binding="{Binding BackedUp, Mode=OneWay}" Width="90" MinWidth="80" />
+                                <DataGridTemplateColumn Header="Actions" Width="80" CanUserResize="False">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button Content="🔑" ToolTip="Test credential"
+                                                        Command="{Binding DataContext.TestCredentialCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource ActionButtonStyle}" />
+                                                <Button Content="🗑" ToolTip="Delete credential"
+                                                        Command="{Binding DataContext.DeleteCredentialCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource ActionButtonStyle}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </GroupBox>
                 </DockPanel>
+            </TabItem>
+            <TabItem Header="Authenticators">
+                <local:AuthenticatorListView />
             </TabItem>
         </TabControl>
     </DockPanel>

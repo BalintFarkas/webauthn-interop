@@ -1,4 +1,6 @@
-﻿using Windows.Win32;
+﻿#pragma warning disable CA1069 // Enums values should not be duplicated
+
+using Windows.Win32;
 
 namespace DSInternals.Win32.WebAuthn.Interop
 {
@@ -33,10 +35,13 @@ namespace DSInternals.Win32.WebAuthn.Interop
         Version5 = PInvoke.WEBAUTHN_ASSERTION_VERSION_5,
 
         /// <remarks>
+        /// Corresponds to WEBAUTHN_ASSERTION_VERSION_6.
+        /// </remarks>
+        Version6 = 6,
+
+        /// <remarks>
         /// Corresponds to WEBAUTHN_ASSERTION_CURRENT_VERSION.
         /// </remarks>
-#pragma warning disable CA1069 // Enums values should not be duplicated
         Current = PInvoke.WEBAUTHN_ASSERTION_CURRENT_VERSION
-#pragma warning restore CA1069 // Enums values should not be duplicated
     }
 }

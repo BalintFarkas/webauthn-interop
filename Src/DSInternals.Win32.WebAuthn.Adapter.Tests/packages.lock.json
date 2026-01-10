@@ -215,8 +215,8 @@
       },
       "PeterO.Cbor": {
         "type": "Transitive",
-        "resolved": "4.5.3",
-        "contentHash": "YJDqWlXbLMzYXSOIHy8/U/zU3DGV0Kb6cUqyoB12hNIsPQvGmYlaR7u4LbQmc3kvJuLdX6LtYshjp5rynyQ8jA==",
+        "resolved": "4.5.5",
+        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
         "dependencies": {
           "PeterO.Numbers": "1.8.2",
           "PeterO.URIUtility": "1.0.0"
@@ -369,8 +369,7 @@
         "type": "Project",
         "dependencies": {
           "DSInternals.Win32.WebAuthn": "[1.0.6, )",
-          "Fido2.Models": "[2.0.2, )",
-          "PeterO.Cbor": "[4.5.3, )"
+          "Fido2.Models": "[2.0.2, )"
         }
       }
     },
@@ -560,8 +559,8 @@
       },
       "PeterO.Cbor": {
         "type": "Transitive",
-        "resolved": "4.5.3",
-        "contentHash": "YJDqWlXbLMzYXSOIHy8/U/zU3DGV0Kb6cUqyoB12hNIsPQvGmYlaR7u4LbQmc3kvJuLdX6LtYshjp5rynyQ8jA==",
+        "resolved": "4.5.5",
+        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
         "dependencies": {
           "PeterO.Numbers": "1.8.2",
           "PeterO.URIUtility": "1.0.0"
@@ -597,8 +596,7 @@
       "dsinternals.win32.webauthn.adapter": {
         "type": "Project",
         "dependencies": {
-          "DSInternals.Win32.WebAuthn": "[1.0.6, )",
-          "PeterO.Cbor": "[4.5.3, )"
+          "DSInternals.Win32.WebAuthn": "[1.0.6, )"
         }
       }
     },
@@ -782,8 +780,8 @@
       },
       "PeterO.Cbor": {
         "type": "Transitive",
-        "resolved": "4.5.3",
-        "contentHash": "YJDqWlXbLMzYXSOIHy8/U/zU3DGV0Kb6cUqyoB12hNIsPQvGmYlaR7u4LbQmc3kvJuLdX6LtYshjp5rynyQ8jA==",
+        "resolved": "4.5.5",
+        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
         "dependencies": {
           "PeterO.Numbers": "1.8.2",
           "PeterO.URIUtility": "1.0.0"
@@ -846,7 +844,6 @@
         "type": "Project",
         "dependencies": {
           "DSInternals.Win32.WebAuthn": "[1.0.6, )",
-          "PeterO.Cbor": "[4.5.3, )",
           "System.Security.Cryptography.Cng": "[5.0.0, )"
         }
       }
