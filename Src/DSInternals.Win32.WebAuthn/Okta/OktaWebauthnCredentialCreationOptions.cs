@@ -29,11 +29,11 @@ namespace DSInternals.Win32.WebAuthn.Okta
         [JsonPropertyName("_embedded")]
         public Embedded Embedded { get; set; }
 
-        public override PublicKeyCredentialCreationOptions PublicKeyOptions { get => Embedded.PublicKeyOptions; set { }}
+        public override PublicKeyCredentialCreationOptions PublicKeyOptions { get => Embedded.PublicKeyOptions; set { } }
 
         public static OktaWebauthnCredentialCreationOptions Create(string json)
         {
-            if(string.IsNullOrEmpty(json))
+            if (string.IsNullOrEmpty(json))
             {
                 throw new ArgumentNullException(nameof(json));
             }

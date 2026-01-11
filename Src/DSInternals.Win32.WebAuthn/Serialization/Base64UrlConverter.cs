@@ -100,7 +100,7 @@ namespace DSInternals.Win32.WebAuthn
         /// <returns>The byte array represented by the encoded string</returns>
         public static byte[] FromBase64UrlString(ReadOnlySpan<byte> input)
         {
-            if (input == null)
+            if (input.IsEmpty)
             {
                 throw new ArgumentNullException(nameof(input));
             }
@@ -126,7 +126,7 @@ namespace DSInternals.Win32.WebAuthn
                     // Replace '-' with '+'
                     result[i] = (byte)'+';
                 }
-                else if((char)result[i] == '_')
+                else if ((char)result[i] == '_')
                 {
                     // Replace '_' with '/'
                     result[i] = (byte)'/';
@@ -145,7 +145,7 @@ namespace DSInternals.Win32.WebAuthn
             {
                 throw new ArgumentException("Illegal Base64URL string!", nameof(input));
             }
-            
+
             return new Span<byte>(result, 0, bytesWritten).ToArray(); ;
         }
 

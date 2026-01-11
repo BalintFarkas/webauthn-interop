@@ -22,7 +22,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
                 //      - cbExtension will contain the sizeof(BOOL).
                 var foundExtension = Items?.FirstOrDefault(extension => extension.Identifier == ApiConstants.ExtensionIdentifierHmacSecret);
 
-                if(foundExtension == null)
+                if (foundExtension == null)
                 {
                     // The hmac-secret extension is not present.
                     return null;
@@ -55,7 +55,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
                     return null;
                 }
 
-                if(foundExtension.Data?.Length != sizeof(int))
+                if (foundExtension.Data?.Length != sizeof(int))
                 {
                     // This should never happen if the Windows API is working correctly.
                     throw new ArgumentOutOfRangeException(nameof(foundExtension.Data));
@@ -107,7 +107,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
                     return null;
                 }
 
-                if (foundExtension.Data?.Length < sizeof(int)+sizeof(byte))
+                if (foundExtension.Data?.Length < sizeof(int) + sizeof(byte))
                 {
                     // This should never happen if the Windows API is working correctly.
                     throw new ArgumentOutOfRangeException(nameof(foundExtension.Data));

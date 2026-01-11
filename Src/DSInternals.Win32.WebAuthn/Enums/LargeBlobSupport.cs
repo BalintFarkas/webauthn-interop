@@ -5,7 +5,7 @@ namespace DSInternals.Win32.WebAuthn
     /// <summary>
     /// Large blob support options.
     /// </summary>
-    public enum LargeBlobSupport :uint
+    public enum LargeBlobSupport : uint
     {
         /// <remarks>
         /// Corresponds to WEBAUTHN_LARGE_BLOB_SUPPORT_NONE.

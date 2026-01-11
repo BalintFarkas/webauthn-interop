@@ -12,7 +12,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
                 return null;
             }
 
-            if(sourceStructSize < 0)
+            if (sourceStructSize < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(sourceStructSize));
             }

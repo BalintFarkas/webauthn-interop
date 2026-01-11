@@ -21,10 +21,10 @@ internal sealed class AssertionSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
         }
 
         // Handle possible older structure versions
-        var version = (AssertionVersion) Marshal.ReadInt32(this.handle);
+        var version = (AssertionVersion)Marshal.ReadInt32(this.handle);
         int sourceStructSize;
 
-        switch(version)
+        switch (version)
         {
             case AssertionVersion.Version1:
                 sourceStructSize = Marshal.SizeOf<AssertionV1>();
@@ -39,6 +39,9 @@ internal sealed class AssertionSafeHandle : SafeHandleZeroOrMinusOneIsInvalid
                 sourceStructSize = Marshal.SizeOf<AssertionV4>();
                 break;
             case AssertionVersion.Version5:
+                sourceStructSize = Marshal.SizeOf<AssertionV5>();
+                break;
+            case AssertionVersion.Version6:
             default:
                 sourceStructSize = Marshal.SizeOf<Assertion>();
                 break;

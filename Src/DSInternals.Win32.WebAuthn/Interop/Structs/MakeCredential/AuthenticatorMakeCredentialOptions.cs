@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace DSInternals.Win32.WebAuthn.Interop
 {
@@ -127,16 +129,10 @@ namespace DSInternals.Win32.WebAuthn.Interop
         private IntPtr _prfGlobalEval = IntPtr.Zero;
 
         /// <summary>
-        /// Number of credential hints.
-        /// </summary>
-        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_8.</remarks>
-        private int _credentialHintsCount = 0;
-
-        /// <summary>
         /// PublicKeyCredentialHints (https://w3c.github.io/webauthn/#enum-hints).
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_8.</remarks>
-        private IntPtr _credentialHints = IntPtr.Zero;
+        private SafeStringArrayIn? _credentialHints;
 
         /// <summary>
         /// Enable ThirdPartyPayment.
@@ -191,7 +187,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
             {
                 if (value.HasValue)
                 {
-                    if(_cancellationId == IntPtr.Zero)
+                    if (_cancellationId == IntPtr.Zero)
                     {
                         _cancellationId = Marshal.AllocHGlobal(Marshal.SizeOf<Guid>());
                     }
@@ -326,6 +322,34 @@ namespace DSInternals.Win32.WebAuthn.Interop
         }
 
         /// <summary>
+        /// PublicKeyCredentialHints (https://w3c.github.io/webauthn/#enum-hints).
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_8.</remarks>
+        public PublicKeyCredentialHint[]? CredentialHints
+        {
+            set
+            {
+                // Dispose previous value
+                _credentialHints?.Dispose();
+
+                if (value != null && value.Length > 0)
+                {
+                    // Convert enum values to their string representations
+                    string[] hints = value
+                        .Where(hint => hint != PublicKeyCredentialHint.None)
+                        .Select(hint => ((EnumMemberAttribute)typeof(PublicKeyCredentialHint).GetField(hint.ToString())!.GetCustomAttributes(typeof(EnumMemberAttribute), true).Single()).Value!)
+                        .ToArray();
+
+                    _credentialHints = new SafeStringArrayIn(hints);
+                }
+                else
+                {
+                    _credentialHints = null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Web Origin. For Remote Web App scenario.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_9.</remarks>
@@ -389,7 +413,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
             }
             set
             {
-                if(value > AuthenticatorMakeCredentialOptionsVersion.Version9)
+                if (value > AuthenticatorMakeCredentialOptionsVersion.Version9)
                 {
                     // We only support older struct versions.
                     throw new ArgumentOutOfRangeException(nameof(value), "The requested data structure version is not yet supported.");
@@ -415,6 +439,9 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
             _authenticatorId?.Dispose();
             _authenticatorId = null;
+
+            _credentialHints?.Dispose();
+            _credentialHints = null;
 
             FreeExcludeCredentialList();
             FreeCancellationId();

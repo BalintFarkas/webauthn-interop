@@ -54,7 +54,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         public static ExtensionIn CreateCredBlobAttestation(byte[] blob)
         {
-            if(blob == null)
+            if (blob == null)
             {
                 throw new ArgumentNullException(nameof(blob));
             }

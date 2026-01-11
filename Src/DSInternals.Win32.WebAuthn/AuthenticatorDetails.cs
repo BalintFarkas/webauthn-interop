@@ -1,4 +1,4 @@
-namespace DSInternals.Win32.WebAuthn;
+﻿namespace DSInternals.Win32.WebAuthn;
 
 /// <summary>
 /// Information about an authenticator.

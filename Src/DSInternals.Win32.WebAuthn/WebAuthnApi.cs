@@ -237,6 +237,11 @@ namespace DSInternals.Win32.WebAuthn
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
             HybridStorageLinkedData? linkedDevice = null,
+            PublicKeyCredentialHint[]? credentialHints = null,
+            bool thirdPartyPayment = false,
+            string? remoteWebOrigin = null,
+            byte[]? authenticatorId = null,
+            byte[]? publicKeyCredentialCreationOptionsJson = null,
             WindowHandle windowHandle = default
         )
         {
@@ -290,6 +295,11 @@ namespace DSInternals.Win32.WebAuthn
                 browserInPrivateMode,
                 enablePseudoRandomFunction,
                 linkedDevice,
+                credentialHints,
+                thirdPartyPayment,
+                remoteWebOrigin,
+                authenticatorId,
+                publicKeyCredentialCreationOptionsJson,
                 windowHandle
                 );
         }
@@ -316,6 +326,11 @@ namespace DSInternals.Win32.WebAuthn
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
             HybridStorageLinkedData? linkedDevice = null,
+            PublicKeyCredentialHint[]? credentialHints = null,
+            bool thirdPartyPayment = false,
+            string? remoteWebOrigin = null,
+            byte[]? authenticatorId = null,
+            byte[]? publicKeyCredentialCreationOptionsJson = null,
             WindowHandle windowHandle = default
             )
         {
@@ -334,7 +349,7 @@ namespace DSInternals.Win32.WebAuthn
                 throw new ArgumentNullException(nameof(clientData));
             }
 
-            if (extensions?.CredProtect!= UserVerification.Any && IsCredProtectExtensionSupported == false)
+            if (extensions?.CredProtect != UserVerification.Any && IsCredProtectExtensionSupported == false)
             {
                 // This extension is only supported in API V2.
                 throw new NotSupportedException("The Credential Protection extension is not supported on this OS.");
@@ -374,6 +389,12 @@ namespace DSInternals.Win32.WebAuthn
             {
                 // This feature is only supported in API V7.
                 throw new NotSupportedException("Hybrid storage linked data is not supported on this OS.");
+            }
+
+            if (credentialHints != null && credentialHints.Length > 0 && IsPublicKeyCredentialHintSupported == false)
+            {
+                // This feature is only supported in API V8.
+                throw new NotSupportedException("Credential hints are not supported on this OS.");
             }
 
             if (pubKeyCredParams == null || pubKeyCredParams.Length == 0)
@@ -421,6 +442,11 @@ namespace DSInternals.Win32.WebAuthn
                     options.EnablePseudoRandomFunction = enablePseudoRandomFunction;
                     options.CancellationId = _cancellationId;
                     options.LinkedDevice = linkedDevice;
+                    options.CredentialHints = credentialHints;
+                    options.ThirdPartyPayment = thirdPartyPayment;
+                    options.RemoteWebOrigin = remoteWebOrigin;
+                    options.AuthenticatorId = authenticatorId;
+                    options.PublicKeyCredentialCreationOptionsJson = publicKeyCredentialCreationOptionsJson;
 
                     var result = NativeMethods.AuthenticatorMakeCredential(
                         windowHandle,
@@ -478,6 +504,11 @@ namespace DSInternals.Win32.WebAuthn
             byte[]? largeBlob = null,
             bool browserInPrivateMode = false,
             HybridStorageLinkedData? linkedDevice = null,
+            bool autoFill = false,
+            PublicKeyCredentialHint[]? credentialHints = null,
+            string? remoteWebOrigin = null,
+            byte[]? authenticatorId = null,
+            byte[]? publicKeyCredentialRequestOptionsJson = null,
             WindowHandle windowHandle = default
         )
         {
@@ -519,6 +550,11 @@ namespace DSInternals.Win32.WebAuthn
                 largeBlob,
                 browserInPrivateMode,
                 linkedDevice,
+                autoFill,
+                credentialHints,
+                remoteWebOrigin,
+                authenticatorId,
+                publicKeyCredentialRequestOptionsJson,
                 windowHandle
             );
         }
@@ -538,6 +574,11 @@ namespace DSInternals.Win32.WebAuthn
             byte[]? largeBlob = null,
             bool browserInPrivateMode = false,
             HybridStorageLinkedData? linkedDevice = null,
+            bool autoFill = false,
+            PublicKeyCredentialHint[]? credentialHints = null,
+            string? remoteWebOrigin = null,
+            byte[]? authenticatorId = null,
+            byte[]? publicKeyCredentialRequestOptionsJson = null,
             WindowHandle windowHandle = default
             )
         {
@@ -581,6 +622,12 @@ namespace DSInternals.Win32.WebAuthn
                 throw new NotSupportedException("Hybrid storage linked data is not supported on this OS.");
             }
 
+            if (credentialHints != null && credentialHints.Length > 0 && IsPublicKeyCredentialHintSupported == false)
+            {
+                // This feature is only supported in API V8.
+                throw new NotSupportedException("Credential hints are not supported on this OS.");
+            }
+
             if (!windowHandle.IsValid)
             {
                 windowHandle = WindowHandle.ForegroundWindow;
@@ -619,6 +666,11 @@ namespace DSInternals.Win32.WebAuthn
                     options.BrowserInPrivateMode = browserInPrivateMode;
                     options.HmacSecretSaltValues = hmacSecretSaltValues;
                     options.LinkedDevice = linkedDevice;
+                    options.AutoFill = autoFill;
+                    options.CredentialHints = credentialHints;
+                    options.RemoteWebOrigin = remoteWebOrigin;
+                    options.AuthenticatorId = authenticatorId;
+                    options.PublicKeyCredentialRequestOptionsJson = publicKeyCredentialRequestOptionsJson;
 
                     options.CancellationId = _cancellationId;
 

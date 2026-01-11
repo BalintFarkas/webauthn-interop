@@ -1,4 +1,4 @@
-namespace DSInternals.Win32.WebAuthn
+﻿namespace DSInternals.Win32.WebAuthn
 {
     /// <summary>
     /// The kind of package signature for an authenticator plugin.

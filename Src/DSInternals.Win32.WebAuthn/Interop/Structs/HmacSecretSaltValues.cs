@@ -35,7 +35,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         public void Dispose()
         {
-            if(this._globalHmacSalt != IntPtr.Zero)
+            if (this._globalHmacSalt != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(this._globalHmacSalt);
                 this._globalHmacSalt = IntPtr.Zero;

@@ -81,7 +81,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         public static HmacSecretSaltIn? Translate(HMACGetSecretInput? salts)
         {
-            if(salts == null)
+            if (salts == null)
             {
                 return null;
             }
@@ -113,7 +113,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         public static IList<CredentialDetails>? Translate(CredentialDetailsOut[] credentials)
         {
-            if(credentials == null || credentials.Length == 0)
+            if (credentials == null || credentials.Length == 0)
             {
                 return null;
             }

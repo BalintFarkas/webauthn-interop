@@ -40,7 +40,8 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         /// <summary>
         /// Signature counter, 32-bit unsigned big-endian integer. 
         /// </summary>
-        public uint SignatureCount {
+        public uint SignatureCount
+        {
             get;
             private set;
         }
@@ -79,7 +80,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
                 throw new ArgumentNullException(nameof(authData));
             }
 
-            if(authData.Length < MinLength)
+            if (authData.Length < MinLength)
             {
                 throw new ArgumentOutOfRangeException(nameof(authData));
             }
@@ -115,7 +116,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
                         this.Extensions = CBORObject.Read(reader.BaseStream);
                     }
 
-                    if(stream.Position != stream.Length)
+                    if (stream.Position != stream.Length)
                     {
                         // There should be no bytes left over after decoding all data from the structure
                         throw new ArgumentException("Unexpected FIDO authenticator data format.", nameof(authData));

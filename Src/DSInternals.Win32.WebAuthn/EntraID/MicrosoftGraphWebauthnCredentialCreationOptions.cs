@@ -20,11 +20,11 @@ namespace DSInternals.Win32.WebAuthn.EntraID
         /// Defines public key options for the creation of a new WebAuthn public key credential.
         /// </summary>
         [JsonPropertyName("publicKey")]
-        public override PublicKeyCredentialCreationOptions PublicKeyOptions { get; set;  }
+        public override PublicKeyCredentialCreationOptions PublicKeyOptions { get; set; }
 
         public static MicrosoftGraphWebauthnCredentialCreationOptions Create(string json)
         {
-            if(string.IsNullOrEmpty(json))
+            if (string.IsNullOrEmpty(json))
             {
                 throw new ArgumentNullException(nameof(json));
             }

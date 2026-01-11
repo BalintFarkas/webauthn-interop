@@ -23,10 +23,10 @@ namespace DSInternals.Win32.WebAuthn.Interop
             }
 
             // Handle possible older structure versions
-            var version = (CredentialAttestationVersion) Marshal.ReadInt32(this.handle);
+            var version = (CredentialAttestationVersion)Marshal.ReadInt32(this.handle);
             int sourceStructSize;
 
-            switch(version)
+            switch (version)
             {
                 case CredentialAttestationVersion.Version1:
                     sourceStructSize = Marshal.SizeOf<CredentialAttestationV1>();
@@ -44,6 +44,12 @@ namespace DSInternals.Win32.WebAuthn.Interop
                     sourceStructSize = Marshal.SizeOf<CredentialAttestationV5>();
                     break;
                 case CredentialAttestationVersion.Version6:
+                    sourceStructSize = Marshal.SizeOf<CredentialAttestationV6>();
+                    break;
+                case CredentialAttestationVersion.Version7:
+                    sourceStructSize = Marshal.SizeOf<CredentialAttestationV7>();
+                    break;
+                case CredentialAttestationVersion.Version8:
                 default:
                     sourceStructSize = Marshal.SizeOf<CredentialAttestation>();
                     break;

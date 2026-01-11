@@ -31,7 +31,7 @@ namespace DSInternals.Win32.WebAuthn
                     if (!reader.TryGetInt32(out var number))
                         throw new JsonException($"Invalid enum value = {reader.GetString()}");
                     var casted = (TEnum)(object)number; // ints can always be casted to enum, even when the value is not defined
-                    if (Enum.IsDefined(typeof(TEnum),casted))
+                    if (Enum.IsDefined(typeof(TEnum), casted))
                         return casted;
                     else
                         throw new JsonException($"Invalid enum value = {number}");

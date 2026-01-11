@@ -44,9 +44,11 @@ namespace DSInternals.Win32.WebAuthn.Interop
         public CoseCredentialParameters(CoseCredentialParameter[] data) : base(data) { }
 
         public CoseCredentialParameters(Algorithm[] algorithms) :
-            base(algorithms.Select(alg => new CoseCredentialParameter(alg)).ToArray()) { }
+            base(algorithms.Select(alg => new CoseCredentialParameter(alg)).ToArray())
+        { }
 
         public CoseCredentialParameters(Algorithm algorithm) :
-            base(new [] { new CoseCredentialParameter(algorithm) }) { }
+            base(new[] { new CoseCredentialParameter(algorithm) })
+        { }
     }
 }

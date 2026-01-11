@@ -159,8 +159,8 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         public CredentialPublicKey(CBORObject cpk)
         {
             _cpk = cpk ?? throw new ArgumentNullException(nameof(cpk));
-            this.Type = (KeyType) cpk[CBORObject.FromObject(KeyCommonParameter.KeyType)].AsInt32();
-            this.Algorithm = (Algorithm) cpk[CBORObject.FromObject(KeyCommonParameter.Alg)].AsInt32();
+            this.Type = (KeyType)cpk[CBORObject.FromObject(KeyCommonParameter.KeyType)].AsInt32();
+            this.Algorithm = (Algorithm)cpk[CBORObject.FromObject(KeyCommonParameter.Alg)].AsInt32();
         }
 
         public override string ToString()

@@ -33,7 +33,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
                     IntPtr currentItem = Marshal.ReadIntPtr(_nativeArray + i * Marshal.SizeOf<IntPtr>());
 
                     // Handle possible older structure versions
-                    CredentialDetailsVersion version = (CredentialDetailsVersion) Marshal.ReadInt32(currentItem);
+                    CredentialDetailsVersion version = (CredentialDetailsVersion)Marshal.ReadInt32(currentItem);
                     int sourceStructSize;
 
                     switch (version)

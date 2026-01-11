@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace DSInternals.Win32.WebAuthn.Interop
 {
@@ -108,25 +110,25 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// Linked Device Connection Info.
         /// </summary>
-        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_7.</remarks>
         private IntPtr _linkedDevice { get; set; }
 
         /// <summary>
         /// Allowlist MUST contain 1 credential applicable for Hybrid transport.
         /// </summary>
-        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
-        bool AutoFill { get; set; }
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_7.</remarks>
+        public bool AutoFill { get; set; }
 
         /// <summary>
         /// Size of JSON extension.
         /// </summary>
-        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_7.</remarks>
         private int _jsonExtLength;
 
         /// <summary>
         /// JSON extension.
         /// </summary>
-        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_MAKE_CREDENTIAL_OPTIONS_VERSION_7.</remarks>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_7.</remarks>
         private ByteArrayIn? _jsonExt;
 
         //
@@ -134,16 +136,10 @@ namespace DSInternals.Win32.WebAuthn.Interop
         //
 
         /// <summary>
-        /// Number of credential hints.
-        /// </summary>
-        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_8.</remarks>
-        private int _credentialHintsCount = 0;
-
-        /// <summary>
         /// PublicKeyCredentialHints (https://w3c.github.io/webauthn/#enum-hints).
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_8.</remarks>
-        private IntPtr _credentialHints = IntPtr.Zero;
+        private SafeStringArrayIn? _credentialHints;
 
         //
         // The following fields have been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9
@@ -392,6 +388,34 @@ namespace DSInternals.Win32.WebAuthn.Interop
         }
 
         /// <summary>
+        /// PublicKeyCredentialHints (https://w3c.github.io/webauthn/#enum-hints).
+        /// </summary>
+        /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_8.</remarks>
+        public PublicKeyCredentialHint[]? CredentialHints
+        {
+            set
+            {
+                // Dispose previous value
+                _credentialHints?.Dispose();
+
+                if (value != null && value.Length > 0)
+                {
+                    // Convert enum values to their string representations
+                    string[] hints = value
+                        .Where(hint => hint != PublicKeyCredentialHint.None)
+                        .Select(hint => ((EnumMemberAttribute)typeof(PublicKeyCredentialHint).GetField(hint.ToString())!.GetCustomAttributes(typeof(EnumMemberAttribute), true).Single()).Value!)
+                        .ToArray();
+
+                    _credentialHints = new SafeStringArrayIn(hints);
+                }
+                else
+                {
+                    _credentialHints = null;
+                }
+            }
+        }
+
+        /// <summary>
         /// Web Origin. For Remote Web App scenario.
         /// </summary>
         /// <remarks>This field has been added in WEBAUTHN_AUTHENTICATOR_GET_ASSERTION_OPTIONS_VERSION_9.</remarks>
@@ -462,6 +486,9 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
             _authenticatorId?.Dispose();
             _authenticatorId = null;
+
+            _credentialHints?.Dispose();
+            _credentialHints = null;
 
             FreeAllowCredentialList();
 

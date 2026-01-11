@@ -49,7 +49,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         /// </summary>
         public AttestedCredentialData(BinaryReader reader)
         {
-            if(reader == null)
+            if (reader == null)
             {
                 throw new ArgumentNullException(nameof(reader));
             }
@@ -75,7 +75,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
 
             // "CBORObject.Read: This method will read from the stream until the end 
             // of the CBOR object is reached or an error occurs, whichever happens first."
-            
+
             // Read the CBOR object from the stream
             var cpk = PeterO.Cbor.CBORObject.Read(reader.BaseStream);
 

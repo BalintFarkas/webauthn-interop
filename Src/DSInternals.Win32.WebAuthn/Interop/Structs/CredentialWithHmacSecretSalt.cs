@@ -49,7 +49,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         {
             set
             {
-                if(value != null)
+                if (value != null)
                 {
                     if (_hmacSecretSalt == IntPtr.Zero)
                     {

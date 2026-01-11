@@ -16,5 +16,5 @@ internal class GetAuthenticatorListOptions
     {
         get;
         private set;
-    } =AuthenticatorDetailsOptionsVersion.Version1;
+    } = AuthenticatorDetailsOptionsVersion.Version1;
 }

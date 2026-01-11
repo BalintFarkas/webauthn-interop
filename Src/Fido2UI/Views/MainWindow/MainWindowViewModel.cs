@@ -7,11 +7,11 @@ using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 using DSInternals.Win32.WebAuthn.COSE;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Dialogs;
-using Prism.Navigation.Regions;
 using DSInternals.Win32.WebAuthn.Interop;
+using Prism.Commands;
+using Prism.Dialogs;
+using Prism.Mvvm;
+using Prism.Navigation.Regions;
 
 namespace DSInternals.Win32.WebAuthn.Fido2UI;
 
@@ -180,7 +180,8 @@ public class MainWindowViewModel : BindableBase
 
     private void OnOpenHyperLink(string link)
     {
-        Process.Start(new ProcessStartInfo() {
+        Process.Start(new ProcessStartInfo()
+        {
             FileName = link,
             UseShellExecute = true
         });
@@ -193,6 +194,11 @@ public class MainWindowViewModel : BindableBase
             // Clear the results window first
             this.AttestationResponse = null;
 
+            // Convert single hint to array if specified
+            PublicKeyCredentialHint[]? credentialHints = AttestationOptionsViewModel.CredentialHint != PublicKeyCredentialHint.None
+                ? [AttestationOptionsViewModel.CredentialHint]
+                : null;
+
             var response = _api.AuthenticatorMakeCredential(
                 AttestationOptionsViewModel.RelyingPartyEntity,
                 AttestationOptionsViewModel.UserEntity,
@@ -203,15 +209,18 @@ public class MainWindowViewModel : BindableBase
                 AttestationOptionsViewModel.PublicKeyCredentialParameters?.ToArray(),
                 AttestationOptionsViewModel.AttestationConveyancePreference,
                 AttestationOptionsViewModel.Timeout,
-                null,
+                excludeCredentials: null,
                 AttestationOptionsViewModel.EnterpriseAttestation,
                 AttestationOptionsViewModel.ClientExtensions,
                 AttestationOptionsViewModel.LargeBlobSupport,
                 AttestationOptionsViewModel.PreferResidentKey,
                 AttestationOptionsViewModel.IsBrowserPrivateMode,
                 AttestationOptionsViewModel.EnablePseudoRandomFunction,
-                null,
-                WindowHandle.MainWindow
+                linkedDevice: null,
+                credentialHints: credentialHints,
+                thirdPartyPayment: AttestationOptionsViewModel.ThirdPartyPayment,
+                remoteWebOrigin: AttestationOptionsViewModel.RemoteWebOrigin,
+                windowHandle: WindowHandle.MainWindow
                 );
 
             this.AttestationResponse = JsonSerializer.Serialize(response, _indentedJson);
@@ -230,19 +239,26 @@ public class MainWindowViewModel : BindableBase
             // Clear the results window first
             this.AssertionResponse = null;
 
+            // Convert single hint to array if specified
+            PublicKeyCredentialHint[]? credentialHints = AssertionOptionsViewModel.CredentialHint != PublicKeyCredentialHint.None
+                ? [AssertionOptionsViewModel.CredentialHint]
+                : null;
+
             var response = _api.AuthenticatorGetAssertion(
                 AssertionOptionsViewModel.RelyingPartyId,
                 AssertionOptionsViewModel.Challenge,
                 AssertionOptionsViewModel.UserVerificationRequirement,
                 AssertionOptionsViewModel.AuthenticatorAttachment,
                 AssertionOptionsViewModel.Timeout,
-                null,
+                allowCredentials: null,
                 AssertionOptionsViewModel.ClientExtensions,
                 AssertionOptionsViewModel.LargeBlobOperation,
                 AssertionOptionsViewModel.LargeBlob,
                 AssertionOptionsViewModel.IsBrowserPrivateMode,
-                null,
-                WindowHandle.MainWindow
+                linkedDevice: null,
+                credentialHints: credentialHints,
+                remoteWebOrigin: AssertionOptionsViewModel.RemoteWebOrigin,
+                windowHandle: WindowHandle.MainWindow
             );
 
             this.AssertionResponse = JsonSerializer.Serialize(response, _indentedJson);
@@ -296,7 +312,8 @@ public class MainWindowViewModel : BindableBase
 
         // Attestation:
         AttestationOptionsViewModel.ResetOptionsCommand.Execute(null);
-        AttestationOptionsViewModel.UserEntity = new UserInformation() {
+        AttestationOptionsViewModel.UserEntity = new UserInformation()
+        {
             Name = "john.doe@outlook.com",
             DisplayName = "John Doe",
             Id = Convert.FromBase64String("vzcamjpGT/VqULKaTqxpNCAGx66PkL10thAmvwmroAAga3lW/x8wTCBUEfL5aquu5g==")

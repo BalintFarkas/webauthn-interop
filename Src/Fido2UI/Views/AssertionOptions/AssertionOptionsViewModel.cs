@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Windows.Input;
@@ -162,7 +162,7 @@ public class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewMode
     {
         get
         {
-            if(string.IsNullOrEmpty(AppId) && GetCredentialBlob == false && HmacSecretSalt1 == null && HmacSecretSalt2 == null)
+            if (string.IsNullOrEmpty(AppId) && GetCredentialBlob == false && HmacSecretSalt1 == null && HmacSecretSalt2 == null)
             {
                 // No extensions are set
                 return null;
@@ -174,7 +174,7 @@ public class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewMode
                 GetCredentialBlob = this.GetCredentialBlob
             };
 
-            if(this.HmacSecretSalt1 != null || this.HmacSecretSalt2 != null)
+            if (this.HmacSecretSalt1 != null || this.HmacSecretSalt2 != null)
             {
                 result.HmacGetSecret = new HMACGetSecretInput()
                 {
@@ -192,7 +192,7 @@ public class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewMode
                 AppId = value.AppID;
                 GetCredentialBlob = value.GetCredentialBlob == true;
 
-                if(value.HmacGetSecret != null)
+                if (value.HmacGetSecret != null)
                 {
                     HmacSecretSalt1 = value.HmacGetSecret.Salt1;
                     HmacSecretSalt2 = value.HmacGetSecret.Salt2;
@@ -267,7 +267,7 @@ public class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewMode
         {
             byte[]? binaryValue = value?.HexToBinary();
 
-            if( binaryValue != null && binaryValue.Length != HmacSecretSaltStringLength )
+            if (binaryValue != null && binaryValue.Length != HmacSecretSaltStringLength)
             {
                 throw new ArgumentOutOfRangeException(nameof(HmacSecretSalt2String));
             }

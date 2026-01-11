@@ -1,7 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using System;
+using System.Text.Json.Serialization;
 using DSInternals.Win32.WebAuthn.COSE;
 using DSInternals.Win32.WebAuthn.Interop;
-using System;
 
 namespace DSInternals.Win32.WebAuthn
 {

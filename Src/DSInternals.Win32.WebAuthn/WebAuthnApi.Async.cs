@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using DSInternals.Win32.WebAuthn.FIDO;
@@ -19,17 +20,22 @@ namespace DSInternals.Win32.WebAuthn
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
             bool requireResidentKey = false,
-            COSE.Algorithm[] pubKeyCredParams = null,
+            COSE.Algorithm[]? pubKeyCredParams = null,
             AttestationConveyancePreference attestationConveyancePreference = AttestationConveyancePreference.Any,
             int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
-            AuthenticationExtensionsClientInputs extensions = null,
+            AuthenticationExtensionsClientInputs? extensions = null,
             IReadOnlyList<PublicKeyCredentialDescriptor> excludeCredentials = null,
             EnterpriseAttestationType enterpriseAttestation = EnterpriseAttestationType.None,
             LargeBlobSupport largeBlobSupport = LargeBlobSupport.None,
             bool preferResidentKey = false,
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
-            HybridStorageLinkedData linkedDevice = null,
+            HybridStorageLinkedData? linkedDevice = null,
+            PublicKeyCredentialHint[]? credentialHints = null,
+            bool thirdPartyPayment = false,
+            string? remoteWebOrigin = null,
+            byte[]? authenticatorId = null,
+            byte[]? publicKeyCredentialCreationOptionsJson = null,
             WindowHandle windowHandle = default,
             CancellationToken cancellationToken = default
         )
@@ -53,6 +59,11 @@ namespace DSInternals.Win32.WebAuthn
                 browserInPrivateMode,
                 enablePseudoRandomFunction,
                 linkedDevice,
+                credentialHints,
+                thirdPartyPayment,
+                remoteWebOrigin,
+                authenticatorId,
+                publicKeyCredentialCreationOptionsJson,
                 windowHandle
             )).ConfigureAwait(false);
         }
@@ -72,6 +83,11 @@ namespace DSInternals.Win32.WebAuthn
             byte[] largeBlob = null,
             bool browserInPrivateMode = false,
             HybridStorageLinkedData linkedDevice = null,
+            bool autoFill = false,
+            PublicKeyCredentialHint[] credentialHints = null,
+            string remoteWebOrigin = null,
+            byte[] authenticatorId = null,
+            byte[] publicKeyCredentialRequestOptionsJson = null,
             WindowHandle windowHandle = default,
             CancellationToken cancellationToken = default
         )
@@ -89,6 +105,11 @@ namespace DSInternals.Win32.WebAuthn
                 largeBlob,
                 browserInPrivateMode,
                 linkedDevice,
+                autoFill,
+                credentialHints,
+                remoteWebOrigin,
+                authenticatorId,
+                publicKeyCredentialRequestOptionsJson,
                 windowHandle
             )).ConfigureAwait(false);
         }
@@ -115,6 +136,11 @@ namespace DSInternals.Win32.WebAuthn
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
             HybridStorageLinkedData linkedDevice = null,
+            PublicKeyCredentialHint[] credentialHints = null,
+            bool thirdPartyPayment = false,
+            string remoteWebOrigin = null,
+            byte[] authenticatorId = null,
+            byte[] publicKeyCredentialCreationOptionsJson = null,
             WindowHandle windowHandle = default,
             CancellationToken cancellationToken = default
             )
@@ -138,25 +164,35 @@ namespace DSInternals.Win32.WebAuthn
                 browserInPrivateMode,
                 enablePseudoRandomFunction,
                 linkedDevice,
+                credentialHints,
+                thirdPartyPayment,
+                remoteWebOrigin,
+                authenticatorId,
+                publicKeyCredentialCreationOptionsJson,
                 windowHandle
             )).ConfigureAwait(false);
         }
 
-            /// <summary>
-            /// Produces an assertion signature representing an assertion by the authenticator that the user has consented to a specific transaction, such as logging in or completing a purchase.
-            /// </summary>
-            public async Task<AuthenticatorAssertionResponse> AuthenticatorGetAssertionAsync(
+        /// <summary>
+        /// Produces an assertion signature representing an assertion by the authenticator that the user has consented to a specific transaction, such as logging in or completing a purchase.
+        /// </summary>
+        public async Task<AuthenticatorAssertionResponse> AuthenticatorGetAssertionAsync(
             string rpId,
             CollectedClientData clientData,
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
             int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
             IReadOnlyList<PublicKeyCredentialDescriptor> allowCredentials = null,
-            AuthenticationExtensionsClientInputs extenstions = null,
+            AuthenticationExtensionsClientInputs extensions = null,
             CredentialLargeBlobOperation largeBlobOperation = CredentialLargeBlobOperation.None,
             byte[] largeBlob = null,
             bool browserInPrivateMode = false,
             HybridStorageLinkedData linkedDevice = null,
+            bool autoFill = false,
+            PublicKeyCredentialHint[] credentialHints = null,
+            string remoteWebOrigin = null,
+            byte[] authenticatorId = null,
+            byte[] publicKeyCredentialRequestOptionsJson = null,
             WindowHandle windowHandle = default,
             CancellationToken cancellationToken = default
             )
@@ -169,11 +205,16 @@ namespace DSInternals.Win32.WebAuthn
                 authenticatorAttachment,
                 timeoutMilliseconds,
                 allowCredentials,
-                extenstions,
+                extensions,
                 largeBlobOperation,
                 largeBlob,
                 browserInPrivateMode,
                 linkedDevice,
+                autoFill,
+                credentialHints,
+                remoteWebOrigin,
+                authenticatorId,
+                publicKeyCredentialRequestOptionsJson,
                 windowHandle
             )).ConfigureAwait(false);
         }

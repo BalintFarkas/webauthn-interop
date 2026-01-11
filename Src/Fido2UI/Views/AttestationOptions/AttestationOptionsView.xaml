@@ -117,7 +117,7 @@
             <GroupBox Header="Request">
                 <DockPanel>
                     <DockPanel DockPanel.Dock="Top">
-                        <Label Name="AttestationLabel" Content="Attestation:" Width="80" VerticalAlignment="Center" />
+                        <Label Name="AttestationLabel" Content="Attestation:" Width="135" VerticalAlignment="Center" />
                         <ComboBox Name="AttestationComboBox" ItemsSource="{Binding AttestationTypes, Mode=OneTime}" SelectedValue="{Binding AttestationConveyancePreference, Mode=TwoWay}" DisplayMemberPath="Value" SelectedValuePath="Key" VerticalAlignment="Center" Width="90" TabIndex="18" />
                         <Label Name="EnterpriseAttestationLabel" Content="Enterprise attestation:" Width="140" VerticalAlignment="Center" />
                         <ComboBox Name="EnterpriseAttestationComboBox" ItemsSource="{Binding EnterpriseAttestationTypes, Mode=OneTime}" SelectedValue="{Binding EnterpriseAttestation, Mode=TwoWay}" DisplayMemberPath="Value" SelectedValuePath="Key" VerticalAlignment="Center" Width="160" TabIndex="19" />
@@ -127,12 +127,12 @@
                     </DockPanel>
                     <DockPanel DockPanel.Dock="Top">
                         <Button Name="GenerateChallengeButton" Content="Generate challenge" ToolTip="Generate a random challenge" VerticalAlignment="Center" Command="{Binding GenerateChallengeCommand}" DockPanel.Dock="Right" TabIndex="24" />
-                        <Label Name="RemoteWebOriginLabel" Content="Remote web origin:" VerticalAlignment="Center" />
-                        <TextBox Name="RemoteWebOriginTextBox" Text="{Binding RemoteWebOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TabIndex="22" ToolTip="Optional remote web origin for cross-device WebAuthn operations" Width="200" />
-                        <CheckBox Name="ThirdPartyPaymentCheckBox" IsChecked="{Binding ThirdPartyPayment, Mode=TwoWay}" Content="Third-party payment" VerticalAlignment="Center" TabIndex="23" Margin="20,0,0,0" />
+                        <CheckBox Name="ThirdPartyPaymentCheckBox" IsChecked="{Binding ThirdPartyPayment, Mode=TwoWay}" Content="Third-party payment" VerticalAlignment="Center" TabIndex="23" DockPanel.Dock="Right" Margin="20,0,10,0" />
+                        <Label Name="RemoteWebOriginLabel" Width="135" Content="Remote web origin:" VerticalAlignment="Center" DockPanel.Dock="Left" />
+                        <TextBox Name="RemoteWebOriginTextBox" Text="{Binding RemoteWebOrigin, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TabIndex="22" ToolTip="Optional remote web origin for cross-device WebAuthn operations" />
                     </DockPanel>
                     <DockPanel>
-                        <Label Name="ChallengeLabel" Content="Challenge:" Width="80" />
+                        <Label Name="ChallengeLabel" Content="Challenge:" Width="135" />
                         <TextBox Name="ChallengeTextBox" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MinHeight="100" ToolTip="Random challenge in Base64url encoding" TabIndex="25">
                             <TextBox.Text>
                                 <Binding Path="ChallengeString" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">

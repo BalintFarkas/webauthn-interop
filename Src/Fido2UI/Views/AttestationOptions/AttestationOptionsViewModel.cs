@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Windows.Input;
 using DSInternals.Win32.WebAuthn.COSE;
@@ -143,7 +143,7 @@ public class AttestationOptionsViewModel : BindableBase, IAttestationOptionsView
             byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
             if (SetProperty(ref _challenge, binaryValue, nameof(Challenge)))
             {
-               RaisePropertyChanged(nameof(ChallengeString));
+                RaisePropertyChanged(nameof(ChallengeString));
             }
         }
     }

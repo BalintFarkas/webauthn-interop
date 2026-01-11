@@ -8,7 +8,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
     /// </summary>
     /// <remarks>Corresponds to WEBAUTHN_CREDENTIAL_EX.</remarks>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal class  CredentialEx : IDisposable
+    internal class CredentialEx : IDisposable
     {
         /// <summary>
         /// Version of this structure, to allow for modifications in the future.
