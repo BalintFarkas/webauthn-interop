@@ -77,7 +77,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter
 
         public static PublicKeyCredentialDescriptor Translate(Fido2NetLib.Objects.PublicKeyCredentialDescriptor credential)
         {
-            if(credential == null)
+            if (credential == null)
             {
                 throw new ArgumentNullException(nameof(credential));
             }

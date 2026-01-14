@@ -14,7 +14,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
 
             // Parse
             var request = JsonSerializer.Deserialize<AuthenticationExtensionsClientInputs>(jsonRequest);
-            Assert.AreEqual(true, request.HmacCreateSecret);
+            Assert.IsTrue(request.HmacCreateSecret);
             Assert.AreEqual(UserVerification.Optional, request.CredProtect);
             Assert.IsFalse(request.EnforceCredProtect);
 
@@ -47,7 +47,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
 
             // Parse
             var response = JsonSerializer.Deserialize<AuthenticationExtensionsClientOutputs>(jsonResponse);
-            Assert.AreEqual(true, response.HmacSecret);
+            Assert.IsTrue(response.HmacSecret);
             Assert.AreEqual(UserVerification.Optional, response.CredProtect);
 
             // Serialize
@@ -109,7 +109,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
             using (var nativeExtensionList = ApiHelper.Translate(extensions))
             using (var nativeExtensions = new ExtensionsIn(nativeExtensionList.ToArray()))
             {
-                Assert.AreEqual(2, nativeExtensionList.Count);
+                Assert.HasCount(2, nativeExtensionList);
                 var hmacSecret = nativeExtensionList.Find(extension => extension.Identifier == ApiConstants.ExtensionIdentifierHmacSecret);
                 var credProtect = nativeExtensionList.Find(extension => extension.Identifier == ApiConstants.ExtensionIdentifierCredProtect);
             }

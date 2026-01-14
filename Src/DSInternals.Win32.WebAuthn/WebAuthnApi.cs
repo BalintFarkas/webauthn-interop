@@ -177,6 +177,22 @@ namespace DSInternals.Win32.WebAuthn
         }
 
         /// <summary>
+        /// Constructs the WebAuthn origin from a relying party ID.
+        /// </summary>
+        /// <param name="relyingPartyId">The relying party identifier (e.g., "login.microsoft.com").</param>
+        /// <returns>The origin URL (e.g., "https://login.microsoft.com").</returns>
+        /// <exception cref="ArgumentNullException">Thrown when relyingPartyId is null.</exception>
+        public static string GetOriginFromRelyingPartyId(string relyingPartyId)
+        {
+            if (relyingPartyId == null)
+            {
+                throw new ArgumentNullException(nameof(relyingPartyId));
+            }
+
+            return new UriBuilder(Uri.UriSchemeHttps, relyingPartyId).Uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.SafeUnescaped);
+        }
+
+        /// <summary>
         ///  Initializes a new instance of the <see cref="WebAuthnApi"/> class.
         /// </summary>
         public WebAuthnApi()
@@ -262,18 +278,11 @@ namespace DSInternals.Win32.WebAuthn
 
             // TODO: Handle U2F attachment
 
-            // Add "https://" to RpId if missing
-            var origin = new UriBuilder(rpEntity.Id)
-            {
-                Scheme = Uri.UriSchemeHttps,
-                Port = -1 // Omit port number in the URI
-            };
-
             var clientData = new CollectedClientData()
             {
                 Type = ApiConstants.ClientDataCredentialCreate,
                 Challenge = challenge,
-                Origin = origin.Uri.ToString().TrimEnd('/'),
+                Origin = GetOriginFromRelyingPartyId(rpEntity.Id),
                 CrossOrigin = false
             };
 
@@ -524,17 +533,11 @@ namespace DSInternals.Win32.WebAuthn
 
             // TODO: Handle U2F attachment
 
-            // Add "https://" to RpId if missing
-            var origin = new UriBuilder(rpId)
-            {
-                Scheme = Uri.UriSchemeHttps
-            };
-
             var clientData = new CollectedClientData()
             {
                 Type = ApiConstants.ClientDataCredentialGet,
                 Challenge = challenge,
-                Origin = origin.Uri.ToString(),
+                Origin = GetOriginFromRelyingPartyId(rpId),
                 CrossOrigin = false
             };
 
@@ -703,6 +706,7 @@ namespace DSInternals.Win32.WebAuthn
                         // Wrap the raw results
                         return new AuthenticatorAssertionResponse()
                         {
+                            CredentialId = assertion.Credential?.Id,
                             ClientDataJson = clientDataNative.ClientDataRaw,
                             AuthenticatorData = assertion.AuthenticatorData,
                             Signature = assertion.Signature,

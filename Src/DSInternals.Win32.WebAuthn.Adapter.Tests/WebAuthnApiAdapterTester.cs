@@ -81,7 +81,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
 
             // Validate
             var fido2 = new Fido2(config);
-            var result = fido2.MakeNewCredentialAsync(response, options, (_,_) => Task.FromResult(true)).GetAwaiter().GetResult();
+            var result = fido2.MakeNewCredentialAsync(response, options, (_, _) => Task.FromResult(true)).GetAwaiter().GetResult();
             Assert.AreEqual(user.Name, result.Result.User.Name);
         }
 

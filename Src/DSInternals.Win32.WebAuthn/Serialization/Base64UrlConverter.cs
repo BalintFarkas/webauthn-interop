@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Buffers.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace DSInternals.Win32.WebAuthn
 {
@@ -90,7 +91,10 @@ namespace DSInternals.Win32.WebAuthn
                 throw new ArgumentNullException(nameof(input));
             }
 
-            return Convert.FromBase64String(Pad(input.Replace('-', '+').Replace('_', '/')));
+            // Remove any whitespace (newlines, spaces, tabs) that might have been introduced by copy-paste
+            string cleanedInput = Regex.Replace(input, @"\s", string.Empty);
+
+            return Convert.FromBase64String(Pad(cleanedInput.Replace('-', '+').Replace('_', '/')));
         }
 
         /// <summary>

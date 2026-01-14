@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Text.Json;
 using DSInternals.Win32.WebAuthn.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Text.Json;
 
 namespace DSInternals.Win32.WebAuthn.FIDO.Tests
 {
@@ -16,7 +16,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO.Tests
             var input = new CollectedClientData()
             {
                 Type = "webauthn.create",
-                Challenge = new byte[]{ 0x01, 0x02, 0x03, 0x04, 0x05},
+                Challenge = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 },
                 Origin = "https://login.microsoft.com"
             };
 

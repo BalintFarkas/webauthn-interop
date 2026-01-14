@@ -59,13 +59,25 @@ RequiredModules = @('Microsoft.Graph.Authentication','Microsoft.Graph.Identity.S
 # TypesToProcess = @()
 
 # Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
+FormatsToProcess = @('DSInternals.Passkeys.Format.ps1xml')
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @('Get-PasskeyRegistrationOptions', 'New-Passkey', 'Register-Passkey','Connect-Okta','Disconnect-Okta')
+FunctionsToExport = @(
+    'Get-PasskeyRegistrationOptions',
+    'New-Passkey',
+    'Register-Passkey',
+    'Test-Passkey',
+    'Connect-Okta',
+    'Disconnect-Okta',
+    'Get-PasskeyAuthenticatorPlugin',
+    'Get-PasskeyAuthenticator',
+    'Get-PasskeyWindowsHello',
+    'Remove-PasskeyWindowsHello',
+    'New-PasskeyRandomChallenge'
+)
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -84,9 +96,10 @@ AliasesToExport = @('Register-MgUserAuthenticationFido2Method')
 
 # List of all files packaged with this module
 FileList = @(
+    'DSInternals.Passkeys.Format.ps1xml',
     'en-US/about_DSInternals.Passkeys.help.txt'
     'en-US/DSInternals.Passkeys-help.xml',
-    'net6.0/DSInternals.Win32.WebAuthn.dll',
+    'net8.0-windows/DSInternals.Win32.WebAuthn.dll',
     'net48/DSInternals.Win32.WebAuthn.dll'
 )
 

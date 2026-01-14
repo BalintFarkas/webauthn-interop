@@ -24,7 +24,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter
         /// <returns>The credential public key associated with the credential private key.</returns>
         public AuthenticatorAttestationRawResponse AuthenticatorMakeCredential(CredentialCreateOptions options)
         {
-            if(options == null)
+            if (options == null)
             {
                 throw new ArgumentNullException(nameof(options));
             }
@@ -106,7 +106,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 timeout,
                 new ReadOnlyCollection<PublicKeyCredentialDescriptor>(allowCreds)
             );
-            
+
             return new AuthenticatorAssertionRawResponse()
             {
                 // TODO: Id = assertion..Credential.Id,

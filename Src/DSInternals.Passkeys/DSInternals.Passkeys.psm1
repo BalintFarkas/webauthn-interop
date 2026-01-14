@@ -15,6 +15,7 @@ else {
 # Needed for [Microsoft.Graph.PowerShell.Models.MicrosoftGraphFido2AuthenticationMethod] type
 Import-Module -Name Microsoft.Graph.Identity.SignIns -ErrorAction Stop
 
+# Variables used for Okta connection lifecycle management
 New-Variable -Name OktaToken -Value $null -Scope Script
 New-Variable -Name OktaRevocationInfo -Value $null -Scope Script
 
@@ -510,9 +511,6 @@ PS \> New-Passkey -Options $options
 PS \> Connect-Okta -Tenant example.okta.com -ClientId 0oakmj8hvxvtvCy3P5d7
 PS \> Get-PasskeyRegistrationOptions -UserId 00eDuihq64pgP1gVD0x7 | New-Passkey
 
-.INPUTS
-DSInternals.Win32.WebAuthn.WebauthnCredentialCreationOptions
-
 #>
 function New-Passkey
 {
@@ -532,31 +530,394 @@ function New-Passkey
         [DSInternals.Win32.WebAuthn.WebAuthnApi] $api = [DSInternals.Win32.WebAuthn.WebAuthnApi]::new()
         [DSInternals.Win32.WebAuthn.PublicKeyCredential] $credential = $api.AuthenticatorMakeCredential($Options.PublicKeyOptions)
 
-        switch ($Options.GetType())
-        {
-            ([DSInternals.Win32.WebAuthn.EntraID.MicrosoftGraphWebauthnCredentialCreationOptions])
-            {
+        switch ($Options.GetType()) {
+            ([DSInternals.Win32.WebAuthn.EntraID.MicrosoftGraphWebauthnCredentialCreationOptions]) {
                 if ([string]::IsNullOrEmpty($DisplayName)) {
                     throw "Parameter 'DisplayName' may not be null or empty."
                 }
                 return [DSInternals.Win32.WebAuthn.EntraID.MicrosoftGraphWebauthnAttestationResponse]::new($credential, $DisplayName)
             }
-            ([DSInternals.Win32.WebAuthn.Okta.OktaWebauthnCredentialCreationOptions])
-            {
+            ([DSInternals.Win32.WebAuthn.Okta.OktaWebauthnCredentialCreationOptions]) {
                 return [DSInternals.Win32.WebAuthn.Okta.OktaWebauthnAttestationResponse]::new($credential, $Options.PublicKeyOptions.User.Id, $Options.Id)
             }
         }
     }
     catch {
-        $errorRecord = New-Object Management.Automation.ErrorRecord(
+        [System.Management.Automation.ErrorRecord] $errorRecord = [System.Management.Automation.ErrorRecord]::new(
             $_,
             $_.Message,
-            [Management.Automation.ErrorCategory]::InvalidArgument,
-            $Options
+            [System.Management.Automation.ErrorCategory]::InvalidArgument,
+                $Options
+            )
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+        }
+}
+
+<#
+.SYNOPSIS
+Tests a passkey by performing an authentication assertion.
+
+.DESCRIPTION
+Performs a WebAuthn authentication assertion to test a passkey credential. This triggers the authenticator to sign a challenge,
+verifying that the passkey is working correctly.
+
+.PARAMETER RelyingPartyId
+The relying party identifier (e.g., 'login.microsoft.com').
+
+.PARAMETER Challenge
+The challenge bytes to be signed. Accepts either a byte array or a Base64Url encoded string.
+If not provided, a random challenge will be generated.
+
+.PARAMETER UserVerification
+Specifies the user verification requirement.
+
+.PARAMETER AuthenticatorAttachment
+Specifies the authenticator attachment type.
+
+.PARAMETER Timeout
+The timeout for the operation.
+
+.PARAMETER CredentialId
+An optional credential ID to test a specific credential. Accepts either a byte array or a Base64Url encoded string.
+
+.EXAMPLE
+PS \> Test-Passkey -RelyingPartyId 'login.microsoft.com'
+
+Tests any passkey registered for login.microsoft.com with a random challenge.
+
+.EXAMPLE
+PS \> $challenge = Get-PasskeyRandomChallenge -Length 32
+PS \> Test-Passkey -RelyingPartyId 'login.microsoft.com' -Challenge $challenge
+
+Tests any passkey registered for login.microsoft.com with a specific challenge.
+
+.EXAMPLE
+PS \> $credential = Get-PasskeyWindowsHello | Select-Object -First 1
+PS \> Test-Passkey -RelyingPartyId $credential.RelyingPartyInformation.Id -CredentialId $credential.CredentialId
+
+Tests a specific platform credential.
+
+#>
+function Test-Passkey
+{
+    [OutputType([DSInternals.Win32.WebAuthn.AuthenticatorAssertionResponse])]
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [Alias('RelyingParty')]
+        [Alias('RpId')]
+        [string] $RelyingPartyId,
+
+        [Parameter(Mandatory = $false)]
+        [object] $Challenge = (New-PasskeyRandomChallenge -Length 32),
+
+        [Parameter(Mandatory = $false)]
+        [DSInternals.Win32.WebAuthn.UserVerificationRequirement] $UserVerification = [DSInternals.Win32.WebAuthn.UserVerificationRequirement]::Preferred,
+
+        [Parameter(Mandatory = $false)]
+        [DSInternals.Win32.WebAuthn.AuthenticatorAttachment] $AuthenticatorAttachment = [DSInternals.Win32.WebAuthn.AuthenticatorAttachment]::Any,
+
+        [Parameter(Mandatory = $false)]
+        [timespan] $Timeout = (New-TimeSpan -Minutes 2),
+
+        [Parameter(Mandatory = $false)]
+        [object] $CredentialId
+    )
+
+    try {
+        # Convert Challenge parameter (accepts byte[] or Base64Url string)
+        [byte[]] $challengeBytes = ConvertFrom-Base64UrlParameter -InputObject $Challenge
+
+        # Convert CredentialId parameter (accepts byte[] or Base64Url string)
+        [byte[]] $credentialIdBytes = ConvertFrom-Base64UrlParameter -InputObject $CredentialId
+
+        # Build the AllowCredentials list if a specific CredentialId was provided
+        [DSInternals.Win32.WebAuthn.PublicKeyCredentialDescriptor[]] $allowCredentials = @()
+
+        if ($null -ne $credentialIdBytes -and $credentialIdBytes.Length -gt 0) {
+            $allowCredentials += [DSInternals.Win32.WebAuthn.PublicKeyCredentialDescriptor]::new($credentialIdBytes)
+        }
+
+        # Convert TimeSpan to milliseconds, while capping to [1, 10 minutes]
+        [int] $timeoutMilliseconds = [Math]::Max(1, [Math]::Min(10 * 60 * 1000, $Timeout.TotalMilliseconds))
+
+        [DSInternals.Win32.WebAuthn.WebAuthnApi] $api = [DSInternals.Win32.WebAuthn.WebAuthnApi]::new()
+
+        $response = $api.AuthenticatorGetAssertion(
+            $RelyingPartyId,
+            $challengeBytes,
+            $UserVerification,
+            $AuthenticatorAttachment,
+            $timeoutMilliseconds,
+            $allowCredentials,
+            $null,  # extensions
+            [DSInternals.Win32.WebAuthn.CredentialLargeBlobOperation]::None,
+            $null,  # largeBlob
+            $false, # browserInPrivateMode
+            $null,  # linkedDevice
+            $false, # autoFill
+            $null,  # credentialHints
+            $null,  # remoteWebOrigin
+            $null,  # authenticatorId
+            $null,  # publicKeyCredentialRequestOptionsJson
+            [DSInternals.Win32.WebAuthn.WindowHandle]::ForegroundWindow
         )
+
+        return $response
+    }
+    catch {
+        [System.Management.Automation.ErrorRecord] $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+            $_.Exception,
+            $_.Exception.Message,
+            [System.Management.Automation.ErrorCategory]::InvalidOperation,
+            $RelyingPartyId
+        )
+
         $PSCmdlet.ThrowTerminatingError($errorRecord)
     }
+}
 
+<#
+.SYNOPSIS
+Gets the list of registered authenticator plugins from the Windows registry.
+
+.DESCRIPTION
+Retrieves information about third-party passkey providers (such as 1Password, Bitwarden, etc.) that are registered
+as authenticator plugins in Windows. These plugins are registered under HKLM\SOFTWARE\Microsoft\FIDO.
+
+.EXAMPLE
+PS \> Get-PasskeyAuthenticatorPlugin
+
+Lists all registered authenticator plugins.
+
+.EXAMPLE
+PS \> Get-PasskeyAuthenticatorPlugin | Where-Object Enabled -eq $true
+
+Lists only enabled authenticator plugins.
+
+.EXAMPLE
+PS \> Get-PasskeyAuthenticatorPlugin | Select-Object -Property Name,PackageFamilyName,Enabled
+
+Lists authenticator plugins with selected properties.
+
+#>
+function Get-PasskeyAuthenticatorPlugin
+{
+    [OutputType([DSInternals.Win32.WebAuthn.AuthenticatorPluginInformation])]
+    [CmdletBinding()]
+    param()
+
+    try {
+        [DSInternals.Win32.WebAuthn.AuthenticatorPluginInformation[]] $plugins = [DSInternals.Win32.WebAuthn.WebAuthnApi]::GetPluginAuthenticators()
+
+        if ($null -eq $plugins -or $plugins.Count -eq 0) {
+            Write-Verbose 'No authenticator plugins found.'
+            return
+        }
+
+        foreach ($plugin in $plugins) {
+            Write-Output $plugin
+        }
+    }
+    catch {
+        [System.Management.Automation.ErrorRecord] $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+            $_.Exception,
+            $_.Exception.Message,
+            [System.Management.Automation.ErrorCategory]::ReadError,
+            $null
+        )
+
+        $PSCmdlet.ThrowTerminatingError($errorRecord)
+    }
+}
+
+<#
+.SYNOPSIS
+Gets the list of available authenticators from the WebAuthn API.
+
+.DESCRIPTION
+Retrieves a list of authenticators available on the system using the Windows WebAuthn API.
+This includes information about authenticator IDs, names, logos, and lock status.
+
+.EXAMPLE
+PS \> Get-PasskeyAuthenticator
+
+Lists all available authenticators.
+
+.EXAMPLE
+PS \> Get-PasskeyAuthenticator | Where-Object { -not $PSItem.Locked }
+
+Lists only unlocked authenticators.
+
+.EXAMPLE
+PS \> Get-PasskeyAuthenticator | Format-Table -Prperty AuthenticatorName,Locked
+
+Lists authenticator names and lock status in a table.
+
+#>
+function Get-PasskeyAuthenticator
+{
+    [OutputType([DSInternals.Win32.WebAuthn.AuthenticatorDetails])]
+    [CmdletBinding()]
+    param()
+
+    try {
+        [DSInternals.Win32.WebAuthn.AuthenticatorDetails[]] $authenticators = [DSInternals.Win32.WebAuthn.WebAuthnApi]::GetAuthenticatorList()
+
+        if ($null -eq $authenticators -or $authenticators.Count -eq 0) {
+            Write-Verbose 'No authenticators found.'
+            return
+        }
+
+        foreach ($authenticator in $authenticators) {
+            Write-Output $authenticator
+        }
+    }
+    catch {
+        [System.Management.Automation.ErrorRecord] $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+            $_.Exception,
+            $_.Exception.Message,
+            [System.Management.Automation.ErrorCategory]::ReadError,
+            $null
+        )
+
+        $PSCmdlet.ThrowTerminatingError($errorRecord)
+    }
+}
+
+<#
+.SYNOPSIS
+Gets the list of platform credentials (passkeys) stored on the system.
+
+.DESCRIPTION
+Retrieves the list of credentials stored on platform authenticators (such as Windows Hello).
+This includes information about credential IDs, relying party information, user information,
+and whether credentials are removable or backed up.
+
+.PARAMETER RelyingPartyId
+Optional relying party ID to filter credentials. If not specified, all credentials are returned.
+
+.EXAMPLE
+PS \> Get-PasskeyWindowsHello
+
+Lists all platform credentials.
+
+.EXAMPLE
+PS \> Get-PasskeyWindowsHello -RelyingPartyId 'login.microsoft.com'
+
+Lists credentials for a specific relying party.
+
+#>
+function Get-PasskeyWindowsHello
+{
+    [OutputType([DSInternals.Win32.WebAuthn.CredentialDetails])]
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false)]
+        [Alias('RpId')]
+        [string] $RelyingPartyId
+    )
+
+    try {
+        [DSInternals.Win32.WebAuthn.CredentialDetails[]] $credentials = [DSInternals.Win32.WebAuthn.WebAuthnApi]::GetPlatformCredentialList($RelyingPartyId)
+
+        if ($null -eq $credentials -or $credentials.Count -eq 0) {
+            Write-Verbose 'No platform credentials found.'
+            return
+        }
+
+        foreach ($credential in $credentials) {
+            Write-Output $credential
+        }
+    }
+    catch {
+        [System.Management.Automation.ErrorRecord] $errorRecord = [System.Management.Automation.ErrorRecord]::new(
+            $_.Exception,
+            $_.Exception.Message,
+            [System.Management.Automation.ErrorCategory]::ReadError,
+            $RelyingPartyId
+        )
+
+        $PSCmdlet.ThrowTerminatingError($errorRecord)
+    }
+}
+
+<#
+.SYNOPSIS
+Removes a platform credential (passkey) from the system.
+
+.DESCRIPTION
+Removes a Public Key Credential stored on a platform authenticator (such as Windows Hello).
+This operation is irreversible - once deleted, the credential cannot be recovered.
+
+.PARAMETER CredentialId
+The ID of the credential to be removed. This can be obtained from Get-PasskeyWindowsHello.
+Accepts either a byte array or a Base64Url encoded string.
+
+.PARAMETER Credential
+A CredentialDetails object obtained from Get-PasskeyWindowsHello.
+
+.EXAMPLE
+PS \> $cred = Get-PasskeyWindowsHello | Select-Object -First 1
+PS \> Remove-PasskeyWindowsHello -CredentialId $cred.CredentialId
+
+Removes a specific platform credential by ID.
+
+.EXAMPLE
+PS \> Get-PasskeyWindowsHello | Where-Object { $_.RelyingPartyInformation.Id -eq 'example.com' } | Remove-PasskeyWindowsHello
+
+Removes all credentials for a specific relying party using pipeline input.
+
+.EXAMPLE
+PS \> Remove-PasskeyWindowsHello -CredentialId 'dGVzdC1jcmVkZW50aWFsLWlk'
+
+Removes a credential using a Base64Url encoded credential ID.
+
+.NOTES
+Requires Windows with WebAuthn API version 4 or later (Windows 10 2004+).
+This operation requires appropriate permissions and may trigger a Windows Security prompt.
+
+#>
+function Remove-PasskeyWindowsHello
+{
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = 'High', DefaultParameterSetName = 'ByCredentialId')]
+    param(
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByCredentialId', Position = 0)]
+        [ValidateNotNull()]
+        [object] $CredentialId,
+
+        [Parameter(Mandatory = $true, ParameterSetName = 'ByCredential', ValueFromPipeline = $true)]
+        [ValidateNotNull()]
+        [DSInternals.Win32.WebAuthn.CredentialDetails] $InputObject
+    )
+    try {
+        # Get the credential ID from the appropriate parameter
+        [byte[]] $credId = $null
+
+        if ($PSCmdlet.ParameterSetName -eq 'ByCredential') {
+            $credId = $InputObject.CredentialId
+        }
+        else {
+            # Convert CredentialId from string (Base64Url) to byte[] if necessary
+            $credId = ConvertFrom-Base64UrlParameter -InputObject $CredentialId
+        }
+
+        # Confirm the operation
+        [string] $credentialIdString = [DSInternals.Win32.WebAuthn.Base64UrlConverter]::ToBase64UrlString($credId)
+        if ($PSCmdlet.ShouldProcess($credentialIdString, 'Remove platform credential')) {
+            [DSInternals.Win32.WebAuthn.WebAuthnApi]::DeletePlatformCredential($credId)
+            Write-Verbose "Successfully removed credential $credentialIdString"
+        }
+    }
+    catch {
+        Write-Error -ErrorRecord ([System.Management.Automation.ErrorRecord]::new(
+            $_.Exception,
+            $_.Exception.Message,
+            [System.Management.Automation.ErrorCategory]::WriteError,
+            $credId
+        ))
+    }
 }
 
 <#
@@ -751,7 +1112,72 @@ function Disconnect-Okta
     }
 }
 
+<#
+.SYNOPSIS
+Generates a random challenge to be used by WebAuthn.
+
+.PARAMETER Length
+The length of the challenge in bytes.
+
+.EXAMPLE
+PS \> New-PasskeyRandomChallenge -Length 32
+Generates a random 32-byte challenge.
+
+#>
+function New-PasskeyRandomChallenge
+{
+    [CmdletBinding()]
+    [OutputType([byte[]])]
+    param(
+        [Parameter(Mandatory = $false)]
+        [ValidateRange(16, 64)]
+        [int] $Length = 32
+    )
+
+    [byte[]] $challenge = [byte[]]::new($Length)
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    try {
+        $rng.GetBytes($challenge)
+        return $challenge
+    }
+    finally {
+        $rng.Dispose()
+    }
+}
+
+<#
+.SYNOPSIS
+Converts a Base64Url encoded string or byte array to a byte array.
+
+.PARAMETER InputObject
+The input object to convert. Can be a Base64Url encoded string or a byte array.
+
+.NOTES
+This is a helper function used internally for parameter conversion.
+#>
+function ConvertFrom-Base64UrlParameter
+{
+    [CmdletBinding()]
+    [OutputType([byte[]])]
+    param(
+        [Parameter(Mandatory = $false, Position = 0)]
+        [object] $InputObject
+    )
+
+    if ($null -eq $InputObject) {
+        return $null
+    } elseif ($InputObject -is [string]) {
+        # Convert from Base64Url string to byte array
+        return [DSInternals.Win32.WebAuthn.Base64UrlConverter]::FromBase64UrlString($InputObject)
+    } elseif ($null -ne ($InputObject -as [byte[]])) {
+        # Nothing to convert
+        return $InputObject
+    } else {
+        throw [System.ArgumentException]::new("The value must be a byte array or a Base64Url encoded string.")
+    }
+}
+
 New-Alias -Name Register-MgUserAuthenticationFido2Method -Value Register-Passkey
 
-Export-ModuleMember -Function 'Get-PasskeyRegistrationOptions','New-Passkey','Register-Passkey','Connect-Okta','Disconnect-Okta','Invoke-OktaWebRequest' `
+Export-ModuleMember -Function 'Get-PasskeyRegistrationOptions','New-Passkey','Register-Passkey','Test-Passkey','Connect-Okta','Disconnect-Okta','Invoke-OktaWebRequest','Get-PasskeyAuthenticatorPlugin','Get-PasskeyAuthenticator','Get-PasskeyWindowsHello','Remove-PasskeyWindowsHello', 'New-PasskeyRandomChallenge' `
                     -Alias 'Register-MgUserAuthenticationFido2Method'

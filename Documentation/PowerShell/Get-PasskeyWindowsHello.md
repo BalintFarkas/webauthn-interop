@@ -1,0 +1,68 @@
+---
+external help file: DSInternals.Passkeys-help.xml
+Module Name: DSInternals.Passkeys
+online version: https://github.com/MichaelGrafnetter/webauthn-interop/tree/main/Documentation/PowerShell/Get-PasskeyWindowsHello.md
+schema: 2.0.0
+---
+
+# Get-PasskeyWindowsHello
+
+## SYNOPSIS
+Gets the list of platform credentials (passkeys) stored on the system.
+
+## SYNTAX
+
+```
+Get-PasskeyWindowsHello [[-RelyingPartyId] <String>] [<CommonParameters>]
+```
+
+## DESCRIPTION
+Retrieves the list of credentials stored on platform authenticators (such as Windows Hello).
+This includes information about credential IDs, relying party information, user information,
+and whether credentials are removable or backed up.
+
+## EXAMPLES
+
+### EXAMPLE 1
+```
+Get-PasskeyWindowsHello
+```
+
+Lists all platform credentials.
+
+### EXAMPLE 2
+```
+Get-PasskeyWindowsHello -RelyingPartyId 'login.microsoft.com'
+```
+
+Lists credentials for a specific relying party.
+
+## PARAMETERS
+
+### -RelyingPartyId
+Optional relying party ID to filter credentials.
+If not specified, all credentials are returned.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: RpId
+
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+### DSInternals.Win32.WebAuthn.CredentialDetails
+## NOTES
+
+## RELATED LINKS

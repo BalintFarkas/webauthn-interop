@@ -63,7 +63,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
             var result = ApiMapper.Translate(input);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.Length);
+            Assert.IsEmpty(result);
         }
 
         [TestMethod]
