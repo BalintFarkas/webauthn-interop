@@ -6,10 +6,18 @@ Refreshes MD documentation files and builds MAML files.
 
 #Requires -Version 5 -Module platyPS
 
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Release', 'Debug')]
+    [string] $Configuration = 'Release'
+)
+
+
 # Set directory paths
 [string] $rootDir = Split-Path -Path $PSScriptRoot -Parent -ErrorAction Stop
 [string] $locale = 'en-US'
-[string] $modulePath = Join-Path $rootDir 'Src\DSInternals.Passkeys'
+[string] $modulePath = Join-Path $rootDir "Build\bin\PSModule\$Configuration\DSInternals.Passkeys"
 [string] $mdHelpPath = Join-Path -Path $rootDir -ChildPath 'Documentation\PowerShell' -ErrorAction Stop
 [string] $modulePagePath = Join-Path -Path $mdHelpPath -ChildPath 'README.md' -ErrorAction Stop
 [string] $xmlHelpPath = Join-Path -Path $modulePath -ChildPath $locale -ErrorAction Stop
@@ -25,7 +33,7 @@ Import-Module -Name $modulePath -ErrorAction Stop
 # New-MarkdownAboutHelp -AboutName 'DSInternals.Passkeys' -OutputFolder $mdHelpPath
 
 # Update MD files
-Update-MarkdownHelpModule -Path $mdHelpPath -ModulePagePath $modulePagePath -RefreshModulePage:$false -AlphabeticParamsOrder -UpdateInputOutput
+Update-MarkdownHelpModule -Path $mdHelpPath -ModulePagePath $modulePagePath -RefreshModulePage:$false -AlphabeticParamsOrder -UpdateInputOutput -Force
 
 # Generate the MAML file
 New-ExternalHelp -Path $mdHelpPath -OutputPath $xmlHelpPath -Force -ShowProgress

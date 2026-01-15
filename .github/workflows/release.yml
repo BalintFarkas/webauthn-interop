@@ -175,15 +175,15 @@ jobs:
       working-directory: Build/bin
       timeout-minutes: 1
       run: |
-        xcopy "DSInternals.Win32.WebAuthn/release_net48/DSInternals.Win32.WebAuthn.dll" "Fido2UI/release/" /Y /I /F
+        xcopy "DSInternals.Win32.WebAuthn/release_net48/DSInternals.Win32.WebAuthn.dll" "Fido2UI/release_net48/" /Y /I /F
         xcopy "DSInternals.Win32.WebAuthn/release_net48/DSInternals.Win32.WebAuthn.dll" "PSModule/Release/DSInternals.Passkeys/net48/" /Y /I /F
-        xcopy "DSInternals.Win32.WebAuthn/release_net6.0/DSInternals.Win32.WebAuthn.dll" "PSModule/Release/DSInternals.Passkeys/net6.0/" /Y /I /F
+        xcopy "DSInternals.Win32.WebAuthn/release_net8.0-windows/DSInternals.Win32.WebAuthn.dll" "PSModule/Release/DSInternals.Passkeys/net8.0-windows/" /Y /I /F
 
     - name: Upload Desktop App as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Fido2UI
-        path: Build/bin/Fido2UI/release/*
+        path: Build/bin/Fido2UI/release_net48/*
 
     - name: Upload PowerShell Module as Artifact
       uses: actions/upload-artifact@v4

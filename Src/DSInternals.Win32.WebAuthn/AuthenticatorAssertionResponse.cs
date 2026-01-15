@@ -21,12 +21,14 @@ namespace DSInternals.Win32.WebAuthn
         /// <summary>
         /// This attribute contains the authenticator data returned by the authenticator.
         /// </summary>
+        [JsonPropertyName("authenticatorData")]
         [JsonConverter(typeof(Base64UrlConverter))]
         public byte[] AuthenticatorData { get; set; }
 
         /// <summary>
         /// This attribute contains the raw signature returned from the authenticator.
         /// </summary>
+        [JsonPropertyName("signature")]
         [JsonConverter(typeof(Base64UrlConverter))]
         public byte[] Signature { get; set; }
 

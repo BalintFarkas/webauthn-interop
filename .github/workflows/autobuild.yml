@@ -43,7 +43,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: Fido2UI
-        path: Build/bin/Fido2UI/release/*
+        path: Build/bin/Fido2UI/release_net48/*
 
     - name: Build PowerShell Module
       working-directory: Scripts

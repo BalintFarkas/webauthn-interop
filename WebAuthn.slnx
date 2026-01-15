@@ -30,5 +30,5 @@
   <Project Path="Src/DSInternals.Win32.WebAuthn.Tests/DSInternals.Win32.WebAuthn.Tests.csproj" />
   <Project Path="Src/Fido2UI/Fido2UI.csproj" DefaultStartup="true" />
   <Project Path="Src/DSInternals.Win32.WebAuthn.Adapter/DSInternals.Win32.WebAuthn.Adapter.csproj" />
-  <Project Path="Src/DSInternals.Win32.WebAuthn.Adapter.Tests/DSInternals.Win32.WebAuthn.Adaper.Tests.csproj" />
+  <Project Path="Src/DSInternals.Win32.WebAuthn.Adapter.Tests/DSInternals.Win32.WebAuthn.Adapter.Tests.csproj" />
 </Solution>
