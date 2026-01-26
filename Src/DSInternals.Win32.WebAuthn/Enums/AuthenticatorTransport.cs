@@ -8,7 +8,7 @@ namespace DSInternals.Win32.WebAuthn
     /// <summary>
     /// Defines hints as to how clients might communicate with a particular authenticator in order to obtain an assertion for a specific credential.
     /// </summary>
-    /// <see>https://www.w3.org/TR/webauthn/#enum-transport</see>
+    /// <see href="https://www.w3.org/TR/webauthn-3/#enum-transport"/>
     [Flags]
     [JsonConverter(typeof(JsonCustomEnumConverter<AuthenticatorTransport>))]
     public enum AuthenticatorTransport : uint
@@ -16,10 +16,8 @@ namespace DSInternals.Win32.WebAuthn
         /// <summary>
         /// No transport restrictions.
         /// </summary>
-        [EnumMember(Value = "NULL")]
-#pragma warning disable CA1008 // Enums should have zero value
+        [EnumMember(Value = null)]
         NoRestrictions = 0,
-#pragma warning restore CA1008 // Enums should have zero value
 
         /// <summary>
         /// Universal Serial Bus (USB).
@@ -43,20 +41,30 @@ namespace DSInternals.Win32.WebAuthn
         BLE = PInvoke.WEBAUTHN_CTAP_TRANSPORT_BLE,
 
         /// <summary>
-        /// Hybrid Transport (QR Code).
+        /// Reserved for testing.
+        /// </summary>
+        /// <remarks>Corresponds to WEBAUTHN_CTAP_TRANSPORT_TEST.</remarks>
+        Test = PInvoke.WEBAUTHN_CTAP_TRANSPORT_TEST,
+
+        /// <summary>
+        /// Client device-specific transport (platform authenticator).
+        /// </summary>
+        /// <remarks>Corresponds to WEBAUTHN_CTAP_TRANSPORT_INTERNAL.</remarks>
+        [EnumMember(Value = "internal")]
+        Internal = PInvoke.WEBAUTHN_CTAP_TRANSPORT_INTERNAL,
+
+        /// <summary>
+        /// Hybrid Transport (QR Code / caBLE).
         /// </summary>
         /// <remarks>Corresponds to WEBAUTHN_CTAP_TRANSPORT_HYBRID.</remarks>
         [EnumMember(Value = "hybrid")]
         Hybrid = PInvoke.WEBAUTHN_CTAP_TRANSPORT_HYBRID,
 
-        /// <remarks>Corresponds to WEBAUTHN_CTAP_TRANSPORT_TEST.</remarks>
-        Test = PInvoke.WEBAUTHN_CTAP_TRANSPORT_TEST,
-
         /// <summary>
-        /// Client device-specific transport.
+        /// Smart card transport.
         /// </summary>
-        /// <remarks>Corresponds to WEBAUTHN_CTAP_TRANSPORT_INTERNAL.</remarks>
-        [EnumMember(Value = "internal")]
-        Internal = PInvoke.WEBAUTHN_CTAP_TRANSPORT_INTERNAL
+        /// <remarks>Corresponds to WEBAUTHN_CTAP_TRANSPORT_SMART_CARD.</remarks>
+        [EnumMember(Value = "smart-card")]
+        SmartCard = PInvoke.WEBAUTHN_CTAP_TRANSPORT_SMART_CARD
     }
 }

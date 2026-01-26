@@ -242,7 +242,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
                     break;
                 case COSE.KeyType.RSA:
                     var rsa = RSA.Create();
-              
+
                     var padding = _alg switch // https://www.iana.org/assignments/cose/cose.xhtml#algorithms
                     {
                         COSE.Algorithm.RS1 or COSE.Algorithm.RS256 or COSE.Algorithm.RS384 or COSE.Algorithm.RS512 => RSASignaturePadding.Pkcs1,
@@ -271,7 +271,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
 
             PublicKeyCredential pkc = new()
             {
-                AuthenticatorResponse = new AuthenticatorAttestationResponse()
+                Response = new AuthenticatorAttestationResponse()
                 {
                     AttestationObject = _attestationObject.EncodeToBytes(),
                     ClientDataJson = _clientDataJson

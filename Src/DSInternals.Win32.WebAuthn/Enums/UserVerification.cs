@@ -13,7 +13,7 @@ namespace DSInternals.Win32.WebAuthn
         /// <summary>
         /// Extension is not set.
         /// </summary>
-        [EnumMember(Value = "NULL")]
+        [EnumMember(Value = null)]
         Any = PInvoke.WEBAUTHN_USER_VERIFICATION_ANY,
 
         /// <summary>

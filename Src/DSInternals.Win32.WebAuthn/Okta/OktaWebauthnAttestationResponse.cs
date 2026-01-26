@@ -28,14 +28,14 @@ namespace DSInternals.Win32.WebAuthn.Okta
         /// </summary>
         [JsonPropertyName("attestation")]
         [JsonConverter(typeof(Base64UrlConverter))]
-        public byte[] Attestation => PublicKeyCred.AuthenticatorResponse.AttestationObject;
+        public byte[] Attestation => (PublicKeyCred.Response as AuthenticatorAttestationResponse)?.AttestationObject;
 
         /// <summary>
         /// ID of an existing user Factor.
         /// </summary>
         [JsonPropertyName("clientData")]
         [JsonConverter(typeof(Base64UrlConverter))]
-        public byte[] ClientData => PublicKeyCred.AuthenticatorResponse.ClientDataJson;
+        public byte[] ClientData => PublicKeyCred.Response.ClientDataJson;
 
         public OktaWebauthnAttestationResponse(PublicKeyCredential publicKeyCredential, byte[] userId, string factorId)
         {

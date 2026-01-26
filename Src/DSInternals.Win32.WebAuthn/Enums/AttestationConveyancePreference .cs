@@ -8,12 +8,13 @@ namespace DSInternals.Win32.WebAuthn
     /// This enumeration contains attestation conveyance options for credential generation.
     /// </summary>
     /// <see>https://www.w3.org/TR/webauthn-2/#enum-attestation-convey</see>
-    [JsonConverter(typeof(JsonStringEnumConverter<AttestationConveyancePreference>))]
+    [JsonConverter(typeof(JsonCustomEnumConverter<AttestationConveyancePreference>))]
     public enum AttestationConveyancePreference : uint
     {
         /// <remarks>
         /// Corresponds to WEBAUTHN_ATTESTATION_CONVEYANCE_PREFERENCE_ANY.
         /// </remarks>
+        [EnumMember(Value = null)]
         Any = PInvoke.WEBAUTHN_ATTESTATION_CONVEYANCE_PREFERENCE_ANY,
 
         /// <summary>
@@ -43,7 +44,5 @@ namespace DSInternals.Win32.WebAuthn
         /// </remarks>
         [EnumMember(Value = "direct")]
         Direct = PInvoke.WEBAUTHN_ATTESTATION_CONVEYANCE_PREFERENCE_DIRECT
-
-        // TODO: Enterprise AttestationConveyancePreference
     }
 }

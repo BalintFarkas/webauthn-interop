@@ -1,0 +1,135 @@
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:DSInternals.Win32.WebAuthn.PasskeyUI"
+    xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    x:Class="DSInternals.Win32.WebAuthn.PasskeyUI.MainWindow"
+    mc:Ignorable="d"
+    Icon="/Icons/app.ico"
+    Title="Passkey UI" MinHeight="950" MinWidth="1500">
+    <Window.Resources>
+        <local:ByteArrayToBase64UrlConverter x:Key="ByteArrayToBase64UrlConverter" />
+    </Window.Resources>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Load Default _Options">
+                <MenuItem Header="_Microsoft FIDO2" Command="{Binding LoadMicrosoftOptionsCommand}" />
+                <MenuItem Header="_Facebook U2F" Command="{Binding LoadFacebookOptionsCommand}" />
+                <MenuItem Header="_Google U2F" Command="{Binding LoadGoogleOptionsCommand}" />
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem Header="Windows SDK webauthn.h Header" Command="{Binding OpenHyperLinkCommand}" CommandParameter="https://learn.microsoft.com/en-us/windows/win32/api/webauthn" ToolTip="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=CommandParameter}" />
+                <MenuItem Header="WebAuthn Managed API Wrapper" Command="{Binding OpenHyperLinkCommand}" CommandParameter="https://github.com/MichaelGrafnetter/webauthn-interop#webauthn-interop-assembly" ToolTip="{Binding RelativeSource={x:Static RelativeSource.Self}, Path=CommandParameter}" />
+            </MenuItem>
+        </Menu>
+        <TabControl x:Name="MainTabControl" SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
+            <TabItem Header="Windows API Information">
+                <local:ApiInformationView x:Name="ApiInformationView" />
+            </TabItem>
+            <TabItem Header="Registration">
+                <DockPanel>
+                    <local:AttestationOptionsView x:Name="AttestationOptionsEditor" DockPanel.Dock="Top" DataContext="{Binding AttestationOptionsViewModel}" />
+                    <Button x:Name="RegisterButton" DockPanel.Dock="Top" Command="{Binding RegisterCommand}" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8FA;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="_Register" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <GroupBox Name="AttestationResponseGroupBox" Header="Response">
+                        <TextBox Name="AttestationResponseTextBox" IsReadOnly="true" Text="{Binding AttestationResponse, Mode=OneWay}" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" />
+                    </GroupBox>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Authentication">
+                <DockPanel>
+                    <local:AssertionOptionsView x:Name="AssertionOptionsEditor" DockPanel.Dock="Top" DataContext="{Binding AssertionOptionsViewModel}" />
+                    <Button x:Name="AuthenticateButton" DockPanel.Dock="Top" Command="{Binding AuthenticateCommand}" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE785;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="_Authenticate" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <GroupBox Name="AssertionResponseGroupBox" Header="Response">
+                        <TextBox Name="AssertionResponseTextBox" IsReadOnly="True" Text="{Binding AssertionResponse, Mode=OneWay}" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" />
+                    </GroupBox>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Platform Credentials">
+                <DockPanel>
+                    <local:CredentialManagementView x:Name="CredentiaManager" DockPanel.Dock="Top" DataContext="{Binding CredentialManagementViewModel}" />
+                    <Button x:Name="ListCredentialsButton" DockPanel.Dock="Top" Command="{Binding ListPlatformCredentialsCommand}" HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE8B7;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="_List platform credentials" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <GroupBox Name="CredentialManagerResponseGroupBox" Header="Credentials">
+                        <DataGrid x:Name="CredentialsDataGrid"
+                                  ItemsSource="{Binding Credentials}"
+                                  AutoGenerateColumns="False"
+                                  IsReadOnly="True"
+                                  CanUserAddRows="False"
+                                  CanUserDeleteRows="False"
+                                  HeadersVisibility="Column"
+                                  GridLinesVisibility="Horizontal"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Auto"
+                                  SelectionUnit="FullRow"
+                                  SelectionMode="Single"
+                                  Focusable="False"
+                                  IsTabStop="False">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Credential ID" Width="*" SortMemberPath="CredentialId" MinWidth="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:ClipboardEnabledTextBlock Text="{Binding CredentialId, Converter={StaticResource ByteArrayToBase64UrlConverter}}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="RP ID" Width="220" SortMemberPath="RelyingPartyInformation.Id" MinWidth="80">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <local:ClipboardEnabledTextBlock Text="{Binding RelyingPartyInformation.Id}" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Header="RP Name" Binding="{Binding RelyingPartyInformation.Name}" Width="220" MinWidth="80" ElementStyle="{StaticResource DataGridTextElementStyle}" />
+                                <DataGridTextColumn Header="User Name" Binding="{Binding UserInformation.Name}" Width="250" MinWidth="80" ElementStyle="{StaticResource DataGridTextElementStyle}" />
+                                <DataGridTextColumn Header="Display Name" Binding="{Binding UserInformation.DisplayName}" Width="180" MinWidth="80" ElementStyle="{StaticResource DataGridTextElementStyle}" />
+                                <DataGridCheckBoxColumn Header="Removable" Binding="{Binding Removable, Mode=OneWay}" Width="100" MinWidth="80" />
+                                <DataGridCheckBoxColumn Header="Backed Up" Binding="{Binding BackedUp, Mode=OneWay}" Width="100" MinWidth="80" />
+                                <DataGridTemplateColumn Header="Actions" Width="80" CanUserResize="False">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <Button ToolTip="Test credential"
+                                                        Command="{Binding DataContext.TestCredentialCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource ActionButtonStyle}">
+                                                    <TextBlock Text="&#xE8D7;" FontFamily="{StaticResource FluentIcons}" FontSize="14" />
+                                                </Button>
+                                                <Button ToolTip="Delete credential"
+                                                        Command="{Binding DataContext.DeleteCredentialCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource ActionButtonStyle}">
+                                                    <TextBlock Text="&#xE74D;" FontFamily="{StaticResource FluentIcons}" FontSize="14" />
+                                                </Button>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </GroupBox>
+                </DockPanel>
+            </TabItem>
+            <TabItem Header="Authenticators">
+                <local:AuthenticatorListView />
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

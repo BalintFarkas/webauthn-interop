@@ -39,11 +39,14 @@ jobs:
         dotnet build --configuration Release --no-restore
         dotnet build --configuration Debug --no-restore
 
+    - name: Publish PasskeyUI (win-x64)
+      run: dotnet publish --runtime win-x64 --no-restore --no-build
+
     - name: Upload Desktop App as Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Fido2UI
-        path: Build/bin/Fido2UI/release_net48/*
+        name: PasskeyUI
+        path: Build/publish/PasskeyUI/release_net10.0-windows_win-x64/*
 
     - name: Build PowerShell Module
       working-directory: Scripts

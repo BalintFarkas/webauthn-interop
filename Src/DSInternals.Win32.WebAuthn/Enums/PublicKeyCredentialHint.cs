@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace DSInternals.Win32.WebAuthn;
 
@@ -8,11 +9,13 @@ namespace DSInternals.Win32.WebAuthn;
 /// <remarks>
 /// See https://w3c.github.io/webauthn/#enum-hints for more information.
 /// </remarks>
+[JsonConverter(typeof(JsonCustomEnumConverter<PublicKeyCredentialHint>))]
 public enum PublicKeyCredentialHint
 {
     /// <summary>
     /// No hint specified.
     /// </summary>
+    [EnumMember(Value = null)]
     None = 0,
 
     /// <summary>

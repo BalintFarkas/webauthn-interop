@@ -258,25 +258,16 @@
 
     <!-- Test-Passkey Custom View (Default) - JSON format with Base64Url encoding -->
     <View>
-      <Name>DSInternals.Win32.WebAuthn.AuthenticatorAssertionResponse.CustomView</Name>
+      <Name>DSInternals.Win32.WebAuthn.PublicKeyCredential.CustomView</Name>
       <ViewSelectedBy>
-        <TypeName>DSInternals.Win32.WebAuthn.AuthenticatorAssertionResponse</TypeName>
+        <TypeName>DSInternals.Win32.WebAuthn.PublicKeyCredential</TypeName>
       </ViewSelectedBy>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>
             <CustomItem>
               <ExpressionBinding>
-                <ScriptBlock>
-$json = [ordered]@{
-    id = if ($null -ne $_.CredentialId) { [DSInternals.Win32.WebAuthn.Base64UrlConverter]::ToBase64UrlString($_.CredentialId) } else { $null }
-    clientDataJSON = if ($null -ne $_.ClientDataJson) { [DSInternals.Win32.WebAuthn.Base64UrlConverter]::ToBase64UrlString($_.ClientDataJson) } else { $null }
-    authenticatorData = if ($null -ne $_.AuthenticatorData) { [DSInternals.Win32.WebAuthn.Base64UrlConverter]::ToBase64UrlString($_.AuthenticatorData) } else { $null }
-    signature = if ($null -ne $_.Signature) { [DSInternals.Win32.WebAuthn.Base64UrlConverter]::ToBase64UrlString($_.Signature) } else { $null }
-    userHandle = if ($null -ne $_.UserHandle) { [DSInternals.Win32.WebAuthn.Base64UrlConverter]::ToBase64UrlString($_.UserHandle) } else { $null }
-}
-$json | ConvertTo-Json -Depth 10
-                </ScriptBlock>
+                <ScriptBlock>$_.ToString()</ScriptBlock>
               </ExpressionBinding>
             </CustomItem>
           </CustomEntry>

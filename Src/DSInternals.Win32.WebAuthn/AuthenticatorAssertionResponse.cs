@@ -12,13 +12,6 @@ namespace DSInternals.Win32.WebAuthn
     public class AuthenticatorAssertionResponse : AuthenticatorResponse
     {
         /// <summary>
-        /// The credential identifier of the credential used to generate this assertion.
-        /// </summary>
-        [JsonPropertyName("id")]
-        [JsonConverter(typeof(Base64UrlConverter))]
-        public byte[] CredentialId { get; set; }
-
-        /// <summary>
         /// This attribute contains the authenticator data returned by the authenticator.
         /// </summary>
         [JsonPropertyName("authenticatorData")]

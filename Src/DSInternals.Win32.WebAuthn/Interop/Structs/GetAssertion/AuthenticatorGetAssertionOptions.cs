@@ -21,7 +21,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// Time that the operation is expected to complete within.
         /// </summary>
         /// <remarks>This is used as guidance, and can be overridden by the platform.</remarks>
-        public int TimeoutMilliseconds { get; set; } = ApiConstants.DefaultTimeoutMilliseconds;
+        public uint TimeoutMilliseconds { get; set; } = ApiConstants.DefaultTimeoutMilliseconds;
 
         /// <summary>
         /// The list of allowed credentials to be used in the assertion.

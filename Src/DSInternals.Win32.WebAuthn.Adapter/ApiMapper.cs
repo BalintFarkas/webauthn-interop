@@ -176,5 +176,16 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                     throw new NotSupportedException();
             }
         }
+
+        public static ResidentKeyRequirement TranslateResidentKey(bool? requireResidentKey)
+        {
+            // Map from WebAuthn Level 1 boolean to ResidentKeyRequirement
+            if (requireResidentKey == true)
+            {
+                return ResidentKeyRequirement.Required;
+            }
+
+            return ResidentKeyRequirement.Discouraged;
+        }
     }
 }

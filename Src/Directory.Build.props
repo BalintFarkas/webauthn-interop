@@ -28,8 +28,8 @@
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <EnablePackageValidation>true</EnablePackageValidation>
 
-    <!-- Configure publishing options -->
-    <PublishRelease>true</PublishRelease>
+    <!-- Only the UI app is publishable, while other projects are not. -->
+    <IsPublishable>false</IsPublishable>
 
     <!-- Turn off reference assembly generation -->
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>

@@ -32,9 +32,9 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             var rp = ApiMapper.Translate(options.Rp);
             var credParams = ApiMapper.Translate(options.PubKeyCredParams);
             var excludeCreds = ApiMapper.Translate(options.ExcludeCredentials);
-            int timeout = checked((int)options.Timeout);
+            uint timeout = checked((uint)options.Timeout);
             var uv = ApiMapper.Translate(options.AuthenticatorSelection?.UserVerification);
-            bool rk = options.AuthenticatorSelection?.RequireResidentKey ?? false;
+            var rk = ApiMapper.TranslateResidentKey(options.AuthenticatorSelection?.RequireResidentKey);
             var attachment = ApiMapper.Translate(options.AuthenticatorSelection?.AuthenticatorAttachment);
             var attestationPref = ApiMapper.Translate(options.Attestation);
             var user = ApiMapper.Translate(options.User);
@@ -48,7 +48,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 rk,
                 credParams,
                 attestationPref,
-                timeout,
+                options.Timeout,
                 new ReadOnlyCollection<PublicKeyCredentialDescriptor>(excludeCreds)
             );
 
@@ -60,8 +60,8 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 // TODO: Extensions = ApiMapper.Translate(attestation.Extensions),
                 Response = new AuthenticatorAttestationRawResponse.ResponseData()
                 {
-                    AttestationObject = attestation.AuthenticatorResponse.AttestationObject,
-                    ClientDataJson = attestation.AuthenticatorResponse.ClientDataJson
+                    AttestationObject = (attestation.Response as AuthenticatorAttestationResponse).AttestationObject,
+                    ClientDataJson = attestation.Response.ClientDataJson
                 }
             };
         }
@@ -86,7 +86,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             }
 
             var allowCreds = ApiMapper.Translate(options.AllowCredentials);
-            int timeout = checked((int)options.Timeout);
+            uint timeout = checked((uint)options.Timeout);
             var attachment = ApiMapper.Translate(authenticatorAttachment);
             var uv = ApiMapper.Translate(options.UserVerification);
             // TODO: U2fAppId = options.Extensions?.AppID
@@ -103,7 +103,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 options.Challenge,
                 uv,
                 attachment,
-                timeout,
+                options.Timeout,
                 new ReadOnlyCollection<PublicKeyCredentialDescriptor>(allowCreds)
             );
 
@@ -114,10 +114,10 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 Type = PublicKeyCredentialType.PublicKey,
                 Response = new AuthenticatorAssertionRawResponse.AssertionResponse()
                 {
-                    AuthenticatorData = assertion.AuthenticatorData,
-                    Signature = assertion.Signature,
-                    UserHandle = assertion.UserHandle,
-                    ClientDataJson = assertion.ClientDataJson
+                    AuthenticatorData = (assertion.Response as AuthenticatorAssertionResponse).AuthenticatorData,
+                    Signature = (assertion.Response as AuthenticatorAssertionResponse).Signature,
+                    UserHandle = (assertion.Response as AuthenticatorAssertionResponse).UserHandle,
+                    ClientDataJson = assertion.Response.ClientDataJson
                 },
             };
         }

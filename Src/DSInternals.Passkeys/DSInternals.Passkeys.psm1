@@ -600,7 +600,7 @@ Tests a specific platform credential.
 #>
 function Test-Passkey
 {
-    [OutputType([DSInternals.Win32.WebAuthn.AuthenticatorAssertionResponse])]
+    [OutputType([DSInternals.Win32.WebAuthn.PublicKeyCredential])]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory = $true)]

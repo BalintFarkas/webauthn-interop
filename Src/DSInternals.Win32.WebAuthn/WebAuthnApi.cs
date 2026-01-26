@@ -222,7 +222,7 @@ namespace DSInternals.Win32.WebAuthn
                 challenge: options.Challenge,
                 userVerificationRequirement: options.AuthenticatorSelection.UserVerificationRequirement,
                 authenticatorAttachment: options.AuthenticatorSelection.AuthenticatorAttachment,
-                requireResidentKey: options.AuthenticatorSelection.RequireResidentKey,
+                residentKey: options.AuthenticatorSelection.ResidentKey,
                 pubKeyCredParams: options.PublicKeyCredentialParameters.Select(p => p.Algorithm).ToArray(),
                 attestationConveyancePreference: options.Attestation,
                 timeoutMilliseconds: options.TimeoutMilliseconds,
@@ -241,15 +241,14 @@ namespace DSInternals.Win32.WebAuthn
             byte[] challenge,
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
-            bool requireResidentKey = false,
+            ResidentKeyRequirement residentKey = ResidentKeyRequirement.Discouraged,
             COSE.Algorithm[]? pubKeyCredParams = null,
             AttestationConveyancePreference attestationConveyancePreference = AttestationConveyancePreference.Any,
-            int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
+            uint timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
             IReadOnlyList<PublicKeyCredentialDescriptor>? excludeCredentials = null,
             EnterpriseAttestationType enterpriseAttestation = EnterpriseAttestationType.None,
             AuthenticationExtensionsClientInputs? extensions = null,
             LargeBlobSupport largeBlobSupport = LargeBlobSupport.None,
-            bool preferResidentKey = false,
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
             HybridStorageLinkedData? linkedDevice = null,
@@ -292,7 +291,7 @@ namespace DSInternals.Win32.WebAuthn
                 clientData,
                 userVerificationRequirement,
                 authenticatorAttachment,
-                requireResidentKey,
+                residentKey,
                 pubKeyCredParams,
                 attestationConveyancePreference,
                 timeoutMilliseconds,
@@ -300,7 +299,6 @@ namespace DSInternals.Win32.WebAuthn
                 enterpriseAttestation,
                 extensions,
                 largeBlobSupport,
-                preferResidentKey,
                 browserInPrivateMode,
                 enablePseudoRandomFunction,
                 linkedDevice,
@@ -323,15 +321,14 @@ namespace DSInternals.Win32.WebAuthn
             CollectedClientData clientData,
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
-            bool requireResidentKey = false,
+            ResidentKeyRequirement residentKey = ResidentKeyRequirement.Discouraged,
             COSE.Algorithm[]? pubKeyCredParams = null,
             AttestationConveyancePreference attestationConveyancePreference = AttestationConveyancePreference.Any,
-            int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
+            uint timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
             IReadOnlyList<PublicKeyCredentialDescriptor>? excludeCredentials = null,
             EnterpriseAttestationType enterpriseAttestation = EnterpriseAttestationType.None,
             AuthenticationExtensionsClientInputs? extensions = null,
             LargeBlobSupport largeBlobSupport = LargeBlobSupport.None,
-            bool preferResidentKey = false,
             bool browserInPrivateMode = false,
             bool enablePseudoRandomFunction = false,
             HybridStorageLinkedData? linkedDevice = null,
@@ -443,8 +440,11 @@ namespace DSInternals.Win32.WebAuthn
                     options.Extensions = nativeExtensions;
                     options.ExcludeCredentials = excludeCredList;
                     options.ExcludeCredentialsEx = excludeCredListEx;
-                    options.RequireResidentKey = requireResidentKey;
-                    options.PreferResidentKey = preferResidentKey;
+
+                    // Map ResidentKeyRequirement to Windows API bools
+                    options.RequireResidentKey = residentKey == ResidentKeyRequirement.Required;
+                    options.PreferResidentKey = residentKey == ResidentKeyRequirement.Preferred || residentKey == ResidentKeyRequirement.Required;
+
                     options.EnterpriseAttestation = enterpriseAttestation;
                     options.LargeBlobSupport = largeBlobSupport;
                     options.BrowserInPrivateMode = browserInPrivateMode;
@@ -476,11 +476,13 @@ namespace DSInternals.Win32.WebAuthn
                         return new PublicKeyCredential()
                         {
                             Id = attestation.CredentialId,
-                            AuthenticatorResponse = new AuthenticatorAttestationResponse()
+                            RawId = attestation.CredentialId,
+                            Response = new AuthenticatorAttestationResponse()
                             {
                                 ClientDataJson = clientDataNative.ClientDataRaw,
                                 AttestationObject = attestation.AttestationObject,
                             },
+                            AuthenticatorAttachment = authenticatorAttachment != AuthenticatorAttachment.Any ? authenticatorAttachment : null,
                             ClientExtensionResults = new AuthenticationExtensionsClientOutputs()
                             {
                                 HmacSecret = attestation.Extensions?.HmacSecret ?? false,
@@ -501,12 +503,12 @@ namespace DSInternals.Win32.WebAuthn
         /// <summary>
         /// Produces an assertion signature representing an assertion by the authenticator that the user has consented to a specific transaction, such as logging in or completing a purchase.
         /// </summary>
-        public AuthenticatorAssertionResponse AuthenticatorGetAssertion(
+        public PublicKeyCredential AuthenticatorGetAssertion(
             string rpId,
             byte[] challenge,
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
-            int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
+            uint timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
             IReadOnlyList<PublicKeyCredentialDescriptor>? allowCredentials = null,
             AuthenticationExtensionsClientInputs? extensions = null,
             CredentialLargeBlobOperation largeBlobOperation = CredentialLargeBlobOperation.None,
@@ -565,12 +567,12 @@ namespace DSInternals.Win32.WebAuthn
         /// <summary>
         /// Produces an assertion signature representing an assertion by the authenticator that the user has consented to a specific transaction, such as logging in or completing a purchase.
         /// </summary>
-        public AuthenticatorAssertionResponse AuthenticatorGetAssertion(
+        public PublicKeyCredential AuthenticatorGetAssertion(
             string rpId,
             CollectedClientData clientData,
             UserVerificationRequirement userVerificationRequirement,
             AuthenticatorAttachment authenticatorAttachment = AuthenticatorAttachment.Any,
-            int timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
+            uint timeoutMilliseconds = ApiConstants.DefaultTimeoutMilliseconds,
             IReadOnlyList<PublicKeyCredentialDescriptor>? allowCredentials = null,
             AuthenticationExtensionsClientInputs? extensions = null,
             CredentialLargeBlobOperation largeBlobOperation = CredentialLargeBlobOperation.None,
@@ -692,25 +694,36 @@ namespace DSInternals.Win32.WebAuthn
                     {
                         var assertion = assertionHandle.ToManaged();
 
-                        var extensionsOut = new AuthenticationExtensionsClientOutputs()
+                        AuthenticationExtensionsClientOutputs? extensionsOut = null;
+
+                        if (assertion.HmacSecret != null)
                         {
-                            HmacGetSecret = new HMACGetSecretOutput
+                            extensionsOut = new AuthenticationExtensionsClientOutputs
                             {
-                                Output1 = assertion.HmacSecret?.First,
-                                Output2 = assertion.HmacSecret?.Second,
-                            }
-                        };
+                                HmacGetSecret = new HMACGetSecretOutput
+                                {
+                                    Output1 = assertion.HmacSecret?.First,
+                                    Output2 = assertion.HmacSecret?.Second,
+                                }
+                            };
+                        }
 
                         byte[]? credBlob = assertion.Extensions?.CredBlob;
 
                         // Wrap the raw results
-                        return new AuthenticatorAssertionResponse()
+                        return new PublicKeyCredential()
                         {
-                            CredentialId = assertion.Credential?.Id,
-                            ClientDataJson = clientDataNative.ClientDataRaw,
-                            AuthenticatorData = assertion.AuthenticatorData,
-                            Signature = assertion.Signature,
-                            UserHandle = assertion.UserId
+                            Id = assertion.Credential?.Id,
+                            RawId = assertion.Credential?.Id,
+                            ClientExtensionResults = extensionsOut,
+                            AuthenticatorAttachment = authenticatorAttachment != AuthenticatorAttachment.Any ? authenticatorAttachment : null,
+                            Response = new AuthenticatorAssertionResponse()
+                            {
+                                ClientDataJson = clientDataNative.ClientDataRaw,
+                                AuthenticatorData = assertion.AuthenticatorData,
+                                Signature = assertion.Signature,
+                                UserHandle = assertion.UserId
+                            },
                         };
                     }
                     finally

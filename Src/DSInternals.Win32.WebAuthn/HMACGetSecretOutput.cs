@@ -1,4 +1,6 @@
-﻿namespace DSInternals.Win32.WebAuthn
+﻿using System.Text.Json.Serialization;
+
+namespace DSInternals.Win32.WebAuthn
 {
     /// <summary>
     /// The response to a hmac get secret request.
@@ -9,11 +11,16 @@
         /// <summary>
         /// Output of HMAC-SHA-256(CredRandom, Salt1)
         /// </summary>
+        [JsonPropertyName("output1")]
+        [JsonRequired]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public byte[]? Output1 { get; set; }
 
         /// <summary>
         /// Output of HMAC-SHA-256(CredRandom, Salt2)
         /// </summary>
+        [JsonPropertyName("output2")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public byte[]? Output2 { get; set; }
     }
 }

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+
+### Changed
+
+- The `AuthenticatorGetAssertion` and `AuthenticatorGetAssertionAsync` methods now return `PublicKeyCredential` instead of `AuthenticatorAssertionResponse`.
+- Migrated Fido2UI from .NET Framework 4.8 to .NET 10, now published as a self-contained single-file executable.
+- Updated the application icon to a key emoji (🔑).
+- Renamed the desktop application from "FIDO2 UI" to "Passkey UI".
+
+### Fixed
+
+- Improved JSON serialization.
+
 ## [1.0.6] - 2025-01-16
 
 This is a bugfix release. Huge thanks to @aseigler for reporting and fixing the issues.

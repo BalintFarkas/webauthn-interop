@@ -8,13 +8,13 @@ namespace DSInternals.Win32.WebAuthn
     /// This enumeration describes the Relying Party's requirements regarding user verification for the create() operation.
     /// Eligible authenticators are filtered to only those capable of satisfying this requirement.
     /// </summary>
-    [JsonConverter(typeof(JsonStringEnumConverter<UserVerificationRequirement>))]
+    [JsonConverter(typeof(JsonCustomEnumConverter<UserVerificationRequirement>))]
     public enum UserVerificationRequirement : uint
     {
         /// <remarks>
         /// Corresponds to WEBAUTHN_USER_VERIFICATION_REQUIREMENT_ANY.
         /// </remarks>
-        [EnumMember(Value = "NULL")]
+        [EnumMember(Value = null)]
         Any = PInvoke.WEBAUTHN_USER_VERIFICATION_REQUIREMENT_ANY,
 
         /// <summary>

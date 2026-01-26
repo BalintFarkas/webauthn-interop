@@ -2,7 +2,14 @@
 
 namespace DSInternals.Win32.WebAuthn
 {
-    public class AuthenticatorSelection
+    /// <summary>
+    /// Specifies the Relying Party's requirements regarding authenticator attributes.
+    /// </summary>
+    /// <remarks>
+    /// Used by Relying Parties to communicate their requirements for authenticator attributes during credential creation.
+    /// </remarks>
+    /// <see href="https://www.w3.org/TR/webauthn-3/#dictdef-authenticatorselectioncriteria"/>
+    public class AuthenticatorSelectionCriteria
     {
         /// <summary>
         /// Preferred attachment modality.
@@ -19,7 +26,15 @@ namespace DSInternals.Win32.WebAuthn
         public UserVerificationRequirement UserVerificationRequirement { get; set; }
 
         /// <summary>
-        /// Preferred client-side credential discoverability.
+        /// Specifies the extent to which the Relying Party desires to create a client-side discoverable credential.
+        /// </summary>
+        [JsonPropertyName("residentKey")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public ResidentKeyRequirement ResidentKey { get; set; }
+
+        /// <summary>
+        /// This member is retained for backwards compatibility with WebAuthn Level 1.
+        /// Relying Parties SHOULD set it to true if, and only if, residentKey is set to required.
         /// </summary>
         [JsonPropertyName("requireResidentKey")]
         public bool RequireResidentKey { get; set; }

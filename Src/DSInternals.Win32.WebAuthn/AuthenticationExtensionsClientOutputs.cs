@@ -32,7 +32,7 @@ namespace DSInternals.Win32.WebAuthn
         /// <see>https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-20210615.html#sctn-hmac-secret-extension</see>
         [JsonPropertyName("hmacGetSecret")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public HMACGetSecretOutput HmacGetSecret { get; set; }
+        public HMACGetSecretOutput? HmacGetSecret { get; set; }
 
         [JsonPropertyName("minPinLength")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

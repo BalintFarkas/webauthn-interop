@@ -30,7 +30,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
         /// <summary>
         /// Default timeut for WebAuthn operations.
         /// </summary>
-        public const int DefaultTimeoutMilliseconds = 60000;
+        public const uint DefaultTimeoutMilliseconds = 60000;
 
         /// <summary>
         /// Default length of the random challenges in bytes.

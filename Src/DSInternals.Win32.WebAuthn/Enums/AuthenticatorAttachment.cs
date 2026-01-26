@@ -18,7 +18,7 @@ namespace DSInternals.Win32.WebAuthn
         /// <remarks>
         /// Corresponds to WEBAUTHN_AUTHENTICATOR_ATTACHMENT_ANY.
         /// </remarks>
-        [EnumMember(Value = "NULL")]
+        [EnumMember(Value = null)]
         Any = PInvoke.WEBAUTHN_AUTHENTICATOR_ATTACHMENT_ANY,
 
         /// <summary>
