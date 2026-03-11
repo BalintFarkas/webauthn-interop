@@ -23,10 +23,10 @@ jobs:
       DOTNET_CLI_TELEMETRY_OPTOUT: true
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
           cache: true
           cache-dependency-path: 'Src/*/packages.lock.json'
@@ -40,10 +40,10 @@ jobs:
         dotnet build --configuration Debug --no-restore
 
     - name: Publish PasskeyUI (win-x64)
-      run: dotnet publish --runtime win-x64 --no-restore --no-build
+      run: dotnet publish --configuration Release --runtime win-x64 --no-restore
 
     - name: Upload Desktop App as Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: PasskeyUI
         path: Build/publish/PasskeyUI/release_net10.0-windows_win-x64/*
@@ -67,7 +67,7 @@ jobs:
       run: Src/DSInternals.Passkeys/Test.ps1 -ModulePath "${{github.workspace}}/Build/bin/PSModule/Release/DSInternals.Passkeys"
 
     - name: Upload PowerShell Module as Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: PowerShell
         path: Build/bin/PSModule/Release/*
@@ -76,7 +76,7 @@ jobs:
       run: dotnet pack --configuration Release --no-build
 
     - name: Upload NuGet Packages as Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: NuGet
         path: Build/package/release/*nupkg
@@ -93,7 +93,7 @@ jobs:
 
     - name: Cache DotNet Global Tools
       id: cache-dotnet-globaltools
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: ~/.dotnet/tools
         # Heuristics: The current list of required global tools is defined in this workflow file.
@@ -108,7 +108,7 @@ jobs:
       run: reportgenerator -reports:*/coverage.cobertura.xml -targetdir:. -reporttypes:"HtmlSummary" -title:"WebAuthn Interop Assembly"
 
     - name: Upload Test Results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: TestResults
         path: |
@@ -116,29 +116,36 @@ jobs:
             !**/*.htm
 
   analyze:
-    name: CodeQL
+    name: Analyze (${{ matrix.language }})
     runs-on: windows-latest
     permissions:
+      security-events: write
+      packages: read
+      # only required for workflows in private repositories
       actions: read
       contents: read
-      security-events: write
 
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'csharp' ]
+        include:
+        - language: actions
+          build-mode: none
+        - language: csharp
+          build-mode: none
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
-
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+        build-mode: ${{ matrix.build-mode }}
+        queries: code-scanning # Options: code-scanning, security-extended, security-and-quality
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v4
+      with:
+        category: "/language:${{ matrix.language }}"

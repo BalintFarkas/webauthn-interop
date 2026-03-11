@@ -254,6 +254,7 @@
         "contentHash": "+RJT4qaekpZ7DDLhf+LTjq+E48jieKiY9ulJ+BoxKmZblIJfIJT8Ufcaa/clQqnYvWs8jugfGSMu8ylS0caG0w=="
       }
     },
+    ".NETFramework,Version=v4.8/win-x64": {},
     "net10.0-windows7.0": {
       "Microsoft.Identity.Client": {
         "type": "Direct",
@@ -401,6 +402,20 @@
         "type": "Transitive",
         "resolved": "1.0.0",
         "contentHash": "fpRTBsYACMp7NvTECauYRomubWTC3vUNw4hMXdIedP8ctBGK6tea9HOJwE+qVzis6MZYkL3LIs8qeY3rc6Jdlw=="
+      }
+    },
+    "net10.0-windows7.0/win-x64": {
+      "System.Diagnostics.EventLog": {
+        "type": "Direct",
+        "requested": "[9.0.3, )",
+        "resolved": "9.0.3",
+        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+      },
+      "System.Security.Cryptography.Cng": {
+        "type": "Direct",
+        "requested": "[5.0.0, )",
+        "resolved": "5.0.0",
+        "contentHash": "jIMXsKn94T9JY7PvPq/tMfqa6GAaHpElRDpmG+SuL+D3+sTw2M8VhnibKnN8Tq+4JqbPJ/f+BwtLeDMEnzAvRg=="
       }
     },
     "net8.0-windows7.0": {
@@ -559,6 +574,25 @@
         "type": "Transitive",
         "resolved": "10.0.1",
         "contentHash": "26LbFXHKd7PmRnWlkjnYgmjd5B6HYVG+1MpTO25BdxTJnx6D0O16JPAC/S4YBqjtt4YpfGj1QO/Ss6SPMGEGQw=="
+      },
+      "System.Text.Encodings.Web": {
+        "type": "Transitive",
+        "resolved": "10.0.1",
+        "contentHash": "cVAka0o1rJJ5/De0pjNs7jcaZk5hUGf1HGzUyVmE2MEB1Vf0h/8qsWxImk1zjitCbeD2Avaq2P2+usdvqgbeVQ=="
+      }
+    },
+    "net8.0-windows7.0/win-x64": {
+      "System.Diagnostics.EventLog": {
+        "type": "Direct",
+        "requested": "[9.0.3, )",
+        "resolved": "9.0.3",
+        "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
+      },
+      "System.Security.Cryptography.Cng": {
+        "type": "Direct",
+        "requested": "[5.0.0, )",
+        "resolved": "5.0.0",
+        "contentHash": "jIMXsKn94T9JY7PvPq/tMfqa6GAaHpElRDpmG+SuL+D3+sTw2M8VhnibKnN8Tq+4JqbPJ/f+BwtLeDMEnzAvRg=="
       },
       "System.Text.Encodings.Web": {
         "type": "Transitive",
