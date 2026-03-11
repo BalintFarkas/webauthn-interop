@@ -3,6 +3,9 @@ using System.Text;
 
 namespace DSInternals.Win32.WebAuthn
 {
+    /// <summary>
+    /// Converts between binary data and hexadecimal text.
+    /// </summary>
 #if NET5_0_OR_GREATER
     [Obsolete("In .NET 5+, use System.Convert.ToHexString instead.")]
 #endif
@@ -11,6 +14,12 @@ namespace DSInternals.Win32.WebAuthn
         private const string HexDigitsUpper = "0123456789ABCDEF";
         private const string HexDigitsLower = "0123456789abcdef";
 
+        /// <summary>
+        /// Converts bytes to a hexadecimal string.
+        /// </summary>
+        /// <param name="bytes">Input bytes to encode.</param>
+        /// <param name="caps">When set, outputs uppercase hexadecimal characters.</param>
+        /// <returns>Hexadecimal representation of <paramref name="bytes"/>, or null for null input.</returns>
         public static string ToHex(this byte[] bytes, bool caps = false)
         {
             if (bytes == null)
@@ -30,6 +39,11 @@ namespace DSInternals.Win32.WebAuthn
             return hex.ToString();
         }
 
+        /// <summary>
+        /// Converts a full hexadecimal string to bytes.
+        /// </summary>
+        /// <param name="hex">Hexadecimal text.</param>
+        /// <returns>Decoded bytes, or null for null or empty input.</returns>
         public static byte[] HexToBinary(this string hex)
         {
             // Trivial case
@@ -41,13 +55,17 @@ namespace DSInternals.Win32.WebAuthn
             return hex.HexToBinary(0, hex.Length);
         }
 
+        /// <summary>
+        /// Converts a substring of hexadecimal text to bytes.
+        /// </summary>
+        /// <param name="hex">Hexadecimal text.</param>
+        /// <param name="startIndex">Zero-based start index in <paramref name="hex"/>.</param>
+        /// <param name="length">Number of characters to decode.</param>
+        /// <returns>Decoded byte array.</returns>
         public static byte[] HexToBinary(this string hex, int startIndex, int length)
         {
             // Input validation
-            if (hex == null)
-            {
-                throw new ArgumentNullException(nameof(hex));
-            }
+            ArgumentNullException.ThrowIfNull(hex);
 
             if (length % 2 != 0)
             {

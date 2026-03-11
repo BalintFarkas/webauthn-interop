@@ -20,19 +20,19 @@ namespace DSInternals.Win32.WebAuthn
         /// Contains a detailed name for this account, such as "john.p.smith@example.com".
         /// </summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// Optional URL that can be used to retrieve an image containing the user's current avatar, or a data URI that contains the image data.
         /// </summary>
         [JsonPropertyName("icon")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string Icon { get; set; }
+        public string? Icon { get; set; }
 
         /// <summary>
         /// Contains the friendly name associated with the user account by the Relying Party, such as "John P. Smith".
         /// </summary>
         [JsonPropertyName("displayName")]
-        public string DisplayName { get; set; }
+        public string? DisplayName { get; set; }
     }
 }

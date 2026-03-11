@@ -3,6 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace DSInternals.Win32.WebAuthn
 {
+    /// <summary>
+    /// Represents options supplied to create a new WebAuthn public key credential.
+    /// </summary>
     public sealed class PublicKeyCredentialCreationOptions
     {
         /// <summary>

@@ -4,7 +4,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class CredentialManagementViewModel : BindableBase, ICredentialManagementViewModel
+internal sealed class CredentialManagementViewModel : BindableBase, ICredentialManagementViewModel
 {
     public CredentialManagementViewModel()
     {

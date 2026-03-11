@@ -4,13 +4,13 @@ using DSInternals.Win32.WebAuthn.COSE;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
 {
-    public interface IAttestationOptionsViewModel
+    internal interface IAttestationOptionsViewModel
     {
         RelyingPartyInformation RelyingPartyEntity { get; set; }
 
         UserInformation UserEntity { get; set; }
 
-        byte[] Challenge { get; set; }
+        byte[]? Challenge { get; set; }
 
         ResidentKeyRequirement ResidentKey { get; set; }
 

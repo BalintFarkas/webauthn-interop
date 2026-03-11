@@ -4,7 +4,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class NotificationDialogViewModel : BindableBase, IDialogAware
+internal sealed class NotificationDialogViewModel : BindableBase, IDialogAware
 {
     public DelegateCommand CloseDialogCommand
     {

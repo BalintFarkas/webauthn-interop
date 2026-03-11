@@ -60,7 +60,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         public ClientData(CollectedClientData clientData)
         {
-            this.ClientDataJson = JsonSerializer.Serialize(clientData);
+            this.ClientDataJson = JsonSerializer.Serialize(clientData, WebAuthnJsonContext.Default.CollectedClientData);
             // Note that SHA-256 is currently hardcoded in Chromium and Firefox.
             this.HashAlgId = ApiConstants.HashAlgorithmSha256;
         }

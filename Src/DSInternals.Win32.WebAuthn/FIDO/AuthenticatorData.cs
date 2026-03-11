@@ -28,7 +28,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         }
 
         /// <summary>
-        /// Flags contains information from the authenticator about the authentication 
+        /// Flags contains information from the authenticator about the authentication
         /// and whether or not certain data is present in the authenticator data.
         /// </summary>
         public AuthenticatorFlags Flags
@@ -38,7 +38,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         }
 
         /// <summary>
-        /// Signature counter, 32-bit unsigned big-endian integer. 
+        /// Signature counter, 32-bit unsigned big-endian integer.
         /// </summary>
         public uint SignatureCount
         {
@@ -47,7 +47,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         }
 
         /// <summary>
-        /// Attested credential data is a variable-length byte array added to the 
+        /// Attested credential data is a variable-length byte array added to the
         /// authenticator data when generating an attestation object for a given credential.
         /// </summary>
         public AttestedCredentialData AttestedCredentialData
@@ -75,10 +75,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         public AuthenticatorData(byte[] authData)
         {
             // Input validation
-            if (authData == null)
-            {
-                throw new ArgumentNullException(nameof(authData));
-            }
+            ArgumentNullException.ThrowIfNull(authData);
 
             if (authData.Length < MinLength)
             {
@@ -109,7 +106,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
                     if (this.Flags.HasFlag(AuthenticatorFlags.ExtensionData))
                     {
 
-                        // "CBORObject.Read: This method will read from the stream until the end 
+                        // "CBORObject.Read: This method will read from the stream until the end
                         // of the CBOR object is reached or an error occurs, whichever happens first."
                         //
                         // Read the CBOR object from the stream

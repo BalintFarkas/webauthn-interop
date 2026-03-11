@@ -54,10 +54,7 @@ namespace DSInternals.Win32.WebAuthn.Interop
 
         public static ExtensionIn CreateCredBlobAttestation(byte[] blob)
         {
-            if (blob == null)
-            {
-                throw new ArgumentNullException(nameof(blob));
-            }
+            ArgumentNullException.ThrowIfNull(blob);
 
             // Below type definitions is for WEBAUTHN_EXTENSIONS_IDENTIFIER_CRED_BLOB
             // MakeCredential Input Type:   WEBAUTHN_CRED_BLOB_EXTENSION.

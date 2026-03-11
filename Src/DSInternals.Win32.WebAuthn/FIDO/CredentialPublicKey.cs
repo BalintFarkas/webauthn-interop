@@ -7,22 +7,34 @@ using PeterO.Cbor;
 
 namespace DSInternals.Win32.WebAuthn.FIDO
 {
+    /// <summary>
+    /// Represents a parsed COSE <c>credentialPublicKey</c> structure.
+    /// </summary>
     public class CredentialPublicKey
     {
         private CBORObject _cpk;
 
+        /// <summary>
+        /// Gets the COSE key type.
+        /// </summary>
         public KeyType Type
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the COSE signature algorithm identifier.
+        /// </summary>
         public Algorithm Algorithm
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Gets the RSA public key when the key type is RSA.
+        /// </summary>
         public RSACng? RSA
         {
             get
@@ -43,6 +55,9 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             }
         }
 
+        /// <summary>
+        /// Gets the ECDSA public key when the key type is EC2.
+        /// </summary>
         public ECDsa? ECDsa
         {
             get
@@ -102,6 +117,9 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             }
         }
 
+        /// <summary>
+        /// Gets the RSA signature padding implied by the selected algorithm.
+        /// </summary>
         public RSASignaturePadding? Padding
         {
             get
@@ -130,6 +148,9 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             }
         }
 
+        /// <summary>
+        /// Gets the EdDSA public key bytes when the key type is OKP and algorithm is EdDSA.
+        /// </summary>
         public byte[]? EdDSAPublicKey
         {
             get
@@ -156,6 +177,10 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance from a CBOR credential public key object.
+        /// </summary>
+        /// <param name="cpk">CBOR representation of <c>credentialPublicKey</c>.</param>
         public CredentialPublicKey(CBORObject cpk)
         {
             _cpk = cpk ?? throw new ArgumentNullException(nameof(cpk));
@@ -163,11 +188,19 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             this.Algorithm = (Algorithm)cpk[CBORObject.FromObject(KeyCommonParameter.Alg)].AsInt32();
         }
 
+        /// <summary>
+        /// Returns a textual representation of the underlying CBOR object.
+        /// </summary>
+        /// <returns>CBOR diagnostic notation string.</returns>
         public override string ToString()
         {
             return _cpk.ToString();
         }
 
+        /// <summary>
+        /// Encodes the credential public key to raw CBOR bytes.
+        /// </summary>
+        /// <returns>CBOR-encoded key bytes.</returns>
         public byte[] GetBytes()
         {
             return _cpk.EncodeToBytes();

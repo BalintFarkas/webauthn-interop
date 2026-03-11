@@ -4,7 +4,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class ConfirmationDialogViewModel : BindableBase, IDialogAware
+internal sealed class ConfirmationDialogViewModel : BindableBase, IDialogAware
 {
     public DelegateCommand ConfirmCommand
     {

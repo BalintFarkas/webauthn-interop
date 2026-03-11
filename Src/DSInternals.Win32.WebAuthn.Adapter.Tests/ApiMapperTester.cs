@@ -22,7 +22,7 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
         public void ApiMapper_Translate_CredentialType_NullInput()
         {
             string result = ApiMapper.Translate((PublicKeyCredentialType?)null);
-            Assert.IsNull(result);
+            Assert.AreEqual("public-key", result);
         }
 
         [TestMethod]
@@ -67,10 +67,9 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void ApiMapper_Translate_PubKeyCredParams_NullInput()
         {
-            ApiMapper.Translate((IList<PubKeyCredParam>)null);
+            Assert.ThrowsExactly<ArgumentNullException>(() => ApiMapper.Translate((IReadOnlyList<PubKeyCredParam>)null!));
         }
     }
 }

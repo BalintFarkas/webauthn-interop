@@ -12,7 +12,7 @@ namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 /// <summary>
 /// Represents a passkey exported from KeePassXC (.passkey JSON format).
 /// </summary>
-public class KeePassXCPasskey
+internal sealed class KeePassXCPasskey
 {
     [JsonPropertyName("username")]
     public string? Username { get; set; }
@@ -123,6 +123,6 @@ public class KeePassXCPasskey
 
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
 [JsonSerializable(typeof(KeePassXCPasskey))]
-internal partial class PasskeyJsonContext : JsonSerializerContext
+internal sealed partial class PasskeyJsonContext : JsonSerializerContext
 {
 }

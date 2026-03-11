@@ -20,19 +20,20 @@ namespace DSInternals.Win32.WebAuthn
         /// Identifier for the RP.
         /// </summary>
         [JsonPropertyName("id")]
+        [JsonRequired]
         public string Id { get; set; }
 
         /// <summary>
         /// Contains the friendly name of the Relying Party, such as "Acme Corporation", "Widgets Inc" or "Awesome Site".
         /// </summary>
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// Optional URL pointing to RP's logo.
         /// </summary>
         [JsonPropertyName("icon")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string Icon { get; set; }
+        public string? Icon { get; set; }
     }
 }

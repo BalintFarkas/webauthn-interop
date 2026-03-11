@@ -9,12 +9,12 @@
         "cwd": "${cwd}"
       },
       {
-          "name": "Debug FIDO2 UI",
-          "type": "clr",
+          "name": "Debug Passkey UI",
+          "type": "coreclr",
           "request": "launch",
-          "program": "${workspaceFolder}/Build/bin/Debug/Fido2UI/Fido2UI.exe",
+          "program": "${workspaceFolder}/Build/bin/PasskeyUI/debug_net10.0-windows/PasskeyUI.exe",
           "args": [],
-          "cwd": "${workspaceFolder}/Build/bin/Debug/Fido2UI",
+          "cwd": "${workspaceFolder}/Build/bin/PasskeyUI/debug_net10.0-windows",
           "stopAtEntry": false,
           "console": "internalConsole",
           "preLaunchTask": "build"

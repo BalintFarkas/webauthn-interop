@@ -7,7 +7,7 @@ using DSInternals.Win32.WebAuthn.Interop;
 namespace DSInternals.Win32.WebAuthn.FIDO
 {
     /// <summary>
-    /// Attested credential data is a variable-length byte array added to the authenticator 
+    /// Attested credential data is a variable-length byte array added to the authenticator
     /// data when generating an attestation object for a given credential.
     /// </summary>
     /// <see>https://www.w3.org/TR/webauthn/#sec-attested-credential-data</see>
@@ -34,7 +34,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         }
 
         /// <summary>
-        /// The credential public key encoded in COSE_Key format, as defined in 
+        /// The credential public key encoded in COSE_Key format, as defined in
         /// Section 7 of RFC8152, using the CTAP2 canonical CBOR encoding form.
         /// </summary>
         /// <see>https://www.w3.org/TR/webauthn/#credential-public-key</see>
@@ -49,10 +49,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
         /// </summary>
         public AttestedCredentialData(BinaryReader reader)
         {
-            if (reader == null)
-            {
-                throw new ArgumentNullException(nameof(reader));
-            }
+            ArgumentNullException.ThrowIfNull(reader);
 
             // First 16 bytes is AAGUID
             byte[] aaguidBytes = reader.ReadBytes(Marshal.SizeOf(typeof(Guid)));
@@ -60,7 +57,7 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             // GUID from authenticator is big endian. If we are on a little endian system, convert.
             this.AaGuid = aaguidBytes.ToGuidBigEndian();
 
-            // Byte length of Credential ID, 16-bit unsigned big-endian integer. 
+            // Byte length of Credential ID, 16-bit unsigned big-endian integer.
             byte[] credentialIDLenBytes = reader.ReadBytes(sizeof(UInt16));
 
             // Credential ID length from authenticator is big endian.  If we are on little endian system, convert.
@@ -69,11 +66,11 @@ namespace DSInternals.Win32.WebAuthn.FIDO
             // Read the credential ID bytes
             this.CredentialId = reader.ReadBytes(credentialIDLen);
 
-            // "Determining attested credential data's length, which is variable, involves determining 
-            // credentialPublicKey's beginning location given the preceding credentialId's length, and 
+            // "Determining attested credential data's length, which is variable, involves determining
+            // credentialPublicKey's beginning location given the preceding credentialId's length, and
             // then determining the credentialPublicKey's length"
 
-            // "CBORObject.Read: This method will read from the stream until the end 
+            // "CBORObject.Read: This method will read from the stream until the end
             // of the CBOR object is reached or an error occurs, whichever happens first."
 
             // Read the CBOR object from the stream

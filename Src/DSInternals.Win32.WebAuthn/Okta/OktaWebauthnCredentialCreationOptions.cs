@@ -4,16 +4,21 @@ using System.Text.Json.Serialization;
 
 namespace DSInternals.Win32.WebAuthn.Okta
 {
-    public class Embedded
+    /// <summary>
+    /// Wrapper object used by Okta to nest WebAuthn activation options.
+    /// </summary>
+    [method: JsonConstructor]
+    public class Embedded(PublicKeyCredentialCreationOptions options)
     {
         /// <summary>
         /// Defines public key options for the creation of a new WebAuthn public key credential.
         /// </summary>
         [JsonPropertyName("activation")]
-        public PublicKeyCredentialCreationOptions PublicKeyOptions { get; set; }
+        public PublicKeyCredentialCreationOptions PublicKeyOptions { get; set; } = options;
     }
+
     /// <summary>
-    /// 
+    /// Defines the options for creating a new WebAuthn credential in Okta's API.
     /// </summary>
     public class OktaWebauthnCredentialCreationOptions : WebauthnCredentialCreationOptions
     {
@@ -29,16 +34,38 @@ namespace DSInternals.Win32.WebAuthn.Okta
         [JsonPropertyName("_embedded")]
         public Embedded Embedded { get; set; }
 
-        public override PublicKeyCredentialCreationOptions PublicKeyOptions { get => Embedded.PublicKeyOptions; set { } }
+        /// <summary>
+        /// Gets or sets the nested WebAuthn public key credential creation options.
+        /// </summary>
+        [JsonIgnore]
+        public override PublicKeyCredentialCreationOptions PublicKeyOptions
+        {
+            get => Embedded.PublicKeyOptions;
+            set
+            {
+                if (this.Embedded == null)
+                {
+                    this.Embedded = new Embedded(value);
+                }
+                else
+                {
+                    this.Embedded.PublicKeyOptions = value;
+                }
+            }
+        }
 
+        /// <summary>
+        /// Parses a JSON payload returned by Okta into WebAuthn credential creation options.
+        /// </summary>
+        /// <param name="json">The Okta JSON payload.</param>
+        /// <returns>The parsed credential creation options.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null or empty.</exception>
         public static OktaWebauthnCredentialCreationOptions Create(string json)
         {
-            if (string.IsNullOrEmpty(json))
-            {
-                throw new ArgumentNullException(nameof(json));
-            }
+            ArgumentNullException.ThrowIfNullOrEmpty(json);
 
-            return JsonSerializer.Deserialize<OktaWebauthnCredentialCreationOptions>(json);
+            return JsonSerializer.Deserialize(json, WebAuthnJsonContext.Default.OktaWebauthnCredentialCreationOptions)
+                ?? throw new JsonException("Unable to deserialize Okta WebAuthn credential creation options.");
         }
     }
 }

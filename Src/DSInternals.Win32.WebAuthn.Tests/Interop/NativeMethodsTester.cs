@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +17,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         }
 
         [TestMethod]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0025", Justification = "Uses AssertInconclusiveException to skip on unsupported OS APIs.")]
         public void NativeMethods_GetCancellationId()
         {
             try
@@ -31,6 +33,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         }
 
         [TestMethod]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0025", Justification = "Uses AssertInconclusiveException to skip on unsupported OS APIs.")]
         public void NativeMethods_GetCancellationId_RepeatedCalls()
         {
             try
@@ -51,6 +54,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         }
 
         [TestMethod]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0025", Justification = "Uses AssertInconclusiveException to skip on unsupported OS APIs.")]
         public void NativeMethods_CancelCurrentOperation_EmptyInput()
         {
             try
@@ -65,6 +69,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         }
 
         [TestMethod]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0025", Justification = "Uses AssertInconclusiveException to skip on unsupported OS APIs.")]
         public void NativeMethods_CancelCurrentOperation_RandomInput()
         {
             try
@@ -79,6 +84,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         }
 
         [TestMethod]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0025", Justification = "Uses AssertInconclusiveException to skip on unsupported OS APIs.")]
         public void NativeMethods_CancelCurrentOperation_CorrectInput()
         {
             try
@@ -115,13 +121,15 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
         }
 
         [TestMethod]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0025", Justification = "Compares fixed interop version constants by design.")]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0032", Justification = "Compares fixed interop version constants by design.")]
         public void NativeMethods_StructVersions()
         {
             // Check that all structure definitions are in sync with the current winauthn.h
-            Assert.AreEqual(CredentialAttestationVersion.Version6, CredentialAttestationVersion.Current);
-            Assert.AreEqual(AuthenticatorMakeCredentialOptionsVersion.Version7, AuthenticatorMakeCredentialOptionsVersion.Current);
-            Assert.AreEqual(AuthenticatorGetAssertionOptionsVersion.Version7, AuthenticatorGetAssertionOptionsVersion.Current);
-            Assert.AreEqual(CredentialDetailsVersion.Version2, CredentialDetailsVersion.Current);
+            Assert.AreEqual(CredentialAttestationVersion.Version8, CredentialAttestationVersion.Current);
+            Assert.AreEqual(AuthenticatorMakeCredentialOptionsVersion.Version8, AuthenticatorMakeCredentialOptionsVersion.Current);
+            Assert.AreEqual(AuthenticatorGetAssertionOptionsVersion.Version8, AuthenticatorGetAssertionOptionsVersion.Current);
+            Assert.AreEqual(CredentialDetailsVersion.Version4, CredentialDetailsVersion.Current);
             Assert.AreEqual(GetCredentialOptionsVersion.Version1, GetCredentialOptionsVersion.Current);
             Assert.AreEqual(AssertionVersion.Version5, AssertionVersion.Current);
             Assert.AreEqual(HybridStorageLinkedDataVersion.Version1, HybridStorageLinkedDataVersion.Current);
@@ -135,7 +143,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
             Assert.AreEqual(1, (int)ClientDataVersion.Current);
 
             // Also check the API itself
-            Assert.AreEqual(ApiVersion.Version7, ApiVersion.Current);
+            Assert.AreEqual(ApiVersion.Version9, ApiVersion.Current);
         }
 
         [TestMethod]

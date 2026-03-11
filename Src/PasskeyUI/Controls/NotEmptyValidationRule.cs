@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class NotEmptyValidationRule : ValidationRule
+internal sealed class NotEmptyValidationRule : ValidationRule
 {
     public override ValidationResult Validate(object value, CultureInfo cultureInfo)
     {

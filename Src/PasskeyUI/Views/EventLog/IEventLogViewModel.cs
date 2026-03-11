@@ -4,7 +4,7 @@ using DSInternals.Win32.WebAuthn.Events;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
 {
-    public interface IEventLogViewModel
+    internal interface IEventLogViewModel
     {
         ObservableCollection<WebAuthnOperation> Operations { get; }
 

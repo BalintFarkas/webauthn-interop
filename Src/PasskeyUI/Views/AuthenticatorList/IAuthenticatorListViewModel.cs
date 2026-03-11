@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
 {
-    public interface IAuthenticatorListViewModel
+    internal interface IAuthenticatorListViewModel
     {
         ObservableCollection<AuthenticatorDetails> Authenticators { get; }
 

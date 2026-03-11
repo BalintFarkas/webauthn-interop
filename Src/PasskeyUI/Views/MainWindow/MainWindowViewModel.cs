@@ -16,9 +16,10 @@ using Prism.Navigation.Regions;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class MainWindowViewModel : BindableBase
+internal sealed class MainWindowViewModel : BindableBase
 {
     private static readonly JsonSerializerOptions _indentedJson = new() { WriteIndented = true };
+    private static readonly WebAuthnJsonContext _indentedJsonContext = new(_indentedJson);
 
     private WebAuthnApi _api { get; set; }
 
@@ -199,7 +200,7 @@ public class MainWindowViewModel : BindableBase
             );
 
             // On success, show the result in the Authentication tab
-            this.AssertionResponse = JsonSerializer.Serialize(response, _indentedJson);
+            this.AssertionResponse = JsonSerializer.Serialize(response, _indentedJsonContext.PublicKeyCredential);
 
             // Pre-fill the assertion options view model for easier retesting
             AssertionOptionsViewModel.ResetOptionsCommand.Execute(null);
@@ -263,7 +264,7 @@ public class MainWindowViewModel : BindableBase
                 windowHandle: WindowHandle.MainWindow
                 );
 
-            this.AttestationResponse = JsonSerializer.Serialize(response, _indentedJson);
+            this.AttestationResponse = JsonSerializer.Serialize(response, _indentedJsonContext.PublicKeyCredential);
         }
         catch (Exception ex)
         {
@@ -301,7 +302,7 @@ public class MainWindowViewModel : BindableBase
                 windowHandle: WindowHandle.MainWindow
             );
 
-            this.AssertionResponse = JsonSerializer.Serialize(response, _indentedJson);
+            this.AssertionResponse = JsonSerializer.Serialize(response, _indentedJsonContext.PublicKeyCredential);
         }
         catch (Exception ex)
         {
@@ -332,11 +333,22 @@ public class MainWindowViewModel : BindableBase
 
     private void OnSignAssertion()
     {
-        // Get credential ID from attestation options if present
+        // Try to extract the credential ID from the last attestation response
         string? credentialId = null;
-        if (AttestationOptionsViewModel.UserEntity?.Id is { Length: > 0 } userId)
+        if (!string.IsNullOrWhiteSpace(AttestationResponse))
         {
-            credentialId = Base64UrlConverter.ToBase64UrlString(userId);
+            try
+            {
+                var lastAttestation = JsonSerializer.Deserialize(AttestationResponse, _indentedJsonContext.PublicKeyCredential);
+                if (lastAttestation?.Id is { Length: > 0 })
+                {
+                    credentialId = Base64UrlConverter.ToBase64UrlString(lastAttestation.Id);
+                }
+            }
+            catch (JsonException)
+            {
+                // Ignore parse errors; leave credentialId null
+            }
         }
 
         var parameters = new DialogParameters

@@ -5,8 +5,14 @@ using System.Text.Json.Serialization;
 
 namespace DSInternals.Win32.WebAuthn.Okta
 {
+    /// <summary>
+    /// Represents the Okta profile metadata associated with a FIDO2 authentication method.
+    /// </summary>
     public class OktaProfile
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OktaProfile"/> class.
+        /// </summary>
         [JsonConstructor]
         public OktaProfile(
             string credentialId,
@@ -62,8 +68,14 @@ namespace DSInternals.Win32.WebAuthn.Okta
         public object FulfillmentProvider { get; }
     }
 
+    /// <summary>
+    /// Represents an Okta FIDO2 authentication method.
+    /// </summary>
     public class OktaFido2AuthenticationMethod
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OktaFido2AuthenticationMethod"/> class.
+        /// </summary>
         [JsonConstructor]
         public OktaFido2AuthenticationMethod(
             string id,
@@ -86,6 +98,12 @@ namespace DSInternals.Win32.WebAuthn.Okta
             this.Profile = profile;
         }
 
+        /// <summary>
+        /// Deserializes an Okta FIDO2 authentication method from JSON.
+        /// </summary>
+        /// <param name="json">The JSON payload returned by Okta.</param>
+        /// <returns>The deserialized authentication method.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="json"/> is null or empty.</exception>
         public static OktaFido2AuthenticationMethod FromJsonString(string json)
         {
             if (string.IsNullOrEmpty(json))
@@ -93,7 +111,7 @@ namespace DSInternals.Win32.WebAuthn.Okta
                 throw new ArgumentNullException(nameof(json));
             }
 
-            return JsonSerializer.Deserialize<OktaFido2AuthenticationMethod>(json);
+            return JsonSerializer.Deserialize(json, WebAuthnJsonContext.Default.OktaFido2AuthenticationMethod);
         }
         /// <summary>
         /// ID of the Factor

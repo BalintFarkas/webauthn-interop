@@ -12,27 +12,27 @@ namespace DSInternals.Win32.WebAuthn.Adapter
     /// </summary>
     public static class ApiMapper
     {
+        /// <summary>
+        /// Maps relying party metadata to the interop model.
+        /// </summary>
         public static RelyingPartyInformation Translate(Fido2NetLib.PublicKeyCredentialRpEntity relyingParty)
         {
-            if (relyingParty == null)
-            {
-                throw new ArgumentNullException(nameof(relyingParty));
-            }
+            ArgumentNullException.ThrowIfNull(relyingParty);
 
             return new RelyingPartyInformation()
             {
                 Id = relyingParty.Id,
                 Name = relyingParty.Name,
-                Icon = relyingParty.Icon
+                Icon = relyingParty.Icon ?? string.Empty
             };
         }
 
+        /// <summary>
+        /// Maps user information to the interop model.
+        /// </summary>
         public static UserInformation Translate(Fido2NetLib.Fido2User user)
         {
-            if (user == null)
-            {
-                throw new ArgumentNullException(nameof(user));
-            }
+            ArgumentNullException.ThrowIfNull(user);
 
             return new UserInformation()
             {
@@ -43,26 +43,35 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             };
         }
 
-        public static Algorithm[] Translate(IList<Fido2NetLib.PubKeyCredParam> credParams)
+        /// <summary>
+        /// Maps credential parameter list to supported COSE algorithms.
+        /// </summary>
+        public static Algorithm[] Translate(IReadOnlyList<Fido2NetLib.PubKeyCredParam> credParams)
         {
-            if (credParams == null)
-            {
-                throw new ArgumentNullException(nameof(credParams));
-            }
+            ArgumentNullException.ThrowIfNull(credParams);
 
             return credParams.Select(item => Translate(item.Alg)).ToArray();
         }
 
+        /// <summary>
+        /// Maps numeric COSE algorithm identifier to the interop enum.
+        /// </summary>
         public static Algorithm Translate(long algorithm)
         {
             return checked((Algorithm)algorithm);
         }
 
+        /// <summary>
+        /// Maps Fido2NetLib COSE algorithm to the interop enum.
+        /// </summary>
         public static Algorithm Translate(Fido2NetLib.Objects.COSE.Algorithm algorithm)
         {
             return checked((Algorithm)algorithm);
         }
 
+        /// <summary>
+        /// Maps allow/exclude credential descriptors to interop descriptors.
+        /// </summary>
         public static IList<PublicKeyCredentialDescriptor> Translate(IEnumerable<Fido2NetLib.Objects.PublicKeyCredentialDescriptor> credentials)
         {
             var result = new List<PublicKeyCredentialDescriptor>();
@@ -75,16 +84,19 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             return result;
         }
 
+        /// <summary>
+        /// Maps a single credential descriptor to the interop descriptor model.
+        /// </summary>
         public static PublicKeyCredentialDescriptor Translate(Fido2NetLib.Objects.PublicKeyCredentialDescriptor credential)
         {
-            if (credential == null)
-            {
-                throw new ArgumentNullException(nameof(credential));
-            }
+            ArgumentNullException.ThrowIfNull(credential);
 
-            return new PublicKeyCredentialDescriptor(credential.Id, Translate(credential.Transports), Translate(credential.Type));
+            return new PublicKeyCredentialDescriptor(credential.Id, Translate(credential.Transports ?? Array.Empty<Fido2NetLib.Objects.AuthenticatorTransport>()), Translate(credential.Type));
         }
 
+        /// <summary>
+        /// Maps transport hints to interop transport flags.
+        /// </summary>
         public static AuthenticatorTransport Translate(Fido2NetLib.Objects.AuthenticatorTransport[] transports)
         {
             if (transports == null)
@@ -97,6 +109,9 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 (transportFlags, transport) => transportFlags | Translate(transport));
         }
 
+        /// <summary>
+        /// Maps a single transport hint to interop transport flags.
+        /// </summary>
         public static AuthenticatorTransport Translate(Fido2NetLib.Objects.AuthenticatorTransport? transport)
         {
             switch (transport)
@@ -116,17 +131,24 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             }
         }
 
+        /// <summary>
+        /// Maps credential type to the WebAuthn wire type string.
+        /// </summary>
         public static string Translate(Fido2NetLib.Objects.PublicKeyCredentialType? credentialType)
         {
             switch (credentialType)
             {
                 case PublicKeyCredentialType.PublicKey:
+                case null:
                     return ApiConstants.CredentialTypePublicKey;
                 default:
-                    return null;
+                    throw new NotSupportedException("This credential type is not currently supported.");
             }
         }
 
+        /// <summary>
+        /// Maps authenticator attachment preference to interop attachment enum.
+        /// </summary>
         public static AuthenticatorAttachment Translate(Fido2NetLib.Objects.AuthenticatorAttachment? authenticatorAttachment)
         {
             switch (authenticatorAttachment)
@@ -143,6 +165,9 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             }
         }
 
+        /// <summary>
+        /// Maps user verification requirement to interop requirement enum.
+        /// </summary>
         public static UserVerificationRequirement Translate(Fido2NetLib.Objects.UserVerificationRequirement? userVerification)
         {
             switch (userVerification)
@@ -160,6 +185,9 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             }
         }
 
+        /// <summary>
+        /// Maps attestation conveyance preference to interop preference enum.
+        /// </summary>
         public static AttestationConveyancePreference Translate(Fido2NetLib.Objects.AttestationConveyancePreference? attestation)
         {
             switch (attestation)
@@ -177,6 +205,9 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             }
         }
 
+        /// <summary>
+        /// Maps Level 1 resident key boolean to interop resident key requirement.
+        /// </summary>
         public static ResidentKeyRequirement TranslateResidentKey(bool? requireResidentKey)
         {
             // Map from WebAuthn Level 1 boolean to ResidentKeyRequirement
@@ -186,6 +217,21 @@ namespace DSInternals.Win32.WebAuthn.Adapter
             }
 
             return ResidentKeyRequirement.Discouraged;
+        }
+
+        /// <summary>
+        /// Maps resident key requirement to interop resident key requirement.
+        /// </summary>
+        public static ResidentKeyRequirement TranslateResidentKey(Fido2NetLib.Objects.ResidentKeyRequirement? residentKey)
+        {
+            return residentKey switch
+            {
+                Fido2NetLib.Objects.ResidentKeyRequirement.Required => ResidentKeyRequirement.Required,
+                Fido2NetLib.Objects.ResidentKeyRequirement.Preferred => ResidentKeyRequirement.Preferred,
+                Fido2NetLib.Objects.ResidentKeyRequirement.Discouraged => ResidentKeyRequirement.Discouraged,
+                null => ResidentKeyRequirement.Discouraged,
+                _ => throw new NotSupportedException(),
+            };
         }
     }
 }

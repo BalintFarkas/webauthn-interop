@@ -12,6 +12,13 @@ namespace DSInternals.Win32.WebAuthn
     /// </summary>
     public sealed class Base64UrlConverter : JsonConverter<byte[]>
     {
+        /// <summary>
+        /// Reads a Base64Url-encoded JSON string into a byte array.
+        /// </summary>
+        /// <param name="reader">JSON reader positioned on the value.</param>
+        /// <param name="typeToConvert">Target CLR type.</param>
+        /// <param name="options">Serializer options.</param>
+        /// <returns>Decoded binary value.</returns>
         public override byte[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.HasValueSequence)
@@ -54,6 +61,12 @@ namespace DSInternals.Win32.WebAuthn
             }
         }
 
+        /// <summary>
+        /// Writes a byte array as a Base64Url-encoded JSON string.
+        /// </summary>
+        /// <param name="writer">JSON writer.</param>
+        /// <param name="value">Binary value to encode.</param>
+        /// <param name="options">Serializer options.</param>
         public override void Write(Utf8JsonWriter writer, byte[] value, JsonSerializerOptions options)
         {
             writer?.WriteStringValue(ToBase64UrlString(value));
@@ -68,10 +81,7 @@ namespace DSInternals.Win32.WebAuthn
         public static string ToBase64UrlString(byte[] input)
 #pragma warning restore CA1055 // URI-like return values should not be strings
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
+            ArgumentNullException.ThrowIfNull(input);
 
             return Convert.ToBase64String(input).
                 TrimEnd('=').
@@ -86,10 +96,7 @@ namespace DSInternals.Win32.WebAuthn
         /// <returns>The byte array represented by the encoded string</returns>
         public static byte[] FromBase64UrlString(string? input)
         {
-            if (input == null)
-            {
-                throw new ArgumentNullException(nameof(input));
-            }
+            ArgumentNullException.ThrowIfNull(input);
 
             // Remove any whitespace (newlines, spaces, tabs) that might have been introduced by copy-paste
             string cleanedInput = Regex.Replace(input, @"\s", string.Empty);

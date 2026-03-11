@@ -6,7 +6,7 @@ namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 /// Caches the last used signing dialog values so they persist across dialog invocations.
 /// Shared between both attestation and assertion signing dialogs.
 /// </summary>
-public static class SigningDialogCache
+internal static class SigningDialogCache
 {
     public static string? AaGuidString { get; set; }
     public static Algorithm? SelectedAlgorithm { get; set; }

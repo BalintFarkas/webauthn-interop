@@ -65,7 +65,7 @@
                         <Button x:Name="SignAssertionButton" Command="{Binding SignAssertionCommand}" Margin="10,0,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xED25;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
-                                <AccessText Text="Sign with F_ile" VerticalAlignment="Center" />
+                                <AccessText Text="Sign with _File" VerticalAlignment="Center" />
                             </StackPanel>
                         </Button>
                     </StackPanel>

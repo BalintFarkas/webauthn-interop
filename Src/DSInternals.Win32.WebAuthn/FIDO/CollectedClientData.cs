@@ -2,6 +2,9 @@
 
 namespace DSInternals.Win32.WebAuthn.FIDO
 {
+    /// <summary>
+    /// Represents the WebAuthn <c>CollectedClientData</c> JSON object.
+    /// </summary>
     public class CollectedClientData
     {
         /// <summary>

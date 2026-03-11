@@ -184,10 +184,7 @@ namespace DSInternals.Win32.WebAuthn
         /// <exception cref="ArgumentNullException">Thrown when relyingPartyId is null.</exception>
         public static string GetOriginFromRelyingPartyId(string relyingPartyId)
         {
-            if (relyingPartyId == null)
-            {
-                throw new ArgumentNullException(nameof(relyingPartyId));
-            }
+            ArgumentNullException.ThrowIfNull(relyingPartyId);
 
             return new UriBuilder(Uri.UriSchemeHttps, relyingPartyId).Uri.GetComponents(UriComponents.SchemeAndServer, UriFormat.SafeUnescaped);
         }
@@ -211,10 +208,7 @@ namespace DSInternals.Win32.WebAuthn
         /// </summary>
         public PublicKeyCredential AuthenticatorMakeCredential(PublicKeyCredentialCreationOptions options)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            ArgumentNullException.ThrowIfNull(options);
 
             return AuthenticatorMakeCredential(
                 rpEntity: options.RelyingParty,
@@ -260,20 +254,14 @@ namespace DSInternals.Win32.WebAuthn
             WindowHandle windowHandle = default
         )
         {
-            if (rpEntity == null)
-            {
-                throw new ArgumentNullException(nameof(rpEntity));
-            }
+            ArgumentNullException.ThrowIfNull(rpEntity);
 
             if (rpEntity.Id == null)
             {
                 throw new ArgumentException("Relying party ID must be provided.", nameof(rpEntity));
             }
 
-            if (challenge == null)
-            {
-                throw new ArgumentNullException(nameof(challenge));
-            }
+            ArgumentNullException.ThrowIfNull(challenge);
 
             // TODO: Handle U2F attachment
 
@@ -340,20 +328,9 @@ namespace DSInternals.Win32.WebAuthn
             WindowHandle windowHandle = default
             )
         {
-            if (rpEntity == null)
-            {
-                throw new ArgumentNullException(nameof(rpEntity));
-            }
-
-            if (userEntity == null)
-            {
-                throw new ArgumentNullException(nameof(userEntity));
-            }
-
-            if (clientData == null)
-            {
-                throw new ArgumentNullException(nameof(clientData));
-            }
+            ArgumentNullException.ThrowIfNull(rpEntity);
+            ArgumentNullException.ThrowIfNull(userEntity);
+            ArgumentNullException.ThrowIfNull(clientData);
 
             if (extensions?.CredProtect != UserVerification.Any && IsCredProtectExtensionSupported == false)
             {
@@ -523,15 +500,8 @@ namespace DSInternals.Win32.WebAuthn
             WindowHandle windowHandle = default
         )
         {
-            if (rpId == null)
-            {
-                throw new ArgumentNullException(nameof(rpId));
-            }
-
-            if (challenge == null)
-            {
-                throw new ArgumentNullException(nameof(challenge));
-            }
+            ArgumentNullException.ThrowIfNull(rpId);
+            ArgumentNullException.ThrowIfNull(challenge);
 
             // TODO: Handle U2F attachment
 
@@ -587,15 +557,8 @@ namespace DSInternals.Win32.WebAuthn
             WindowHandle windowHandle = default
             )
         {
-            if (rpId == null)
-            {
-                throw new ArgumentNullException(nameof(rpId));
-            }
-
-            if (clientData == null)
-            {
-                throw new ArgumentNullException(nameof(clientData));
-            }
+            ArgumentNullException.ThrowIfNull(rpId);
+            ArgumentNullException.ThrowIfNull(clientData);
 
             if (extensions?.GetCredentialBlob == true && IsCredBlobSupported == false)
             {
@@ -786,10 +749,7 @@ namespace DSInternals.Win32.WebAuthn
                 throw new NotSupportedException("Credential API is not supported on this OS.");
             }
 
-            if (credentialId == null)
-            {
-                throw new ArgumentNullException(nameof(credentialId));
-            }
+            ArgumentNullException.ThrowIfNull(credentialId);
 
             // Perform the Win32 API call
             var result = NativeMethods.DeletePlatformCredential(credentialId.Length, credentialId);

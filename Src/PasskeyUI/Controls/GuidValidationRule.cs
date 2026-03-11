@@ -4,7 +4,7 @@ using System.Windows.Controls;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class GuidValidationRule : ValidationRule
+internal sealed class GuidValidationRule : ValidationRule
 {
     public override ValidationResult Validate(object value, CultureInfo cultureInfo)
     {

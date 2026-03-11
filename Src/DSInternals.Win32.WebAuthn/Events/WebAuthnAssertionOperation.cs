@@ -6,6 +6,9 @@ namespace DSInternals.Win32.WebAuthn.Events;
 /// </summary>
 public sealed class WebAuthnAssertionOperation : WebAuthnOperation
 {
+    /// <summary>
+    /// Gets the operation type.
+    /// </summary>
     public override string OperationType => "Authentication";
 
     /// <summary>

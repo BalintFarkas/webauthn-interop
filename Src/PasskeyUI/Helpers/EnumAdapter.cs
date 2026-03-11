@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public static class EnumAdapter
+internal static class EnumAdapter
 {
     public static IList<KeyValuePair<T?, string>> GetComboBoxItems<T>(string? nullDisplayName = null) where T : struct, Enum
     {
@@ -15,11 +15,11 @@ public static class EnumAdapter
             result.Add(new KeyValuePair<T?, string>(null, nullDisplayName));
         }
 
-        var values = Enum.GetValues(typeof(T)).Cast<T>().ToList();
+        var values = Enum.GetValues<T>().Cast<T>().ToList();
 
         foreach (var value in values)
         {
-            result.Add(new KeyValuePair<T?, string>(value, Enum.GetName(typeof(T), value)));
+            result.Add(new KeyValuePair<T?, string>(value, Enum.GetName<T>(value)));
         }
 
         return result;

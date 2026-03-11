@@ -1,8 +1,11 @@
+#pragma warning disable CA1822 // Mark members as static
+
 using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
 {
-    public class ApiInformationViewModel : BindableBase
+
+    internal sealed class ApiInformationViewModel : BindableBase
     {
         public bool IsApiAvailable => WebAuthnApi.IsAvailable;
 

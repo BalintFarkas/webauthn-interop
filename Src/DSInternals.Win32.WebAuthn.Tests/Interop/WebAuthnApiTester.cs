@@ -1,4 +1,4 @@
-﻿using System.Runtime.Versioning;
+﻿using System.Diagnostics.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DSInternals.Win32.WebAuthn.Interop.Tests
@@ -7,6 +7,7 @@ namespace DSInternals.Win32.WebAuthn.Interop.Tests
     public class WebAuthnApiTester
     {
         [TestMethod]
+        [SuppressMessage("MSTest.Analyzers", "MSTEST0025", Justification = "Uses AssertInconclusiveException when WebAuthn is unavailable on this OS.")]
         public void WebAuthnApi_ApiVersion()
         {
             var version = WebAuthnApi.ApiVersion;

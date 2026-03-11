@@ -2,7 +2,7 @@ using System.Windows.Input;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
 {
-    public interface ICredentialManagementViewModel
+    internal interface ICredentialManagementViewModel
     {
         ICommand ResetFilterCommand { get; }
 

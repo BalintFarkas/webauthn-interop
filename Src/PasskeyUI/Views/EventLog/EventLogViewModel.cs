@@ -8,7 +8,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class EventLogViewModel : BindableBase, IEventLogViewModel
+internal sealed class EventLogViewModel : BindableBase, IEventLogViewModel
 {
     private readonly IDialogService _dialogService;
 

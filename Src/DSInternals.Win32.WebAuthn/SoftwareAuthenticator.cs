@@ -7,6 +7,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using DSInternals.Win32.WebAuthn.COSE;
+using DSInternals.Win32.WebAuthn.FIDO;
+using DSInternals.Win32.WebAuthn.Interop;
 using PeterO.Cbor;
 
 namespace DSInternals.Win32.WebAuthn
@@ -32,10 +34,10 @@ namespace DSInternals.Win32.WebAuthn
             AuthenticatorFlags flags,
             AsymmetricAlgorithm privateKey)
         {
-            if (relyingParty?.Id == null) throw new ArgumentNullException(nameof(relyingParty));
-            if (user == null) throw new ArgumentNullException(nameof(user));
-            if (challenge == null) throw new ArgumentNullException(nameof(challenge));
-            if (privateKey == null) throw new ArgumentNullException(nameof(privateKey));
+            ArgumentNullException.ThrowIfNull(relyingParty);
+            ArgumentNullException.ThrowIfNull(user);
+            ArgumentNullException.ThrowIfNull(challenge);
+            ArgumentNullException.ThrowIfNull(privateKey);
 
             // Generate random credential ID
             byte[] credentialId = RandomNumberGenerator.GetBytes(DefaultCredentialIdLength);
@@ -53,7 +55,7 @@ namespace DSInternals.Win32.WebAuthn
                 cosePublicKey);
 
             // Build clientDataJSON
-            byte[] clientDataJson = BuildClientDataJson("webauthn.create", challenge, relyingParty.Id);
+            byte[] clientDataJson = BuildClientDataJson(ApiConstants.ClientDataCredentialCreate, challenge, relyingParty.Id);
             byte[] clientDataHash = SHA256.HashData(clientDataJson);
 
             // Sign: authenticatorData || clientDataHash
@@ -94,10 +96,10 @@ namespace DSInternals.Win32.WebAuthn
             byte[]? userHandle,
             AsymmetricAlgorithm privateKey)
         {
-            if (relyingPartyId == null) throw new ArgumentNullException(nameof(relyingPartyId));
-            if (challenge == null) throw new ArgumentNullException(nameof(challenge));
-            if (credentialId == null) throw new ArgumentNullException(nameof(credentialId));
-            if (privateKey == null) throw new ArgumentNullException(nameof(privateKey));
+            ArgumentNullException.ThrowIfNull(relyingPartyId);
+            ArgumentNullException.ThrowIfNull(challenge);
+            ArgumentNullException.ThrowIfNull(credentialId);
+            ArgumentNullException.ThrowIfNull(privateKey);
 
             // Build authenticator data (no attested credential data for assertion)
             byte[] authenticatorData = BuildAuthenticatorData(
@@ -106,7 +108,7 @@ namespace DSInternals.Win32.WebAuthn
                 signatureCounter);
 
             // Build clientDataJSON
-            byte[] clientDataJson = BuildClientDataJson("webauthn.get", challenge, relyingPartyId);
+            byte[] clientDataJson = BuildClientDataJson(ApiConstants.ClientDataCredentialGet, challenge, relyingPartyId);
             byte[] clientDataHash = SHA256.HashData(clientDataJson);
 
             // Sign: authenticatorData || clientDataHash
@@ -147,7 +149,7 @@ namespace DSInternals.Win32.WebAuthn
         /// </summary>
         public static AsymmetricAlgorithm LoadPrivateKeyFromPem(string pemFilePath)
         {
-            if (pemFilePath == null) throw new ArgumentNullException(nameof(pemFilePath));
+            ArgumentNullException.ThrowIfNull(pemFilePath);
 
             string pem = File.ReadAllText(pemFilePath);
             return ImportPrivateKeyFromPem(pem);
@@ -158,7 +160,7 @@ namespace DSInternals.Win32.WebAuthn
         /// </summary>
         public static AsymmetricAlgorithm ImportPrivateKeyFromPem(string pem)
         {
-            if (pem == null) throw new ArgumentNullException(nameof(pem));
+            ArgumentNullException.ThrowIfNull(pem);
 
             // Try EC first, then RSA
             try
@@ -355,16 +357,15 @@ namespace DSInternals.Win32.WebAuthn
 
         private static byte[] BuildClientDataJson(string type, byte[] challenge, string rpId)
         {
-            string origin = $"https://{rpId}";
-            var clientData = new
+            var clientData = new CollectedClientData
             {
-                type,
-                challenge = Base64UrlConverter.ToBase64UrlString(challenge),
-                origin,
-                crossOrigin = false
+                Type = type,
+                Challenge = challenge,
+                Origin = $"https://{rpId}",
+                CrossOrigin = false
             };
-            string json = JsonSerializer.Serialize(clientData);
-            return Encoding.UTF8.GetBytes(json);
+
+            return JsonSerializer.SerializeToUtf8Bytes(clientData, WebAuthnJsonContext.Default.CollectedClientData);
         }
 
         private static byte[] Sign(AsymmetricAlgorithm key, byte[] data, Algorithm algorithm)

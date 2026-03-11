@@ -8,7 +8,7 @@ namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 /// <summary>
 /// Converts a byte array to a Base64Url encoded string and vice versa.
 /// </summary>
-public class ByteArrayToBase64UrlConverter : IValueConverter
+internal sealed class ByteArrayToBase64UrlConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {

@@ -62,15 +62,23 @@ namespace DSInternals.Win32.WebAuthn
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool MinimumPinLength { get; set; }
 
+        /// <summary>
+        /// Optional credential blob to store with the created credential.
+        /// </summary>
         [JsonPropertyName("credBlob")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public byte[] CredentialBlob { get; set; }
 
-
+        /// <summary>
+        /// Requests returning an existing credential blob during assertion.
+        /// </summary>
         [JsonPropertyName("getCredBlob")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool GetCredentialBlob { get; set; }
 
+        /// <summary>
+        /// Input parameters for the <c>hmac-secret</c> extension during assertion.
+        /// </summary>
         [JsonPropertyName("hmacGetSecret")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public HMACGetSecretInput HmacGetSecret { get; set; }

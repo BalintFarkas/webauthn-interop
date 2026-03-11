@@ -3,7 +3,6 @@
     <!-- Configure the supported C# language version -->
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>net10.0-windows;net8.0-windows;net48</TargetFrameworks>
 
     <!-- Redirect output directories -->
     <UseArtifactsOutput>true</UseArtifactsOutput>
@@ -36,7 +35,26 @@
 
     <!-- Only use source-generated JSON serializers, not reflection-based -->
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
+
+    <!-- Enable Polyfill argument exception improvements for .NET Framework -->
+    <PolyArgumentExceptions>true</PolyArgumentExceptions>
+
+    <!-- Hide Polyfill from InternalsVisibleTo (test projects) -->
+    <PolyUseEmbeddedAttribute>true</PolyUseEmbeddedAttribute>
   </PropertyGroup>
+
+  <!-- Enable full analysis mode for Debug builds -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <AnalysisMode>All</AnalysisMode>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <!-- Add Polyfill package for .NET Framework 4.8 to support newer APIs -->
+    <PackageReference Include="Polyfill" Version="9.18">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 
   <!-- Note: Fido2.Models is currently not strong-name signed, so the Adapter DLLs cannot be signed. -->
   <PropertyGroup Condition="

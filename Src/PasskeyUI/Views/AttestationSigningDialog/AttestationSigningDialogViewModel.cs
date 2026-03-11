@@ -11,9 +11,10 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class AttestationSigningDialogViewModel : BindableBase, IDialogAware
+internal sealed class AttestationSigningDialogViewModel : BindableBase, IDialogAware
 {
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+    private static readonly WebAuthnJsonContext IndentedJsonContext = new(IndentedJson);
 
     private const string FileFilter = "All supported files (*.pem;*.passkey)|*.pem;*.passkey|PEM files (*.pem)|*.pem|KeePassXC passkey (*.passkey)|*.passkey|All files (*.*)|*.*";
 
@@ -189,7 +190,7 @@ public class AttestationSigningDialogViewModel : BindableBase, IDialogAware
                 flags,
                 privateKey);
 
-            string json = JsonSerializer.Serialize(credential, IndentedJson);
+            string json = JsonSerializer.Serialize(credential, IndentedJsonContext.PublicKeyCredential);
 
             SaveToCache();
 

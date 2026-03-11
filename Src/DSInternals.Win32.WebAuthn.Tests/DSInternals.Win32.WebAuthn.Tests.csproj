@@ -1,4 +1,7 @@
 ﻿<Project Sdk="MSTest.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0-windows;net8.0-windows;net48</TargetFrameworks>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\DSInternals.Win32.WebAuthn\DSInternals.Win32.WebAuthn.csproj" />
   </ItemGroup>

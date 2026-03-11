@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file. The format 
 ### Changed
 
 - The `AuthenticatorGetAssertion` and `AuthenticatorGetAssertionAsync` methods now return `PublicKeyCredential` instead of `AuthenticatorAssertionResponse`.
-- Migrated Fido2UI from .NET Framework 4.8 to .NET 10, now published as a self-contained single-file executable.
+- Migrated Passkey UI from .NET Framework 4.8 to .NET 10, now published as a self-contained single-file executable.
 - Updated the application icon to a key emoji (🔑).
 - Renamed the desktop application from "FIDO2 UI" to "Passkey UI".
 

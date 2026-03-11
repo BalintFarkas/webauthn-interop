@@ -8,7 +8,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class AttestationOptionsViewModel : BindableBase, IAttestationOptionsViewModel
+internal sealed class AttestationOptionsViewModel : BindableBase, IAttestationOptionsViewModel
 {
     private const int RandomUserIdLength = 32;
 
@@ -129,8 +129,8 @@ public class AttestationOptionsViewModel : BindableBase, IAttestationOptionsView
         }
     }
 
-    private byte[] _challenge;
-    public byte[] Challenge
+    private byte[]? _challenge;
+    public byte[]? Challenge
     {
         get => _challenge;
         set
@@ -152,6 +152,7 @@ public class AttestationOptionsViewModel : BindableBase, IAttestationOptionsView
             if (SetProperty(ref _challenge, binaryValue, nameof(Challenge)))
             {
                 RaisePropertyChanged(nameof(ChallengeString));
+                RaisePropertyChanged(nameof(IsFormValid));
             }
         }
     }
@@ -274,7 +275,7 @@ public class AttestationOptionsViewModel : BindableBase, IAttestationOptionsView
         set => AlgorithmSelectorViewModel.SelectedAlgorithms = value;
     }
 
-    public AuthenticationExtensionsClientInputs ClientExtensions
+    public AuthenticationExtensionsClientInputs? ClientExtensions
     {
         get
         {

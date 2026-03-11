@@ -8,7 +8,7 @@ namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 /// <summary>
 /// Selects the appropriate logo (light or dark) based on the current theme.
 /// </summary>
-public class ThemeAwareLogoSelector : IMultiValueConverter
+internal sealed class ThemeAwareLogoSelector : IMultiValueConverter
 {
     public object? Convert(object?[]? values, Type targetType, object? parameter, CultureInfo culture)
     {

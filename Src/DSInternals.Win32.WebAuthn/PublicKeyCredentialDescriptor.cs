@@ -4,6 +4,9 @@ using DSInternals.Win32.WebAuthn.Interop;
 
 namespace DSInternals.Win32.WebAuthn
 {
+    /// <summary>
+    /// Identifies an existing public key credential.
+    /// </summary>
     public class PublicKeyCredentialDescriptor
     {
         /// <summary>
@@ -34,6 +37,12 @@ namespace DSInternals.Win32.WebAuthn
             get;
         }
 
+        /// <summary>
+        /// Initializes a new credential descriptor.
+        /// </summary>
+        /// <param name="id">Credential identifier.</param>
+        /// <param name="transports">Supported authenticator transports for this credential.</param>
+        /// <param name="type">Credential type. Defaults to <c>public-key</c>.</param>
         [JsonConstructor]
         public PublicKeyCredentialDescriptor(
             byte[] id,

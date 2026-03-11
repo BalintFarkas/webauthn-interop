@@ -4,7 +4,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class AlgorithmSelectorViewModel : BindableBase, IAlgorithmSelectorViewModel
+internal sealed class AlgorithmSelectorViewModel : BindableBase, IAlgorithmSelectorViewModel
 {
     public AlgorithmSelectorViewModel()
     {

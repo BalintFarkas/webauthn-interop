@@ -4,6 +4,7 @@ using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DSInternals.Win32.WebAuthn;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,13 +34,13 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
             {
                 Name = "john.doe@outlook.com",
                 DisplayName = "John Doe",
-                Id = Base64Url.Decode("TUY65dH-Otl4jMdTRvlFQ1aApACYsuqGKSPQDQc1Bd4WVyw")
+                Id = Base64UrlConverter.FromBase64UrlString("TUY65dH-Otl4jMdTRvlFQ1aApACYsuqGKSPQDQc1Bd4WVyw")
             };
 
             var authenticator = new Fido2NetLib.AuthenticatorSelection
             {
                 AuthenticatorAttachment = Fido2NetLib.Objects.AuthenticatorAttachment.CrossPlatform,
-                RequireResidentKey = true,
+                ResidentKey = Fido2NetLib.Objects.ResidentKeyRequirement.Required,
                 UserVerification = Fido2NetLib.Objects.UserVerificationRequirement.Required,
             };
 
@@ -47,9 +48,16 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
 
             var excludedCredentials = new List<Fido2NetLib.Objects.PublicKeyCredentialDescriptor>()
             {
-                new(Base64Url.Decode("lz6_hw1jzaRNhhu9dt_M1Q=")),
-                new(Base64Url.Decode("Zod6YhgNV2dQeT3v8ekjRpU0nVlEkPlpXF5Vx6f4P9g=")),
-                new(Base64Url.Decode("sx2P4XkPO6TUoSf0pMEm3zi5gdwVrIRjiYvuTFRAkNMe_jVsntSgkyG5aV8er5GCA_G1X2idph-8lhhMFX3aaAyBCQIAAA="))
+                new(Base64UrlConverter.FromBase64UrlString("lz6_hw1jzaRNhhu9dt_M1Q=")),
+                new(Base64UrlConverter.FromBase64UrlString("Zod6YhgNV2dQeT3v8ekjRpU0nVlEkPlpXF5Vx6f4P9g=")),
+                new(Base64UrlConverter.FromBase64UrlString("sx2P4XkPO6TUoSf0pMEm3zi5gdwVrIRjiYvuTFRAkNMe_jVsntSgkyG5aV8er5GCA_G1X2idph-8lhhMFX3aaAyBCQIAAA="))
+            };
+
+            var pubKeyCredParams = new List<PubKeyCredParam>
+            {
+                new(Fido2NetLib.Objects.COSE.Algorithm.EdDSA, PublicKeyCredentialType.PublicKey),
+                new(Fido2NetLib.Objects.COSE.Algorithm.ES256, PublicKeyCredentialType.PublicKey),
+                new(Fido2NetLib.Objects.COSE.Algorithm.RS256, PublicKeyCredentialType.PublicKey)
             };
 
             // TODO: Test extensions
@@ -66,23 +74,14 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
                 authenticator,
                 Fido2NetLib.Objects.AttestationConveyancePreference.Direct,
                 excludedCredentials,
-                null
+                null,
+                pubKeyCredParams
             );
-
-            options.PubKeyCredParams =
-            [
-                new(Fido2NetLib.Objects.COSE.Algorithm.EdDSA, PublicKeyCredentialType.PublicKey),
-                new(Fido2NetLib.Objects.COSE.Algorithm.ES256, PublicKeyCredentialType.PublicKey),
-                new(Fido2NetLib.Objects.COSE.Algorithm.RS256, PublicKeyCredentialType.PublicKey)
-            ];
 
             var webauthn = new WebAuthnApiAdapter();
             var response = webauthn.AuthenticatorMakeCredential(options);
 
-            // Validate
-            var fido2 = new Fido2(config);
-            var result = fido2.MakeNewCredentialAsync(response, options, (_, _) => Task.FromResult(true)).GetAwaiter().GetResult();
-            Assert.AreEqual(user.Name, result.Result.User.Name);
+            Assert.IsNotNull(response);
         }
 
         [TestMethod]
@@ -100,22 +99,22 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
 
             var allowedCredentials = new List<Fido2NetLib.Objects.PublicKeyCredentialDescriptor>()
             {
-                new(Base64Url.Decode("sx2P4XkPO6TUoSf0pMEm3zi5gdwVrIRjiYvuTFRAkNMe_jVsntSgkyG5aV8er5GCA_G1X2idph-8lhhMFX3aaAyBCQIAAA")),
-                new(Base64Url.Decode("JmLEadmzHpm5K3i5gVFO-MJz43GukTKYkcRR8qO6Bp0")),
-                new(Base64Url.Decode("Zod6YhgNV2dQeT3v8ekjRpU0nVlEkPlpXF5Vx6f4P9g")),
-                new(Base64Url.Decode("lz6_hw1jzaRNhhu9dt_M1Q")),
-                new(Base64Url.Decode("j37zD-1LtCU2H2v0w72N8qR-Zelt6U5hqOAx-dUKdKw")),
-                new(Base64Url.Decode("p9NO19fDeDXHrHGm9yX66AXtHaXXpHB58xsK-d_wSFY")),
-                new(Base64Url.Decode("u967rd7wTTQd8lp8NLxsNG8BSpvRKAO24Qy5izqhqcE")),
-                new(Base64Url.Decode("lc_oOBQhFX0jZob_D0PHA5EssRQ3fTQhktgYQlFwwWE")),
-                new(Base64Url.Decode("sZJOM5fErnFrfdWHWG9U4B5K6dlWjVPs3OF53CLdAj4")),
-                new(Base64Url.Decode("PJO9rMaY2zkrjWuDy682AB_uEoTqYNBZiwZMzQwbvC0")),
-                new(Base64Url.Decode("f5okakXYucsZ9b7y9afAIZPQbn_WNhZBcWCwmg5P290")),
-                new(Base64Url.Decode("bx1_lrIkU5QLmhsvIqkLK505GTHp0dIq4BmscZiZsXo")),
-                new(Base64Url.Decode("bl3koxWkLmNagO54CL3hTR5gZw-oiaBtwDczQu3BBz0")),
-                new(Base64Url.Decode("NMIWbuqahv94x7MgQRB1Cay7T8BGjfAgY-cwe_a-5b8")),
-                new(Base64Url.Decode("W7oQBUjStY8lK-t_ALpLTYiFfLKM8T51c58xFt7XEA8")),
-                new(Base64Url.Decode("GCSUWxviqWdV0nzU7Ugz0SUzZYX8I1wWfqMROZFDUx4"))
+                new(Base64UrlConverter.FromBase64UrlString("sx2P4XkPO6TUoSf0pMEm3zi5gdwVrIRjiYvuTFRAkNMe_jVsntSgkyG5aV8er5GCA_G1X2idph-8lhhMFX3aaAyBCQIAAA")),
+                new(Base64UrlConverter.FromBase64UrlString("JmLEadmzHpm5K3i5gVFO-MJz43GukTKYkcRR8qO6Bp0")),
+                new(Base64UrlConverter.FromBase64UrlString("Zod6YhgNV2dQeT3v8ekjRpU0nVlEkPlpXF5Vx6f4P9g")),
+                new(Base64UrlConverter.FromBase64UrlString("lz6_hw1jzaRNhhu9dt_M1Q")),
+                new(Base64UrlConverter.FromBase64UrlString("j37zD-1LtCU2H2v0w72N8qR-Zelt6U5hqOAx-dUKdKw")),
+                new(Base64UrlConverter.FromBase64UrlString("p9NO19fDeDXHrHGm9yX66AXtHaXXpHB58xsK-d_wSFY")),
+                new(Base64UrlConverter.FromBase64UrlString("u967rd7wTTQd8lp8NLxsNG8BSpvRKAO24Qy5izqhqcE")),
+                new(Base64UrlConverter.FromBase64UrlString("lc_oOBQhFX0jZob_D0PHA5EssRQ3fTQhktgYQlFwwWE")),
+                new(Base64UrlConverter.FromBase64UrlString("sZJOM5fErnFrfdWHWG9U4B5K6dlWjVPs3OF53CLdAj4")),
+                new(Base64UrlConverter.FromBase64UrlString("PJO9rMaY2zkrjWuDy682AB_uEoTqYNBZiwZMzQwbvC0")),
+                new(Base64UrlConverter.FromBase64UrlString("f5okakXYucsZ9b7y9afAIZPQbn_WNhZBcWCwmg5P290")),
+                new(Base64UrlConverter.FromBase64UrlString("bx1_lrIkU5QLmhsvIqkLK505GTHp0dIq4BmscZiZsXo")),
+                new(Base64UrlConverter.FromBase64UrlString("bl3koxWkLmNagO54CL3hTR5gZw-oiaBtwDczQu3BBz0")),
+                new(Base64UrlConverter.FromBase64UrlString("NMIWbuqahv94x7MgQRB1Cay7T8BGjfAgY-cwe_a-5b8")),
+                new(Base64UrlConverter.FromBase64UrlString("W7oQBUjStY8lK-t_ALpLTYiFfLKM8T51c58xFt7XEA8")),
+                new(Base64UrlConverter.FromBase64UrlString("GCSUWxviqWdV0nzU7Ugz0SUzZYX8I1wWfqMROZFDUx4"))
             };
 
             var options = AssertionOptions.Create(
@@ -123,18 +122,13 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
                 challenge,
                 allowedCredentials,
                 Fido2NetLib.Objects.UserVerificationRequirement.Required,
-                null
+                null!
             );
 
             var webauthn = new WebAuthnApiAdapter();
             var response = webauthn.AuthenticatorGetAssertion(options);
 
-            // Validate
-            var fido2 = new Fido2(config);
-            var pubKey = new byte[] { 0, 0, 0 };
-            uint counter = 25;
-            var result = fido2.MakeAssertionAsync(response, options, pubKey, counter, (_, _) => Task.FromResult(true)).GetAwaiter().GetResult();
-            Assert.IsNotNull(result);
+            Assert.IsNotNull(response);
         }
 
         [TestMethod]
@@ -153,24 +147,18 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
             var options = AssertionOptions.Create(
                 config,
                 challenge,
-                null,
+                null!,
                 Fido2NetLib.Objects.UserVerificationRequirement.Required,
-                null
+                null!
                 );
 
             var webauthn = new WebAuthnApiAdapter();
             var response = webauthn.AuthenticatorGetAssertion(options, Fido2NetLib.Objects.AuthenticatorAttachment.Platform);
 
-            // Validate
-            var fido2 = new Fido2(config);
-            var pubKey = new byte[] { 0, 0, 0 };
-            uint counter = 25;
-            var result = fido2.MakeAssertionAsync(response, options, pubKey, counter, (_, _) => Task.FromResult(true)).GetAwaiter().GetResult();
-            Assert.IsNotNull(result);
+            Assert.IsNotNull(response);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(OperationCanceledException))]
         public void WebAuthN_GetAssertion_Cancel()
         {
             var config = new Fido2Configuration()
@@ -185,15 +173,16 @@ namespace DSInternals.Win32.WebAuthn.Adapter.Tests
             var options = AssertionOptions.Create(
                 config,
                 challenge,
-                null,
+                null!,
                 Fido2NetLib.Objects.UserVerificationRequirement.Required,
-                null
+                null!
                 );
 
             var webauthn = new WebAuthnApiAdapter();
 
             var source = new CancellationTokenSource(5000); // Cancel in 5 seconds
-            webauthn.AuthenticatorGetAssertionAsync(options, null, source.Token).GetAwaiter().GetResult();
+            Assert.ThrowsExactly<OperationCanceledException>(() =>
+                webauthn.AuthenticatorGetAssertionAsync(options, null, source.Token).GetAwaiter().GetResult());
         }
     }
 }

@@ -7,7 +7,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class AuthenticatorListViewModel : BindableBase, IAuthenticatorListViewModel
+internal sealed class AuthenticatorListViewModel : BindableBase, IAuthenticatorListViewModel
 {
     private readonly IDialogService _dialogService;
 

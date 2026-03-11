@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Buffers;
 using System.Buffers.Binary;
 using System.Formats.Asn1;
+using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using DSInternals.Win32.WebAuthn.EntraID;
 using DSInternals.Win32.WebAuthn.FIDO;
+using DSInternals.Win32.WebAuthn.Interop;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeterO.Cbor;
 using DSInternals.Win32.WebAuthn.Okta;
@@ -17,7 +18,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
     [TestClass]
     public class PasskeyFactory
     {
-        internal WebauthnCredentialCreationOptions _options;
+        internal WebauthnCredentialCreationOptions _options = null;
         internal CBORObject _attestationObject => CBORObject.NewMap().
             Add("fmt", "packed").
             Add("authData", _authData).
@@ -68,15 +69,15 @@ namespace DSInternals.Win32.WebAuthn.Tests
             }
         }
 
-        internal CredentialPublicKey _credentialPublicKey;
+        internal CredentialPublicKey _credentialPublicKey = null!;
 
         internal string _rp => _options.PublicKeyOptions.RelyingParty.Id;
         internal string _origin => new UriBuilder("https", _options.PublicKeyOptions.RelyingParty.Id).ToString();
         internal byte[] _challenge => _options.PublicKeyOptions.Challenge;
-        internal CertificateRequest _certReq;
+        internal CertificateRequest _certReq = null!;
         internal static X500DistinguishedName _rootDN = new X500DistinguishedName("CN=Testing, O=DSInternals, OU=Passkeys, C=US");
         internal static byte[] _asnEncodedAaguid = [0x04, 0x10, 0x44, 0x53, 0x49, 0x6E, 0x74, 0x65, 0x72, 0x6E, 0x61, 0x6C, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00,];
-        internal byte[] _sig;
+        internal byte[] _sig = null!;
         internal CBORObject _x5c
         {
             get
@@ -95,10 +96,10 @@ namespace DSInternals.Win32.WebAuthn.Tests
             {
                 return JsonSerializer.SerializeToUtf8Bytes(new CollectedClientData()
                 {
-                    Type = "webauthn.create",
+                    Type = ApiConstants.ClientDataCredentialCreate,
                     Challenge = _challenge,
                     Origin = _origin
-                });
+                }, WebAuthnJsonContext.Default.CollectedClientData);
             }
         }
 
@@ -131,34 +132,35 @@ namespace DSInternals.Win32.WebAuthn.Tests
             return HashData(alg, _attToBeSigned);
         }
 
-        internal byte[] _credentialID;
+        internal byte[] _credentialID = null!;
         internal const AuthenticatorFlags _flags = AuthenticatorFlags.AttestationData | AuthenticatorFlags.ExtensionData | AuthenticatorFlags.UserPresent | AuthenticatorFlags.UserVerified;
-        internal ushort _signCount;
+        internal ushort _signCount = 0;
         internal static byte[] _aaguid = [0x44, 0x53, 0x49, 0x6E, 0x74, 0x65, 0x72, 0x6E, 0x61, 0x6C, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00,];
 
         internal byte[] _authData
         {
             get
             {
-                var writer = new ArrayBufferWriter<byte>(512);
-                writer.Write(_rpIdHash);
-                writer.Write(stackalloc byte[1] { (byte)_flags });
-                var buffer = writer.GetSpan(4);
-                BinaryPrimitives.WriteUInt32BigEndian(buffer, _signCount);
-                writer.Advance(4);
-                writer.Write(_acd);
+                using var ms = new MemoryStream(512);
+                ms.Write(_rpIdHash, 0, _rpIdHash.Length);
+                ms.WriteByte((byte)_flags);
+                byte[] signCountBytes = new byte[4];
+                BinaryPrimitives.WriteUInt32BigEndian(signCountBytes, _signCount);
+                ms.Write(signCountBytes, 0, signCountBytes.Length);
+                ms.Write(_acd, 0, _acd.Length);
                 CBORObject exts = CBORObject.NewMap().Add("testing", true);
-                writer.Write(exts.EncodeToBytes());
-                return writer.WrittenSpan.ToArray();
+                byte[] extensionBytes = exts.EncodeToBytes();
+                ms.Write(extensionBytes, 0, extensionBytes.Length);
+                return ms.ToArray();
             }
         }
         internal byte[] _acd
         {
             get
             {
-                var writer = new ArrayBufferWriter<byte>(16 + 2 + _credentialID.Length + _credentialPublicKey.GetBytes().Length);
-
-                writer.Write(_aaguid);
+                byte[] credentialPublicKeyBytes = _credentialPublicKey.GetBytes();
+                using var ms = new MemoryStream(16 + 2 + _credentialID.Length + credentialPublicKeyBytes.Length);
+                ms.Write(_aaguid, 0, _aaguid.Length);
 
                 // Write the length of credential ID, as big endian bytes of a 16-bit unsigned integer
                 var credentialIDLen = (ushort)_credentialID.Length;
@@ -168,13 +170,13 @@ namespace DSInternals.Win32.WebAuthn.Tests
                     Array.Reverse(credentialIDLenBytes);
                 }
 
-                writer.Write(credentialIDLenBytes);
+                ms.Write(credentialIDLenBytes, 0, credentialIDLenBytes.Length);
                 // Write CredentialID bytes
-                writer.Write(_credentialID);
+                ms.Write(_credentialID, 0, _credentialID.Length);
 
                 // Write credential public key bytes
-                writer.Write(_credentialPublicKey.GetBytes());
-                return writer.WrittenSpan.ToArray();
+                ms.Write(credentialPublicKeyBytes, 0, credentialPublicKeyBytes.Length);
+                return ms.ToArray();
             }
         }
 
@@ -210,6 +212,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
             switch (_kty)
             {
                 case COSE.KeyType.EC2:
+                {
                     ECCurve curve = _crv switch
                     {
                         COSE.EllipticCurve.P256 => ECCurve.NamedCurves.nistP256,
@@ -218,7 +221,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
                         _ => throw new ArgumentOutOfRangeException(nameof(_crv)),
                     };
 
-                    var ecdsa = ECDsa.Create(curve);
+                    using var ecdsa = ECDsa.Create(curve);
                     _certReq = new CertificateRequest(_rootDN, ecdsa, HashAlgorithmName.SHA256);
                     var ecparams = ecdsa.ExportParameters(true);
 
@@ -228,8 +231,10 @@ namespace DSInternals.Win32.WebAuthn.Tests
                     _credentialPublicKey = new CredentialPublicKey(cpk);
                     var sig = ecdsa.SignData(_attToBeSigned, HashAlgFromCOSEAlg(_alg));
                     var coefficientSize = (int)Math.Ceiling((decimal)ecdsa.KeySize / 8);
-                    var r = sig[0..coefficientSize];
-                    var s = sig[(sig.Length - coefficientSize)..sig.Length];
+                    var r = new byte[coefficientSize];
+                    Buffer.BlockCopy(sig, 0, r, 0, coefficientSize);
+                    var s = new byte[coefficientSize];
+                    Buffer.BlockCopy(sig, sig.Length - coefficientSize, s, 0, coefficientSize);
 
                     var asnwriter = new AsnWriter(AsnEncodingRules.BER);
                     ReadOnlySpan<byte> zero = new byte[1] { 0 };
@@ -240,8 +245,10 @@ namespace DSInternals.Win32.WebAuthn.Tests
                     }
                     _sig = asnwriter.Encode();
                     break;
+                }
                 case COSE.KeyType.RSA:
-                    var rsa = RSA.Create();
+                {
+                    using var rsa = RSA.Create();
 
                     var padding = _alg switch // https://www.iana.org/assignments/cose/cose.xhtml#algorithms
                     {
@@ -256,6 +263,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
                     _credentialPublicKey = new CredentialPublicKey(cpk);
                     _sig = rsa.SignData(_attToBeSigned, HashAlgFromCOSEAlg(_alg), _padding);
                     break;
+                }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(_kty), _kty, "Invalid COSE key type");
             }
@@ -263,6 +271,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
 
         public WebauthnAttestationResponse MakePasskey(WebauthnCredentialCreationOptions options, int algIndex = 0)
         {
+            ArgumentNullException.ThrowIfNull(options);
             WebauthnAttestationResponse response;
             _credentialID = RandomNumberGenerator.GetBytes(32);
             _options = options;
@@ -286,7 +295,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
             response = options.GetType().Name switch
             {
                 nameof(MicrosoftGraphWebauthnCredentialCreationOptions) => new MicrosoftGraphWebauthnAttestationResponse(pkc, $"DSInternals.Passkeys {_alg}"),
-                nameof(OktaWebauthnCredentialCreationOptions) => new OktaWebauthnAttestationResponse(pkc, options.PublicKeyOptions.User.Id, (options as OktaWebauthnCredentialCreationOptions).Id),
+                nameof(OktaWebauthnCredentialCreationOptions) => new OktaWebauthnAttestationResponse(pkc, options.PublicKeyOptions.User.Id, ((OktaWebauthnCredentialCreationOptions)options).Id),
                 _ => throw new ArgumentOutOfRangeException(nameof(options)),
             };
 
@@ -300,7 +309,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
         [TestMethod]
         public void EntraIdPublicKeyCredentialCreationOptions_Deserialize()
         {
-            var options = JsonSerializer.Deserialize<PublicKeyCredentialCreationOptions>(@"{
+            var options = JsonSerializer.Deserialize(@"{
                 ""rp"": {
                     ""id"": ""login.microsoft.com"",
                     ""name"": ""Microsoft""
@@ -374,7 +383,12 @@ namespace DSInternals.Win32.WebAuthn.Tests
                     ""enforceCredentialProtectionPolicy"":true,
                     ""credentialProtectionPolicy"":""userVerificationOptional""
                 }
-            }");
+            }", WebAuthnJsonContext.Default.PublicKeyCredentialCreationOptions);
+            Assert.IsNotNull(options);
+            Assert.IsNotNull(options.RelyingParty);
+            Assert.IsNotNull(options.User);
+            Assert.IsNotNull(options.AuthenticatorSelection);
+            Assert.IsNotNull(options.PublicKeyCredentialParameters);
 
             Assert.AreEqual("login.microsoft.com", options.RelyingParty.Id);
             Assert.AreEqual("john@contoso.com", options.User.Name);
@@ -383,7 +397,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
             Assert.IsTrue(options.AuthenticatorSelection.RequireResidentKey);
             Assert.AreEqual(AuthenticatorAttachment.CrossPlatform, options.AuthenticatorSelection.AuthenticatorAttachment);
             Assert.AreEqual(UserVerificationRequirement.Required, options.AuthenticatorSelection.UserVerificationRequirement);
-            Assert.AreEqual(3, options.PublicKeyCredentialParameters.Count);
+            Assert.HasCount(3, options.PublicKeyCredentialParameters);
             Assert.AreEqual(COSE.Algorithm.ES256, options.PublicKeyCredentialParameters[0].Algorithm);
             Assert.AreEqual(COSE.Algorithm.RS256, options.PublicKeyCredentialParameters[1].Algorithm);
             Assert.AreEqual(COSE.Algorithm.EdDSA, options.PublicKeyCredentialParameters[2].Algorithm);
@@ -392,7 +406,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
         [TestMethod]
         public void OktaPublicKeyCredentialCreationOptions_Deserialize()
         {
-            var options = JsonSerializer.Deserialize<PublicKeyCredentialCreationOptions>(@"{
+            var options = JsonSerializer.Deserialize(@"{
                 ""rp"": {
                     ""name"": ""Okta Tenant Name -- Environment"",
                     ""id"": ""example.okta.com""
@@ -431,7 +445,12 @@ namespace DSInternals.Win32.WebAuthn.Tests
                         ""id"": ""kFPT5CL3-I30e22QQ0WYo4C9EFCTcbWM0-G-wTBslVNzKzf-FsJ1CBVrgN2k5RJH2dTFJxyzgI06XxIbrcbpAA""
                     }
                 ]
-            }");
+            }", WebAuthnJsonContext.Default.PublicKeyCredentialCreationOptions);
+            Assert.IsNotNull(options);
+            Assert.IsNotNull(options.RelyingParty);
+            Assert.IsNotNull(options.User);
+            Assert.IsNotNull(options.AuthenticatorSelection);
+            Assert.IsNotNull(options.PublicKeyCredentialParameters);
 
             Assert.AreEqual("example.okta.com", options.RelyingParty.Id);
             Assert.AreEqual("okta@contoso.com", options.User.Name);
@@ -440,7 +459,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
             Assert.IsFalse(options.AuthenticatorSelection.RequireResidentKey);
             Assert.AreEqual(AuthenticatorAttachment.Any, options.AuthenticatorSelection.AuthenticatorAttachment);
             Assert.AreEqual(UserVerificationRequirement.Required, options.AuthenticatorSelection.UserVerificationRequirement);
-            Assert.AreEqual(2, options.PublicKeyCredentialParameters.Count);
+            Assert.HasCount(2, options.PublicKeyCredentialParameters);
             Assert.AreEqual(COSE.Algorithm.ES256, options.PublicKeyCredentialParameters[0].Algorithm);
             Assert.AreEqual(COSE.Algorithm.RS256, options.PublicKeyCredentialParameters[1].Algorithm);
         }

@@ -11,9 +11,10 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class AssertionSigningDialogViewModel : BindableBase, IDialogAware
+internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAware
 {
     private static readonly JsonSerializerOptions IndentedJson = new() { WriteIndented = true };
+    private static readonly WebAuthnJsonContext IndentedJsonContext = new(IndentedJson);
 
     private const string FileFilter = "All supported files (*.pem;*.passkey)|*.pem;*.passkey|PEM files (*.pem)|*.pem|KeePassXC passkey (*.passkey)|*.passkey|All files (*.*)|*.*";
 
@@ -52,17 +53,10 @@ public class AssertionSigningDialogViewModel : BindableBase, IDialogAware
 
     private void OnSelectPreset(AuthenticatorPreset preset)
     {
-        AaGuidString = preset.AaGuid.ToString();
         SelectedAlgorithm = preset.DefaultAlgorithm;
     }
 
     // Authenticator parameters
-    public string? AaGuidString
-    {
-        get;
-        set => SetProperty(ref field, value);
-    } = Guid.Empty.ToString();
-
     public Algorithm SelectedAlgorithm
     {
         get;
@@ -134,9 +128,6 @@ public class AssertionSigningDialogViewModel : BindableBase, IDialogAware
 
     private void RestoreFromCache()
     {
-        if (SigningDialogCache.AaGuidString != null)
-            AaGuidString = SigningDialogCache.AaGuidString;
-
         if (SigningDialogCache.SelectedAlgorithm.HasValue)
             SelectedAlgorithm = SigningDialogCache.SelectedAlgorithm.Value;
 
@@ -158,7 +149,6 @@ public class AssertionSigningDialogViewModel : BindableBase, IDialogAware
 
     private void SaveToCache()
     {
-        SigningDialogCache.AaGuidString = AaGuidString;
         SigningDialogCache.SelectedAlgorithm = SelectedAlgorithm;
         SigningDialogCache.SignatureCounter = SignatureCounter;
         SigningDialogCache.KeyFilePath = KeyFilePath;
@@ -206,7 +196,7 @@ public class AssertionSigningDialogViewModel : BindableBase, IDialogAware
                 userHandle,
                 privateKey);
 
-            string json = JsonSerializer.Serialize(credential, IndentedJson);
+            string json = JsonSerializer.Serialize(credential, IndentedJsonContext.PublicKeyCredential);
 
             SaveToCache();
 

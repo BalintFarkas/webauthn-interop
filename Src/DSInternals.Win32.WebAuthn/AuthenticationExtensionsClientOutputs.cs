@@ -34,13 +34,18 @@ namespace DSInternals.Win32.WebAuthn
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public HMACGetSecretOutput? HmacGetSecret { get; set; }
 
+        /// <summary>
+        /// Reported minimum PIN length enforced by the authenticator.
+        /// </summary>
         [JsonPropertyName("minPinLength")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public uint? MinimumPinLength { get; set; }
 
+        /// <summary>
+        /// Indicates whether a credential blob was successfully created.
+        /// </summary>
         [JsonPropertyName("credBlob")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-
         public bool CredentialBlobCreated { get; set; }
     }
 }

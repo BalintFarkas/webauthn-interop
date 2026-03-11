@@ -5,6 +5,9 @@ using DSInternals.Win32.WebAuthn.Interop;
 
 namespace DSInternals.Win32.WebAuthn
 {
+    /// <summary>
+    /// Describes an acceptable public key credential algorithm and type pair.
+    /// </summary>
     public class PublicKeyCredentialParameter
     {
         /// <summary>
@@ -19,15 +22,15 @@ namespace DSInternals.Win32.WebAuthn
         [JsonPropertyName("type")]
         public string Type { get; private set; }
 
+        /// <summary>
+        /// Initializes a new credential parameter instance.
+        /// </summary>
+        /// <param name="algorithm">COSE signature algorithm.</param>
+        /// <param name="type">Credential type. Must be <c>public-key</c>.</param>
         [JsonConstructor]
-
         public PublicKeyCredentialParameter(Algorithm algorithm, string type)
         {
-            if (type != ApiConstants.CredentialTypePublicKey)
-            {
-                // Only public-key credentials are supported.
-                throw new ArgumentOutOfRangeException(nameof(type));
-            }
+            ArgumentOutOfRangeException.ThrowIfNotEqual(type, ApiConstants.CredentialTypePublicKey);
 
             this.Algorithm = algorithm;
             this.Type = type;

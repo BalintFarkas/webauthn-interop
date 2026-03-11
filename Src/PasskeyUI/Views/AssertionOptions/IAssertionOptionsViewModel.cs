@@ -2,11 +2,11 @@ using System.Windows.Input;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
 {
-    public interface IAssertionOptionsViewModel
+    internal interface IAssertionOptionsViewModel
     {
         string RelyingPartyId { get; set; }
 
-        byte[] Challenge { get; set; }
+        byte[]? Challenge { get; set; }
 
         UserVerificationRequirement UserVerificationRequirement { get; set; }
 

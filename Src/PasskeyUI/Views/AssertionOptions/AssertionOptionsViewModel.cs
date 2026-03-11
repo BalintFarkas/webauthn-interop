@@ -8,7 +8,7 @@ using Prism.Mvvm;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-public class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewModel
+internal sealed class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewModel
 {
     public AssertionOptionsViewModel()
     {
@@ -71,8 +71,8 @@ public class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewMode
         }
     }
 
-    private byte[] _challenge;
-    public byte[] Challenge
+    private byte[]? _challenge;
+    public byte[]? Challenge
     {
         get => _challenge;
         set
@@ -94,12 +94,13 @@ public class AssertionOptionsViewModel : BindableBase, IAssertionOptionsViewMode
             if (SetProperty(ref _challenge, binaryValue, nameof(Challenge)))
             {
                 RaisePropertyChanged(nameof(ChallengeString));
+                RaisePropertyChanged(nameof(IsFormValid));
             }
         }
     }
 
-    private byte[] _largeBlob;
-    public byte[] LargeBlob
+    private byte[]? _largeBlob;
+    public byte[]? LargeBlob
     {
         get => _largeBlob;
         set

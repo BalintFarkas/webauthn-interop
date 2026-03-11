@@ -49,7 +49,7 @@ namespace DSInternals.Win32.WebAuthn
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public override bool Equals(object obj) => obj is WindowHandle handle && handle._handle == _handle;
+        public override bool Equals(object? obj) => obj is WindowHandle handle && handle._handle == _handle;
 
         /// <summary>
         ///

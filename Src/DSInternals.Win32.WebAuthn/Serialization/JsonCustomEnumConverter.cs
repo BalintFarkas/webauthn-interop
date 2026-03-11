@@ -29,6 +29,13 @@ namespace DSInternals.Win32.WebAuthn
         private static readonly TEnum? unmappedValue = FindUnmappedValue();
         private static readonly bool isFlagsEnum = typeof(TEnum).IsDefined(typeof(FlagsAttribute), false);
 
+        /// <summary>
+        /// Reads a JSON token and converts it to a value of <typeparamref name="TEnum"/>.
+        /// </summary>
+        /// <param name="reader">JSON reader positioned on the enum value.</param>
+        /// <param name="typeToConvert">Target CLR type.</param>
+        /// <param name="options">Serializer options.</param>
+        /// <returns>Deserialized enum value.</returns>
         public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             switch (reader.TokenType)
@@ -69,6 +76,12 @@ namespace DSInternals.Win32.WebAuthn
             }
         }
 
+        /// <summary>
+        /// Writes an enum value to JSON using <see cref="EnumMemberAttribute"/> mappings.
+        /// </summary>
+        /// <param name="writer">JSON writer.</param>
+        /// <param name="value">Enum value to write.</param>
+        /// <param name="options">Serializer options.</param>
         public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
         {
             if (writer is null)

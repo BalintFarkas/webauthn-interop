@@ -8,10 +8,16 @@ using Fido2NetLib.Objects;
 
 namespace DSInternals.Win32.WebAuthn.Adapter
 {
+    /// <summary>
+    /// Adapter that bridges Fido2NetLib request/response models to the WebAuthn interop API.
+    /// </summary>
     public class WebAuthnApiAdapter
     {
         private WebAuthnApi _api;
 
+        /// <summary>
+        /// Initializes a new instance of the adapter.
+        /// </summary>
         public WebAuthnApiAdapter()
         {
             _api = new WebAuthnApi();
@@ -24,17 +30,14 @@ namespace DSInternals.Win32.WebAuthn.Adapter
         /// <returns>The credential public key associated with the credential private key.</returns>
         public AuthenticatorAttestationRawResponse AuthenticatorMakeCredential(CredentialCreateOptions options)
         {
-            if (options == null)
-            {
-                throw new ArgumentNullException(nameof(options));
-            }
+            ArgumentNullException.ThrowIfNull(options);
 
             var rp = ApiMapper.Translate(options.Rp);
             var credParams = ApiMapper.Translate(options.PubKeyCredParams);
             var excludeCreds = ApiMapper.Translate(options.ExcludeCredentials);
             uint timeout = checked((uint)options.Timeout);
             var uv = ApiMapper.Translate(options.AuthenticatorSelection?.UserVerification);
-            var rk = ApiMapper.TranslateResidentKey(options.AuthenticatorSelection?.RequireResidentKey);
+            var rk = ApiMapper.TranslateResidentKey(options.AuthenticatorSelection?.ResidentKey);
             var attachment = ApiMapper.Translate(options.AuthenticatorSelection?.AuthenticatorAttachment);
             var attestationPref = ApiMapper.Translate(options.Attestation);
             var user = ApiMapper.Translate(options.User);
@@ -48,9 +51,12 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 rk,
                 credParams,
                 attestationPref,
-                options.Timeout,
+                timeout,
                 new ReadOnlyCollection<PublicKeyCredentialDescriptor>(excludeCreds)
             );
+
+            var attestationResponse = attestation.Response as AuthenticatorAttestationResponse
+                ?? throw new InvalidOperationException("Unexpected attestation response type.");
 
             return new AuthenticatorAttestationRawResponse()
             {
@@ -58,14 +64,20 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 // TODO: RawId = attestation.CredentialId,
                 Type = PublicKeyCredentialType.PublicKey,
                 // TODO: Extensions = ApiMapper.Translate(attestation.Extensions),
-                Response = new AuthenticatorAttestationRawResponse.ResponseData()
+                Response = new AuthenticatorAttestationRawResponse.AttestationResponse()
                 {
-                    AttestationObject = (attestation.Response as AuthenticatorAttestationResponse).AttestationObject,
+                    AttestationObject = attestationResponse.AttestationObject,
                     ClientDataJson = attestation.Response.ClientDataJson
                 }
             };
         }
 
+        /// <summary>
+        /// Asynchronously creates a public key credential source bound to a managing authenticator.
+        /// </summary>
+        /// <param name="options">Options for credential creation.</param>
+        /// <param name="cancellationToken">Cancellation token used to cancel the operation.</param>
+        /// <returns>The credential public key associated with the credential private key.</returns>
         public async Task<AuthenticatorAttestationRawResponse> AuthenticatorMakeCredentialAsync(CredentialCreateOptions options, CancellationToken cancellationToken = default)
         {
             cancellationToken.Register(state => CancelCurrentOperation(), null, false);
@@ -80,9 +92,10 @@ namespace DSInternals.Win32.WebAuthn.Adapter
         /// <returns>The cryptographically signed Authenticator Assertion Response object returned by an authenticator.</returns>
         public AuthenticatorAssertionRawResponse AuthenticatorGetAssertion(AssertionOptions options, Fido2NetLib.Objects.AuthenticatorAttachment? authenticatorAttachment = null)
         {
-            if (options == null)
+            ArgumentNullException.ThrowIfNull(options);
+            if (string.IsNullOrWhiteSpace(options.RpId))
             {
-                throw new ArgumentNullException(nameof(options));
+                throw new ArgumentException("RP ID must be provided.", nameof(options));
             }
 
             var allowCreds = ApiMapper.Translate(options.AllowCredentials);
@@ -103,9 +116,12 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 options.Challenge,
                 uv,
                 attachment,
-                options.Timeout,
+                timeout,
                 new ReadOnlyCollection<PublicKeyCredentialDescriptor>(allowCreds)
             );
+
+            var assertionResponse = assertion.Response as AuthenticatorAssertionResponse
+                ?? throw new InvalidOperationException("Unexpected assertion response type.");
 
             return new AuthenticatorAssertionRawResponse()
             {
@@ -114,20 +130,30 @@ namespace DSInternals.Win32.WebAuthn.Adapter
                 Type = PublicKeyCredentialType.PublicKey,
                 Response = new AuthenticatorAssertionRawResponse.AssertionResponse()
                 {
-                    AuthenticatorData = (assertion.Response as AuthenticatorAssertionResponse).AuthenticatorData,
-                    Signature = (assertion.Response as AuthenticatorAssertionResponse).Signature,
-                    UserHandle = (assertion.Response as AuthenticatorAssertionResponse).UserHandle,
+                    AuthenticatorData = assertionResponse.AuthenticatorData,
+                    Signature = assertionResponse.Signature,
+                    UserHandle = assertionResponse.UserHandle,
                     ClientDataJson = assertion.Response.ClientDataJson
                 },
             };
         }
 
+        /// <summary>
+        /// Asynchronously signs a challenge and collected data into an assertion.
+        /// </summary>
+        /// <param name="options">Assertion options.</param>
+        /// <param name="authenticatorAttachment">Optionally filters eligible authenticators by attachment.</param>
+        /// <param name="cancellationToken">Cancellation token used to cancel the operation.</param>
+        /// <returns>The cryptographically signed authenticator assertion response.</returns>
         public async Task<AuthenticatorAssertionRawResponse> AuthenticatorGetAssertionAsync(AssertionOptions options, Fido2NetLib.Objects.AuthenticatorAttachment? authenticatorAttachment = null, CancellationToken cancellationToken = default)
         {
             cancellationToken.Register(state => CancelCurrentOperation(), null, false);
             return await Task.Run(() => AuthenticatorGetAssertion(options, authenticatorAttachment), cancellationToken).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Requests cancellation of the currently running WebAuthn operation.
+        /// </summary>
         public void CancelCurrentOperation()
         {
             _api.CancelCurrentOperation();
