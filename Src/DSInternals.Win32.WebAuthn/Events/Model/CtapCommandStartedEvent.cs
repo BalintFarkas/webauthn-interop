@@ -1,12 +1,10 @@
-using System;
-
-namespace DSInternals.Win32.WebAuthn.Events;
+﻿namespace DSInternals.Win32.WebAuthn.Events;
 
 /// <summary>
-/// Represents a CTAP platform command event (Event IDs 2100, 2102, 2103).
+/// Represents a CTAP platform command started event (Event ID 2100).
 /// </summary>
 /// <remarks>
-/// <para>Sample event data for CtapCommandStarted (2100):</para>
+/// <para>Sample event data:</para>
 /// <code>
 /// &lt;EventData&gt;
 ///   &lt;Data Name="Command"&gt;GetAllPlatformCredentials&lt;/Data&gt;
@@ -19,29 +17,11 @@ namespace DSInternals.Win32.WebAuthn.Events;
 ///   &lt;Data Name="Request"&gt;A967636F6D6D616E...&lt;/Data&gt;
 /// &lt;/EventData&gt;
 /// </code>
-/// <para>Sample event data for CtapCommandCompleted (2102):</para>
-/// <code>
-/// &lt;EventData&gt;
-///   &lt;Data Name="Command"&gt;GetAllPlatformCredentials&lt;/Data&gt;
-///   &lt;Data Name="TransactionId"&gt;{7177835f-89f9-4689-a7e9-839e62ce40bd}&lt;/Data&gt;
-///   &lt;Data Name="ResponseLength"&gt;29460&lt;/Data&gt;
-///   &lt;Data Name="Response"&gt;8CAA000401582049...&lt;/Data&gt;
-/// &lt;/EventData&gt;
-/// </code>
-/// <para>Sample event data for CtapCommandError (2103):</para>
-/// <code>
-/// &lt;EventData&gt;
-///   &lt;Data Name="Command"&gt;WebAuthN&lt;/Data&gt;
-///   &lt;Data Name="TransactionId"&gt;{aabbccdd-1234-5678-9abc-def012345678}&lt;/Data&gt;
-///   &lt;Data Name="Error"&gt;0x80090331&lt;/Data&gt;
-///   &lt;Data Name="Win32Error"&gt;0x80090331&lt;/Data&gt;
-/// &lt;/EventData&gt;
-/// </code>
 /// <para>Known command names: MakeCredential, GetAssertion, GetAllPlatformCredentials,
 /// GetAuthenticatorList, GetPluginAuthenticatorList, CreateTicket, UpdatePluginAuthenticator,
 /// RemoveAllPluginAuthenticatorCredentials, WebAuthN, command.</para>
 /// </remarks>
-public sealed class CtapCommandEvent : WebAuthnEvent
+public sealed class CtapCommandStartedEvent : WebAuthnEvent
 {
     /// <summary>
     /// The CTAP command name (e.g., "MakeCredential", "GetAssertion", "GetAllPlatformCredentials").
@@ -67,9 +47,4 @@ public sealed class CtapCommandEvent : WebAuthnEvent
     /// The CBOR-encoded request blob.
     /// </summary>
     public byte[]? Request { get; set; }
-
-    /// <summary>
-    /// The CBOR-encoded response blob.
-    /// </summary>
-    public byte[]? Response { get; set; }
 }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Formats.Cbor;
 
 namespace DSInternals.Win32.WebAuthn.Events;

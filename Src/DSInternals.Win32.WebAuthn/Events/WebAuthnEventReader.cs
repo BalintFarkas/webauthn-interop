@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Globalization;
@@ -82,11 +82,17 @@ public static class WebAuthnEventReader
 
         return eventId switch
         {
+            WebAuthnEventId.MakeCredentialCompleted =>
+                ParseMakeCredentialCompleted(record, properties, eventId, message),
+
             WebAuthnEventId.CborMakeCredentialRequest =>
                 ParseMakeCredentialRequest(record, properties, eventId, message),
 
-            WebAuthnEventId.CborMakeCredentialResponse or WebAuthnEventId.NgcMakeCredentialResponse =>
-                ParseMakeCredentialResponse(record, properties, eventId, message),
+            WebAuthnEventId.CborMakeCredentialResponse =>
+                ParseCborMakeCredentialResponse(record, properties, eventId, message),
+
+            WebAuthnEventId.NgcMakeCredentialResponse =>
+                ParseNgcMakeCredentialResponse(record, properties, eventId, message),
 
             WebAuthnEventId.CborGetAssertionRequest =>
                 ParseGetAssertionRequest(record, properties, eventId, message),
@@ -100,11 +106,20 @@ public static class WebAuthnEventReader
             WebAuthnEventId.UsbDeviceCompleted =>
                 ParseUsbDeviceCompleted(record, properties, eventId, message),
 
-            WebAuthnEventId.UsbDeviceStarted or WebAuthnEventId.UsbAddDevice =>
+            WebAuthnEventId.UsbDeviceStarted =>
                 ParseUsbDeviceStarted(record, properties, eventId, message),
 
-            WebAuthnEventId.IsUserVerifyingPlatformAuthenticatorAvailable or WebAuthnEventId.ApiVersion =>
-                ParseApiInfo(record, properties, eventId, message),
+            WebAuthnEventId.UsbAddDevice =>
+                ParseUsbAddDevice(record, properties, eventId, message),
+
+            WebAuthnEventId.IsUserVerifyingPlatformAuthenticatorAvailable =>
+                ParseIsUserVerifyingPlatformAuthenticatorAvailable(record, properties, eventId, message),
+
+            WebAuthnEventId.ApiVersion =>
+                ParseApiVersion(record, properties, eventId, message),
+
+            WebAuthnEventId.CancelCurrentOperation =>
+                ParseCancelCurrentOperation(record, properties, eventId, message),
 
             WebAuthnEventId.NameValue =>
                 ParseNameValue(record, properties, eventId, message),
@@ -118,8 +133,11 @@ public static class WebAuthnEventReader
             WebAuthnEventId.CtapCommandError =>
                 ParseCtapCommandError(record, properties, eventId, message),
 
-            WebAuthnEventId.FunctionWarning or WebAuthnEventId.BleFunctionWarning =>
+            WebAuthnEventId.FunctionWarning =>
                 ParseFunctionWarning(record, properties, eventId, message),
+
+            WebAuthnEventId.BleFunctionWarning =>
+                ParseBleFunctionWarning(record, properties, eventId, message),
 
             _ => ParseBaseEvent(record, properties, eventId, message)
         };
@@ -141,7 +159,6 @@ public static class WebAuthnEventReader
         {
             // Events with TransactionId only
             case WebAuthnEventId.MakeCredentialStarted:
-            case WebAuthnEventId.MakeCredentialCompleted:
             case WebAuthnEventId.GetAssertionStarted:
             case WebAuthnEventId.GetAssertionCompleted:
             case WebAuthnEventId.SendCommandCompleted:
@@ -234,6 +251,21 @@ public static class WebAuthnEventReader
         };
     }
 
+    private static MakeCredentialCompletedEvent ParseMakeCredentialCompleted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    {
+        // Fields: TransactionId
+        return new MakeCredentialCompletedEvent
+        {
+            EventId = eventId,
+            TimeCreated = record.TimeCreated?.ToLocalTime(),
+            ProcessId = (int)(record.ProcessId ?? 0),
+            ThreadId = (int)(record.ThreadId ?? 0),
+            Level = GetLevel(record),
+            Message = message,
+            TransactionId = GetGuid(properties, 0)
+        };
+    }
+
     private static MakeCredentialRequestEvent ParseMakeCredentialRequest(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
         // Fields: TransactionId, RpId, UserIdLength, UserId, ClientDataHashAlgId, ClientDataLength, ClientDataHashLength, ClientDataHash, RequireResidentKey, CredentialCount, CredentialParameterCount, RequestLength, Request
@@ -258,10 +290,34 @@ public static class WebAuthnEventReader
         };
     }
 
-    private static MakeCredentialResponseEvent ParseMakeCredentialResponse(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    private static CborMakeCredentialResponseEvent ParseCborMakeCredentialResponse(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
         // Fields: TransactionId, AttestationFormatType, RpIdHashLength, RpIdHash, Flags, SignCount, AAGuid, CredentialIdLength, CredentialId, U2fPublicKey, PublicKeyLength, PublicKey, ResponseLength, Response
-        return new MakeCredentialResponseEvent
+        return new CborMakeCredentialResponseEvent
+        {
+            EventId = eventId,
+            TimeCreated = record.TimeCreated?.ToLocalTime(),
+            ProcessId = (int)(record.ProcessId ?? 0),
+            ThreadId = (int)(record.ThreadId ?? 0),
+            Level = GetLevel(record),
+            Message = message,
+            TransactionId = GetGuid(properties, 0),
+            AttestationFormatType = GetString(properties, 1),
+            RpIdHash = GetByteArray(properties, 3), // index 2 is RpIdHashLength
+            AuthenticatorFlags = GetByte(properties, 4),
+            SignCount = GetUInt32(properties, 5),
+            AAGuid = GetGuid(properties, 6),
+            CredentialId = GetByteArray(properties, 8), // index 7 is CredentialIdLength
+            U2fPublicKey = GetByteArray(properties, 9),
+            PublicKey = GetByteArray(properties, 11), // index 10 is PublicKeyLength
+            Response = GetByteArray(properties, 13) // index 12 is ResponseLength
+        };
+    }
+
+    private static NgcMakeCredentialResponseEvent ParseNgcMakeCredentialResponse(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    {
+        // Fields: TransactionId, AttestationFormatType, RpIdHashLength, RpIdHash, Flags, SignCount, AAGuid, CredentialIdLength, CredentialId, U2fPublicKey, PublicKeyLength, PublicKey, ResponseLength, Response
+        return new NgcMakeCredentialResponseEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),
@@ -344,10 +400,10 @@ public static class WebAuthnEventReader
         };
     }
 
-    private static UsbDeviceEvent ParseUsbDeviceCompleted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    private static UsbDeviceCompletedEvent ParseUsbDeviceCompleted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
         // Fields: TransactionId, DevicePath, Manufacturer, Product, AAGuid, U2fProtocol
-        return new UsbDeviceEvent
+        return new UsbDeviceCompletedEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),
@@ -364,10 +420,10 @@ public static class WebAuthnEventReader
         };
     }
 
-    private static UsbDeviceEvent ParseUsbDeviceStarted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    private static UsbDeviceStartedEvent ParseUsbDeviceStarted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
         // Fields: TransactionId, DevicePath, Manufacturer, Product
-        return new UsbDeviceEvent
+        return new UsbDeviceStartedEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),
@@ -382,10 +438,10 @@ public static class WebAuthnEventReader
         };
     }
 
-    private static ApiInfoEvent ParseApiInfo(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    private static UsbAddDeviceEvent ParseUsbAddDevice(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
-        // Fields: value, Error, HResult
-        return new ApiInfoEvent
+        // Fields: TransactionId, DevicePath, Manufacturer, Product
+        return new UsbAddDeviceEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),
@@ -393,7 +449,59 @@ public static class WebAuthnEventReader
             ThreadId = (int)(record.ThreadId ?? 0),
             Level = GetLevel(record),
             Message = message,
-            Value = GetString(properties, 0),
+            TransactionId = GetGuid(properties, 0),
+            DevicePath = GetString(properties, 1),
+            Manufacturer = GetString(properties, 2),
+            Product = GetString(properties, 3)
+        };
+    }
+
+    private static IsUserVerifyingPlatformAuthenticatorAvailableEvent ParseIsUserVerifyingPlatformAuthenticatorAvailable(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    {
+        // Fields: value, Error, HResult
+        return new IsUserVerifyingPlatformAuthenticatorAvailableEvent
+        {
+            EventId = eventId,
+            TimeCreated = record.TimeCreated?.ToLocalTime(),
+            ProcessId = (int)(record.ProcessId ?? 0),
+            ThreadId = (int)(record.ThreadId ?? 0),
+            Level = GetLevel(record),
+            Message = message,
+            IsAvailable = GetBoolean(properties, 0),
+            Error = GetString(properties, 1),
+            HResult = GetInt32(properties, 2)
+        };
+    }
+
+    private static ApiVersionEvent ParseApiVersion(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    {
+        // Fields: value, Error, HResult
+        return new ApiVersionEvent
+        {
+            EventId = eventId,
+            TimeCreated = record.TimeCreated?.ToLocalTime(),
+            ProcessId = (int)(record.ProcessId ?? 0),
+            ThreadId = (int)(record.ThreadId ?? 0),
+            Level = GetLevel(record),
+            Message = message,
+            Value = GetUInt32(properties, 0),
+            Error = GetString(properties, 1),
+            HResult = GetInt32(properties, 2)
+        };
+    }
+
+    private static CancelCurrentOperationEvent ParseCancelCurrentOperation(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    {
+        // Fields: value (CancellationId), Error, HResult
+        return new CancelCurrentOperationEvent
+        {
+            EventId = eventId,
+            TimeCreated = record.TimeCreated?.ToLocalTime(),
+            ProcessId = (int)(record.ProcessId ?? 0),
+            ThreadId = (int)(record.ThreadId ?? 0),
+            Level = GetLevel(record),
+            Message = message,
+            CancellationId = GetGuid(properties, 0),
             Error = GetString(properties, 1),
             HResult = GetInt32(properties, 2)
         };
@@ -415,10 +523,10 @@ public static class WebAuthnEventReader
         };
     }
 
-    private static CtapCommandEvent ParseCtapCommandStarted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    private static CtapCommandStartedEvent ParseCtapCommandStarted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
         // Fields: Command, TransactionId, Flags, TimeoutMilliseconds, TicketLength, Ticket, RequestLength, Request
-        return new CtapCommandEvent
+        return new CtapCommandStartedEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),
@@ -435,10 +543,10 @@ public static class WebAuthnEventReader
         };
     }
 
-    private static CtapCommandEvent ParseCtapCommandCompleted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    private static CtapCommandCompletedEvent ParseCtapCommandCompleted(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
         // Fields: Command, TransactionId, ResponseLength, Response
-        return new CtapCommandEvent
+        return new CtapCommandCompletedEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),
@@ -452,10 +560,10 @@ public static class WebAuthnEventReader
         };
     }
 
-    private static CtapCommandEvent ParseCtapCommandError(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    private static CtapCommandErrorEvent ParseCtapCommandError(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
     {
         // Fields: Command, TransactionId, Error, Win32Error
-        return new CtapCommandEvent
+        return new CtapCommandErrorEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),
@@ -474,6 +582,24 @@ public static class WebAuthnEventReader
     {
         // Fields: Function, Location, Error, Win32Error
         return new FunctionWarningEvent
+        {
+            EventId = eventId,
+            TimeCreated = record.TimeCreated?.ToLocalTime(),
+            ProcessId = (int)(record.ProcessId ?? 0),
+            ThreadId = (int)(record.ThreadId ?? 0),
+            Level = GetLevel(record),
+            Message = message,
+            Function = GetString(properties, 0),
+            Location = GetString(properties, 1),
+            Error = GetString(properties, 2),
+            HResult = GetInt32(properties, 3)
+        };
+    }
+
+    private static BleFunctionWarningEvent ParseBleFunctionWarning(EventRecord record, IList<EventProperty> properties, WebAuthnEventId eventId, string? message)
+    {
+        // Fields: Function, Location, Error, Win32Error
+        return new BleFunctionWarningEvent
         {
             EventId = eventId,
             TimeCreated = record.TimeCreated?.ToLocalTime(),

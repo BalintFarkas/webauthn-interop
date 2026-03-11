@@ -5,8 +5,7 @@ namespace DSInternals.Win32.WebAuthn
     /// <summary>
     /// Authenticators respond to Relying Party requests by returning an object derived from the AuthenticatorResponse class.
     /// </summary>
-    [JsonDerivedType(typeof(AuthenticatorAttestationResponse))]
-    [JsonDerivedType(typeof(AuthenticatorAssertionResponse))]
+    [JsonConverter(typeof(AuthenticatorResponseConverter))]
     public abstract class AuthenticatorResponse
     {
         /// <summary>

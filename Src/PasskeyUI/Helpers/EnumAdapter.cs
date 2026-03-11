@@ -1,10 +1,12 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Windows.Data;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;
 
-internal static class EnumAdapter
+internal sealed class EnumAdapter : IValueConverter
 {
     public static IList<KeyValuePair<T?, string>> GetComboBoxItems<T>(string? nullDisplayName = null) where T : struct, Enum
     {
@@ -24,4 +26,10 @@ internal static class EnumAdapter
 
         return result;
     }
+
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value?.ToString();
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 }

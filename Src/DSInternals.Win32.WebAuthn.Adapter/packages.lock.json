@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "dependencies": {
     "net10.0-windows7.0": {
       "Fido2.Models": {
@@ -10,6 +10,12 @@
         "dependencies": {
           "Microsoft.Bcl.Memory": "9.0.0"
         }
+      },
+      "Polyfill": {
+        "type": "Direct",
+        "requested": "[9.18.0, )",
+        "resolved": "9.18.0",
+        "contentHash": "jlgewzgbgEFIoplbpdWNPKo/+R9ELej0iL1sdKrVeMzQ0aZCvRCdi/X/4AjRaBqkXoDTWFrOjgVXRukZYSVO+w=="
       },
       "Microsoft.Bcl.Memory": {
         "type": "Transitive",
@@ -27,14 +33,6 @@
         "contentHash": "FU/IfjDfwaMuKr414SSQNTIti/69bHEMb+QKrskRb26oVqpx3lNFXMjs/RC9ZUuhBhcwDM2BwOgoMw+PZ+beqQ==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.0"
-        }
-      },
-      "Microsoft.Identity.Client": {
-        "type": "Transitive",
-        "resolved": "4.80.0",
-        "contentHash": "nmg+q17mKdNafWvaX7Of5Xh8sxc4acsD6xOOczp7kgjAzR7bpseYGZzg38XPoS/vW7k92sGKCWgHSogB0K62KQ==",
-        "dependencies": {
-          "Microsoft.IdentityModel.Abstractions": "8.14.0"
         }
       },
       "Microsoft.IdentityModel.Abstractions": {
@@ -67,15 +65,6 @@
           "Microsoft.IdentityModel.Logging": "8.15.0"
         }
       },
-      "PeterO.Cbor": {
-        "type": "Transitive",
-        "resolved": "4.5.5",
-        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
-        "dependencies": {
-          "PeterO.Numbers": "1.8.2",
-          "PeterO.URIUtility": "1.0.0"
-        }
-      },
       "PeterO.Numbers": {
         "type": "Transitive",
         "resolved": "1.8.2",
@@ -86,33 +75,62 @@
         "resolved": "1.0.0",
         "contentHash": "fpRTBsYACMp7NvTECauYRomubWTC3vUNw4hMXdIedP8ctBGK6tea9HOJwE+qVzis6MZYkL3LIs8qeY3rc6Jdlw=="
       },
+      "dsinternals.win32.webauthn": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Identity.Client": "[4.80.0, )",
+          "Microsoft.NET.ILLink.Tasks": "[10.0.3, )",
+          "PeterO.Cbor": "[4.5.5, )",
+          "System.Diagnostics.EventLog": "[9.0.3, )",
+          "System.Formats.Cbor": "[9.0.3, )",
+          "System.IdentityModel.Tokens.Jwt": "[8.15.0, )"
+        }
+      },
+      "Microsoft.Identity.Client": {
+        "type": "CentralTransitive",
+        "requested": "[4.80.0, )",
+        "resolved": "4.80.0",
+        "contentHash": "nmg+q17mKdNafWvaX7Of5Xh8sxc4acsD6xOOczp7kgjAzR7bpseYGZzg38XPoS/vW7k92sGKCWgHSogB0K62KQ==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Abstractions": "8.14.0"
+        }
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "CentralTransitive",
+        "requested": "[10.0.3, )",
+        "resolved": "10.0.3",
+        "contentHash": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA=="
+      },
+      "PeterO.Cbor": {
+        "type": "CentralTransitive",
+        "requested": "[4.5.5, )",
+        "resolved": "4.5.5",
+        "contentHash": "9fMcLg2SUm9ri1j3gVPYxk6+Ev4l4wu93bYwFG1tvntg1Qy4m0rFDdxStG88XR/W4DggOtBXfPVkC3bLF10nqw==",
+        "dependencies": {
+          "PeterO.Numbers": "1.8.2",
+          "PeterO.URIUtility": "1.0.0"
+        }
+      },
       "System.Diagnostics.EventLog": {
-        "type": "Transitive",
+        "type": "CentralTransitive",
+        "requested": "[9.0.3, )",
         "resolved": "9.0.3",
         "contentHash": "0nDJBZ06DVdTG2vvCZ4XjazLVaFawdT0pnji23ISX8I8fEOlRJyzH2I0kWiAbCtFwry2Zir4qE4l/GStLATfFw=="
       },
       "System.Formats.Cbor": {
-        "type": "Transitive",
+        "type": "CentralTransitive",
+        "requested": "[9.0.3, )",
         "resolved": "9.0.3",
         "contentHash": "tRqH5Ze3/2anAQ5TWd3NB50l74afOFX7YChfpVFKPJl5KkrK+sg5J4xtuDT0glNUt7LkexrSfYzGcgalaqmVsg=="
       },
       "System.IdentityModel.Tokens.Jwt": {
-        "type": "Transitive",
+        "type": "CentralTransitive",
+        "requested": "[8.15.0, )",
         "resolved": "8.15.0",
         "contentHash": "dpodi7ixz6hxK8YCBYAWzm0IA8JYXoKcz0hbCbNifo519//rjUI0fBD8rfNr+IGqq+2gm4oQoXwHk09LX5SqqQ==",
         "dependencies": {
           "Microsoft.IdentityModel.JsonWebTokens": "8.15.0",
           "Microsoft.IdentityModel.Tokens": "8.15.0"
-        }
-      },
-      "dsinternals.win32.webauthn": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.Identity.Client": "[4.80.0, )",
-          "PeterO.Cbor": "[4.5.5, )",
-          "System.Diagnostics.EventLog": "[9.0.3, )",
-          "System.Formats.Cbor": "[9.0.3, )",
-          "System.IdentityModel.Tokens.Jwt": "[8.15.0, )"
         }
       }
     }

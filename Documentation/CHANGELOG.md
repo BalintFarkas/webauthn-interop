@@ -4,12 +4,21 @@ All notable changes to this project will be documented in this file. The format 
 
 ## [Unreleased]
 
+### Added
+
+- Added support for Okta as a passkey identity provider, including `Connect-Okta`, `Disconnect-Okta`, and extended `Get-PasskeyRegistrationOptions`/`Register-Passkey` cmdlets. (Thanks to @aseigler)
+- Updated to WebAuthn API v9, adding support for new authenticator hints and large blobs.
+- Added new PowerShell cmdlets: `Get-PasskeyAuthenticator`, `Get-PasskeyAuthenticatorPlugin`, `Get-PasskeyWindowsHello`, `New-PasskeyRandomChallenge`, `Remove-PasskeyWindowsHello`, and `Test-Passkey`.
+- Added a software-based signing feature to Passkey UI, enabling offline testing without a physical authenticator.
+- Added the Event Log tab to Passkey UI that displays successful passkey registration and authentication operations.
+
 ### Changed
 
 - The `AuthenticatorGetAssertion` and `AuthenticatorGetAssertionAsync` methods now return `PublicKeyCredential` instead of `AuthenticatorAssertionResponse`.
 - Migrated Passkey UI from .NET Framework 4.8 to .NET 10, now published as a self-contained single-file executable.
 - Updated the application icon to a key emoji (🔑).
 - Renamed the desktop application from "FIDO2 UI" to "Passkey UI".
+- Migrated solution from `.sln` to `.slnx` format.
 
 ### Fixed
 

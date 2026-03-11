@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
 {

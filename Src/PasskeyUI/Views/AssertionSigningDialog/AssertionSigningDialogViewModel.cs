@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -21,21 +20,24 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
     // Dialog parameters received from caller
     private string? _relyingPartyId;
     private byte[]? _challenge;
+    private Algorithm _defaultAlgorithm = Algorithm.ES256;
 
     // Loaded passkey (if file is .passkey)
     private KeePassXCPasskey? _loadedPasskey;
 
     private readonly IDialogService _dialogService;
+    private readonly SigningDialogCache _cache;
 
-    public AssertionSigningDialogViewModel(IDialogService dialogService)
+    public AssertionSigningDialogViewModel(IDialogService dialogService, SigningDialogCache cache)
     {
         _dialogService = dialogService;
+        _cache = cache;
         SignCommand = new DelegateCommand(OnSign, CanSign)
             .ObservesProperty(() => KeyFilePath)
-            .ObservesProperty(() => CredentialIdString);
+            .ObservesProperty(() => CredentialId);
         BrowseKeyFileCommand = new DelegateCommand(OnBrowseKeyFile);
         GenerateKeyPairCommand = new DelegateCommand(OnGenerateKeyPair);
-        SelectPresetCommand = new DelegateCommand<AuthenticatorPreset>(OnSelectPreset);
+        GenerateCredentialIdCommand = new DelegateCommand(OnGenerateCredentialId);
         IncrementCounterCommand = new DelegateCommand(() => SignatureCounter++);
         DecrementCounterCommand = new DelegateCommand(() => { if (SignatureCounter > 0) SignatureCounter--; });
     }
@@ -47,31 +49,24 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
     public DelegateCommand SignCommand { get; }
     public DelegateCommand BrowseKeyFileCommand { get; }
     public DelegateCommand GenerateKeyPairCommand { get; }
-    public DelegateCommand<AuthenticatorPreset> SelectPresetCommand { get; }
+    public DelegateCommand GenerateCredentialIdCommand { get; }
     public DelegateCommand IncrementCounterCommand { get; }
     public DelegateCommand DecrementCounterCommand { get; }
 
-    private void OnSelectPreset(AuthenticatorPreset preset)
-    {
-        SelectedAlgorithm = preset.DefaultAlgorithm;
-    }
-
     // Authenticator parameters
-    public Algorithm SelectedAlgorithm
+    public Algorithm? SelectedAlgorithm
     {
         get;
-        set => SetProperty(ref field, value);
-    } = Algorithm.ES256;
+        private set => SetProperty(ref field, value);
+    }
 
-    public IList<KeyValuePair<Algorithm, string>> Algorithms => AuthenticatorPreset.AlgorithmItems;
-
-    public string? CredentialIdString
+    public byte[]? CredentialId
     {
         get;
         set => SetProperty(ref field, value);
     }
 
-    public string? UserHandleString
+    public byte[]? UserHandle
     {
         get;
         set => SetProperty(ref field, value);
@@ -108,59 +103,57 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
 
     public void OnDialogOpened(IDialogParameters parameters)
     {
-        _relyingPartyId = parameters.GetValue<string>("RelyingPartyId");
-        _challenge = parameters.GetValue<byte[]>("Challenge");
+        var p = AssertionSigningDialogParameters.From(parameters);
+        _relyingPartyId = p.RelyingPartyId;
+        _challenge = p.Challenge;
+        UserVerified = p.UserVerificationRequirement is UserVerificationRequirement.Required or UserVerificationRequirement.Preferred;
+        _defaultAlgorithm = p.DefaultAlgorithm;
 
-        // Pre-populate UV from the assertion options form
-        var uvRequirement = parameters.GetValue<UserVerificationRequirement>("UserVerificationRequirement");
-        UserVerified = uvRequirement is UserVerificationRequirement.Required or UserVerificationRequirement.Preferred;
-
-        // Restore cached values from previous dialog invocations
+        // Priority 3: restore cached values (excluding key file)
         RestoreFromCache();
 
-        // Pre-populate credential ID from attestation options if provided, otherwise use cached value
-        var credentialId = parameters.GetValue<string>("CredentialId");
-        if (!string.IsNullOrWhiteSpace(credentialId))
+        // Priority 2: caller-provided credential ID
+        if (p.CredentialId is { Length: > 0 })
+            CredentialId = p.CredentialId;
+
+        // Priority 1: load cached key file (.passkey credential ID wins)
+        if (_cache.KeyFilePath != null)
         {
-            CredentialIdString = credentialId;
+            if (File.Exists(_cache.KeyFilePath))
+                LoadKeyFile(_cache.KeyFilePath);
+            else
+                _cache.KeyFilePath = null;
         }
     }
 
     private void RestoreFromCache()
     {
-        if (SigningDialogCache.SelectedAlgorithm.HasValue)
-            SelectedAlgorithm = SigningDialogCache.SelectedAlgorithm.Value;
+        if (_cache.SignatureCounter.HasValue)
+            SignatureCounter = _cache.SignatureCounter.Value;
 
-        if (SigningDialogCache.SignatureCounter.HasValue)
-            SignatureCounter = SigningDialogCache.SignatureCounter.Value;
+        if (_cache.UserPresent.HasValue)
+            UserPresent = _cache.UserPresent.Value;
 
-        if (SigningDialogCache.KeyFilePath != null)
-        {
-            _loadedPasskey = SigningDialogCache.LoadedPasskey;
-            KeyFilePath = SigningDialogCache.KeyFilePath;
-        }
+        if (_cache.CredentialId != null)
+            CredentialId = _cache.CredentialId;
 
-        if (SigningDialogCache.UserPresent.HasValue)
-            UserPresent = SigningDialogCache.UserPresent.Value;
-
-        if (SigningDialogCache.CredentialIdString != null)
-            CredentialIdString = SigningDialogCache.CredentialIdString;
+        if (_cache.UserHandle != null)
+            UserHandle = _cache.UserHandle;
     }
 
     private void SaveToCache()
     {
-        SigningDialogCache.SelectedAlgorithm = SelectedAlgorithm;
-        SigningDialogCache.SignatureCounter = SignatureCounter;
-        SigningDialogCache.KeyFilePath = KeyFilePath;
-        SigningDialogCache.LoadedPasskey = _loadedPasskey;
-        SigningDialogCache.UserPresent = UserPresent;
-        SigningDialogCache.CredentialIdString = CredentialIdString;
+        _cache.SignatureCounter = SignatureCounter;
+        _cache.KeyFilePath = KeyFilePath;
+        _cache.UserPresent = UserPresent;
+        _cache.CredentialId = CredentialId;
+        _cache.UserHandle = UserHandle;
     }
 
     private bool CanSign()
     {
         return !string.IsNullOrWhiteSpace(KeyFilePath)
-            && !string.IsNullOrWhiteSpace(CredentialIdString);
+            && CredentialId is { Length: > 0 };
     }
 
     private void OnSign()
@@ -172,14 +165,6 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
                 throw new InvalidOperationException("Missing assertion options. Please fill in the authentication form before signing.");
             }
 
-            byte[] credentialId = Base64UrlConverter.FromBase64UrlString(CredentialIdString!);
-
-            byte[]? userHandle = null;
-            if (!string.IsNullOrWhiteSpace(UserHandleString))
-            {
-                userHandle = Base64UrlConverter.FromBase64UrlString(UserHandleString!);
-            }
-
             using var privateKey = LoadPrivateKey();
 
             AuthenticatorFlags flags = 0;
@@ -189,27 +174,22 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
             var credential = SoftwareAuthenticator.GetAssertion(
                 _relyingPartyId,
                 _challenge,
-                SelectedAlgorithm,
+                SelectedAlgorithm ?? Algorithm.ES256,
                 SignatureCounter,
                 flags,
-                credentialId,
-                userHandle,
+                CredentialId!,
+                UserHandle,
                 privateKey);
 
             string json = JsonSerializer.Serialize(credential, IndentedJsonContext.PublicKeyCredential);
 
             SaveToCache();
 
-            var result = new DialogParameters
-            {
-                { "Response", json }
-            };
-
-            RequestClose.Invoke(result, ButtonResult.OK);
+            RequestClose.Invoke(new SigningDialogResult { Response = json }.ToDialogParameters(), ButtonResult.OK);
         }
         catch (Exception ex)
         {
-            _dialogService.ShowDialog(nameof(NotificationDialog), new DialogParameters($"Message={ex.Message}"));
+            _dialogService.ShowNotificationDialog(ex.Message);
         }
     }
 
@@ -253,12 +233,12 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
             else
             {
                 KeyFilePath = filePath;
-                ValidateLoadedKey();
+                DetectKeyAlgorithm();
             }
         }
         catch (Exception ex)
         {
-            _dialogService.ShowDialog(nameof(NotificationDialog), new DialogParameters($"Message={ex.Message}"));
+            _dialogService.ShowNotificationDialog(ex.Message);
         }
     }
 
@@ -267,17 +247,17 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
         var passkey = KeePassXCPasskey.LoadFromFile(filePath);
 
         // Validate RP ID
-        if (_relyingPartyId != null && passkey.EffectiveRpId != null
-            && !string.Equals(_relyingPartyId, passkey.EffectiveRpId, StringComparison.OrdinalIgnoreCase))
+        if (_relyingPartyId != null && passkey.RelyingParty != null
+            && !string.Equals(_relyingPartyId, passkey.RelyingParty, StringComparison.OrdinalIgnoreCase))
         {
-            _dialogService.ShowDialog(nameof(NotificationDialog), new DialogParameters($"Message=The passkey's relying party \"{passkey.EffectiveRpId}\" does not match the current RP ID \"{_relyingPartyId}\"."));
+            _dialogService.ShowNotificationDialog($"The passkey's relying party \"{passkey.RelyingParty}\" does not match the current RP ID \"{_relyingPartyId}\".");
             return;
         }
 
         // Validate private key presence
-        if (passkey.GetPrivateKeyPem() == null)
+        if (passkey.PrivateKey == null)
         {
-            _dialogService.ShowDialog(nameof(NotificationDialog), new DialogParameters("Message=No private key found in the passkey file."));
+            _dialogService.ShowNotificationDialog("No private key found in the passkey file.");
             return;
         }
 
@@ -285,22 +265,15 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
         KeyFilePath = filePath;
 
         // Auto-fill credential ID
-        string? credIdBase64Url = passkey.GetCredentialIdBase64Url();
-        if (!string.IsNullOrWhiteSpace(credIdBase64Url))
+        if (!string.IsNullOrWhiteSpace(passkey.CredentialId))
         {
-            CredentialIdString = credIdBase64Url;
+            CredentialId = Base64UrlConverter.FromBase64UrlString(passkey.CredentialId);
         }
 
         // Auto-fill user handle
         if (!string.IsNullOrWhiteSpace(passkey.UserHandle))
         {
-            UserHandleString = passkey.UserHandle;
-        }
-
-        // Auto-fill sign count
-        if (passkey.SignCount.HasValue)
-        {
-            SignatureCounter = (uint)passkey.SignCount.Value;
+            UserHandle = Base64UrlConverter.FromBase64UrlString(passkey.UserHandle);
         }
 
         // Auto-detect algorithm from the key
@@ -315,47 +288,34 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
         }
     }
 
-    private void ValidateLoadedKey()
+    private void DetectKeyAlgorithm()
     {
         try
         {
             using var key = SoftwareAuthenticator.LoadPrivateKeyFromPem(KeyFilePath!);
-            string? error = SoftwareAuthenticator.ValidateKeyForAlgorithm(key, SelectedAlgorithm);
-            if (error != null)
-            {
-                _dialogService.ShowDialog(nameof(NotificationDialog), new DialogParameters($"Message={error}"));
-            }
+            SelectedAlgorithm = SoftwareAuthenticator.DetectAlgorithm(key);
         }
         catch (Exception ex)
         {
-            _dialogService.ShowDialog(nameof(NotificationDialog), new DialogParameters($"Message={ex.Message}"));
+            _dialogService.ShowNotificationDialog(ex.Message);
         }
+    }
+
+    private void OnGenerateCredentialId()
+    {
+        CredentialId = RandomNumberGenerator.GetBytes(SoftwareAuthenticator.DefaultCredentialIdLength);
     }
 
     private void OnGenerateKeyPair()
     {
-        try
+        _dialogService.ShowKeyGenerationDialog(_defaultAlgorithm, result =>
         {
-            string pem = SoftwareAuthenticator.GenerateKeyPairPem(SelectedAlgorithm);
-
-            var dialog = new SaveFileDialog
+            if (result != null)
             {
-                Title = "Save Generated Private Key",
-                Filter = "PEM files (*.pem)|*.pem",
-                DefaultExt = ".pem",
-                FileName = $"webauthn-{SelectedAlgorithm.ToString().ToLowerInvariant()}-key.pem"
-            };
-
-            if (dialog.ShowDialog() == true)
-            {
-                System.IO.File.WriteAllText(dialog.FileName, pem);
                 _loadedPasskey = null;
-                KeyFilePath = dialog.FileName;
+                KeyFilePath = result.FilePath;
+                SelectedAlgorithm = result.Algorithm;
             }
-        }
-        catch (Exception ex)
-        {
-            _dialogService.ShowDialog(nameof(NotificationDialog), new DialogParameters($"Message={ex.Message}"));
-        }
+        });
     }
 }

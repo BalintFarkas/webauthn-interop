@@ -1,4 +1,4 @@
-using Prism.Commands;
+﻿using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Mvvm;
 
@@ -40,14 +40,10 @@ internal sealed class ConfirmationDialogViewModel : BindableBase, IDialogAware
 
     public void OnDialogOpened(IDialogParameters parameters)
     {
-        Message = parameters.GetValue<string>(nameof(Message));
-
-        var title = parameters.GetValue<string>(nameof(Title));
-
-        if (!string.IsNullOrEmpty(title))
-        {
-            Title = title;
-        }
+        var p = ConfirmationDialogParameters.From(parameters);
+        Message = p.Message;
+        if (!string.IsNullOrEmpty(p.Title))
+            Title = p.Title;
     }
 
     public ConfirmationDialogViewModel()

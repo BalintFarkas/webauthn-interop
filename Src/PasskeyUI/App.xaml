@@ -11,6 +11,11 @@
                 <ResourceDictionary Source="pack://application:,,,/PresentationFramework.Fluent;component/Themes/Fluent.xaml" />
                 <!-- Custom styles that extend Fluent theme -->
                 <ResourceDictionary>
+                    <!-- Shared converters -->
+                    <local:ByteArrayToBase64UrlConverter x:Key="ByteArrayToBase64UrlConverter" />
+                    <local:EnumAdapter x:Key="EnumAdapter" />
+                    <local:GuidConverter x:Key="GuidConverter" />
+
                     <!-- Shared font for Fluent icons -->
                     <FontFamily x:Key="FluentIcons">Segoe Fluent Icons</FontFamily>
 

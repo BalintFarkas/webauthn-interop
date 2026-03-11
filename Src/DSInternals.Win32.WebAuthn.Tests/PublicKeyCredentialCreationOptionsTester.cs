@@ -9,9 +9,9 @@ using System.Text.Json;
 using DSInternals.Win32.WebAuthn.EntraID;
 using DSInternals.Win32.WebAuthn.FIDO;
 using DSInternals.Win32.WebAuthn.Interop;
+using DSInternals.Win32.WebAuthn.Okta;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PeterO.Cbor;
-using DSInternals.Win32.WebAuthn.Okta;
 
 namespace DSInternals.Win32.WebAuthn.Tests
 {
@@ -105,7 +105,8 @@ namespace DSInternals.Win32.WebAuthn.Tests
 
         internal byte[] _clientDataHash => SHA256.HashData(_clientDataJson);
 
-        internal byte[] _attToBeSigned {
+        internal byte[] _attToBeSigned
+        {
             get
             {
                 byte[] toBeSigned = new byte[_authData.Length + _clientDataHash.Length];
@@ -212,58 +213,58 @@ namespace DSInternals.Win32.WebAuthn.Tests
             switch (_kty)
             {
                 case COSE.KeyType.EC2:
-                {
-                    ECCurve curve = _crv switch
                     {
-                        COSE.EllipticCurve.P256 => ECCurve.NamedCurves.nistP256,
-                        COSE.EllipticCurve.P384 => ECCurve.NamedCurves.nistP384,
-                        COSE.EllipticCurve.P521 => ECCurve.NamedCurves.nistP521,
-                        _ => throw new ArgumentOutOfRangeException(nameof(_crv)),
-                    };
+                        ECCurve curve = _crv switch
+                        {
+                            COSE.EllipticCurve.P256 => ECCurve.NamedCurves.nistP256,
+                            COSE.EllipticCurve.P384 => ECCurve.NamedCurves.nistP384,
+                            COSE.EllipticCurve.P521 => ECCurve.NamedCurves.nistP521,
+                            _ => throw new ArgumentOutOfRangeException(nameof(_crv)),
+                        };
 
-                    using var ecdsa = ECDsa.Create(curve);
-                    _certReq = new CertificateRequest(_rootDN, ecdsa, HashAlgorithmName.SHA256);
-                    var ecparams = ecdsa.ExportParameters(true);
+                        using var ecdsa = ECDsa.Create(curve);
+                        _certReq = new CertificateRequest(_rootDN, ecdsa, HashAlgorithmName.SHA256);
+                        var ecparams = ecdsa.ExportParameters(true);
 
-                    cpk.Add(COSE.KeyTypeParameter.X, ecparams.Q.X);
-                    cpk.Add(COSE.KeyTypeParameter.Y, ecparams.Q.Y);
-                    cpk.Add((int)COSE.KeyTypeParameter.Crv, (int)_crv);
-                    _credentialPublicKey = new CredentialPublicKey(cpk);
-                    var sig = ecdsa.SignData(_attToBeSigned, HashAlgFromCOSEAlg(_alg));
-                    var coefficientSize = (int)Math.Ceiling((decimal)ecdsa.KeySize / 8);
-                    var r = new byte[coefficientSize];
-                    Buffer.BlockCopy(sig, 0, r, 0, coefficientSize);
-                    var s = new byte[coefficientSize];
-                    Buffer.BlockCopy(sig, sig.Length - coefficientSize, s, 0, coefficientSize);
+                        cpk.Add(COSE.KeyTypeParameter.X, ecparams.Q.X);
+                        cpk.Add(COSE.KeyTypeParameter.Y, ecparams.Q.Y);
+                        cpk.Add((int)COSE.KeyTypeParameter.Crv, (int)_crv);
+                        _credentialPublicKey = new CredentialPublicKey(cpk);
+                        var sig = ecdsa.SignData(_attToBeSigned, HashAlgFromCOSEAlg(_alg));
+                        var coefficientSize = (int)Math.Ceiling((decimal)ecdsa.KeySize / 8);
+                        var r = new byte[coefficientSize];
+                        Buffer.BlockCopy(sig, 0, r, 0, coefficientSize);
+                        var s = new byte[coefficientSize];
+                        Buffer.BlockCopy(sig, sig.Length - coefficientSize, s, 0, coefficientSize);
 
-                    var asnwriter = new AsnWriter(AsnEncodingRules.BER);
-                    ReadOnlySpan<byte> zero = new byte[1] { 0 };
-                    using (asnwriter.PushSequence())
-                    {
-                        asnwriter.WriteIntegerUnsigned(r);
-                        asnwriter.WriteIntegerUnsigned(s);
+                        var asnwriter = new AsnWriter(AsnEncodingRules.BER);
+                        ReadOnlySpan<byte> zero = new byte[1] { 0 };
+                        using (asnwriter.PushSequence())
+                        {
+                            asnwriter.WriteIntegerUnsigned(r);
+                            asnwriter.WriteIntegerUnsigned(s);
+                        }
+                        _sig = asnwriter.Encode();
+                        break;
                     }
-                    _sig = asnwriter.Encode();
-                    break;
-                }
                 case COSE.KeyType.RSA:
-                {
-                    using var rsa = RSA.Create();
-
-                    var padding = _alg switch // https://www.iana.org/assignments/cose/cose.xhtml#algorithms
                     {
-                        COSE.Algorithm.RS1 or COSE.Algorithm.RS256 or COSE.Algorithm.RS384 or COSE.Algorithm.RS512 => RSASignaturePadding.Pkcs1,
-                        COSE.Algorithm.PS256 or COSE.Algorithm.PS384 or COSE.Algorithm.PS512 => RSASignaturePadding.Pss,
-                        _ => throw new ArgumentOutOfRangeException(nameof(_alg)),
-                    };
-                    _certReq = new CertificateRequest(_rootDN, rsa, HashAlgorithmName.SHA256, padding);
-                    var rsaparams = rsa.ExportParameters(true);
-                    cpk.Add(COSE.KeyTypeParameter.N, rsaparams.Modulus);
-                    cpk.Add(COSE.KeyTypeParameter.E, rsaparams.Exponent);
-                    _credentialPublicKey = new CredentialPublicKey(cpk);
-                    _sig = rsa.SignData(_attToBeSigned, HashAlgFromCOSEAlg(_alg), _padding);
-                    break;
-                }
+                        using var rsa = RSA.Create();
+
+                        var padding = _alg switch // https://www.iana.org/assignments/cose/cose.xhtml#algorithms
+                        {
+                            COSE.Algorithm.RS1 or COSE.Algorithm.RS256 or COSE.Algorithm.RS384 or COSE.Algorithm.RS512 => RSASignaturePadding.Pkcs1,
+                            COSE.Algorithm.PS256 or COSE.Algorithm.PS384 or COSE.Algorithm.PS512 => RSASignaturePadding.Pss,
+                            _ => throw new ArgumentOutOfRangeException(nameof(_alg)),
+                        };
+                        _certReq = new CertificateRequest(_rootDN, rsa, HashAlgorithmName.SHA256, padding);
+                        var rsaparams = rsa.ExportParameters(true);
+                        cpk.Add(COSE.KeyTypeParameter.N, rsaparams.Modulus);
+                        cpk.Add(COSE.KeyTypeParameter.E, rsaparams.Exponent);
+                        _credentialPublicKey = new CredentialPublicKey(cpk);
+                        _sig = rsa.SignData(_attToBeSigned, HashAlgFromCOSEAlg(_alg), _padding);
+                        break;
+                    }
                 default:
                     throw new ArgumentOutOfRangeException(nameof(_kty), _kty, "Invalid COSE key type");
             }

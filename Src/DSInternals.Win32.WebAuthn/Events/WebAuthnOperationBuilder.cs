@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -73,9 +73,9 @@ public static class WebAuthnOperationBuilder
         var request = events.OfType<MakeCredentialRequestEvent>().FirstOrDefault();
         var response = events.OfType<MakeCredentialResponseEvent>().FirstOrDefault();
         var deviceInfo = events.OfType<DeviceInfoEvent>().FirstOrDefault();
-        var usbDevice = events.OfType<UsbDeviceEvent>().FirstOrDefault(e => e.AAGuid.HasValue);
+        var usbDevice = events.OfType<UsbDeviceCompletedEvent>().FirstOrDefault();
 
-        // Get device info from either DeviceInfoEvent or UsbDeviceEvent
+        // Get device info from either DeviceInfoEvent or UsbDeviceCompletedEvent
         string? providerName = deviceInfo?.ProviderName;
         string? devicePath = deviceInfo?.DevicePath ?? usbDevice?.DevicePath;
         string? manufacturer = deviceInfo?.Manufacturer ?? usbDevice?.Manufacturer;
@@ -125,9 +125,9 @@ public static class WebAuthnOperationBuilder
         var request = events.OfType<GetAssertionRequestEvent>().FirstOrDefault();
         var response = events.OfType<GetAssertionResponseEvent>().FirstOrDefault();
         var deviceInfo = events.OfType<DeviceInfoEvent>().FirstOrDefault();
-        var usbDevice = events.OfType<UsbDeviceEvent>().FirstOrDefault(e => e.AAGuid.HasValue);
+        var usbDevice = events.OfType<UsbDeviceCompletedEvent>().FirstOrDefault();
 
-        // Get device info from either DeviceInfoEvent or UsbDeviceEvent
+        // Get device info from either DeviceInfoEvent or UsbDeviceCompletedEvent
         string? providerName = deviceInfo?.ProviderName;
         string? devicePath = deviceInfo?.DevicePath ?? usbDevice?.DevicePath;
         string? manufacturer = deviceInfo?.Manufacturer ?? usbDevice?.Manufacturer;

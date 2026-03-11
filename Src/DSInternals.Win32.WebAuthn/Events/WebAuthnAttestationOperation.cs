@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace DSInternals.Win32.WebAuthn.Events;
 
@@ -17,11 +17,6 @@ public sealed class WebAuthnAttestationOperation : WebAuthnOperation
     /// The user ID specified in the request.
     /// </summary>
     public byte[]? UserId { get; set; }
-
-    /// <summary>
-    /// The user name extracted from the CTAP2 CBOR request.
-    /// </summary>
-    public string? UserName { get; set; }
 
     /// <summary>
     /// The user display name extracted from the CTAP2 CBOR request.

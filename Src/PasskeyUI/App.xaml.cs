@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using Prism.Ioc;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI
@@ -28,9 +28,11 @@ namespace DSInternals.Win32.WebAuthn.PasskeyUI
             containerRegistry.RegisterDialog<ConfirmationDialog>();
             containerRegistry.RegisterDialog<AttestationSigningDialog>();
             containerRegistry.RegisterDialog<AssertionSigningDialog>();
+            containerRegistry.RegisterDialog<KeyGenerationDialog>();
 
             // Services
             containerRegistry.RegisterSingleton<WebAuthnApi>();
+            containerRegistry.RegisterSingleton<SigningDialogCache>();
         }
     }
 }

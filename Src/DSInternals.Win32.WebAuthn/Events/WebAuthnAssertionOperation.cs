@@ -1,4 +1,4 @@
-namespace DSInternals.Win32.WebAuthn.Events;
+﻿namespace DSInternals.Win32.WebAuthn.Events;
 
 /// <summary>
 /// Aggregated data about a WebAuthn authentication (GetAssertion) operation,

@@ -11,10 +11,7 @@
     mc:Ignorable="d"
     Icon="/Icons/app.ico"
     Title="Passkey UI" MinHeight="950" MinWidth="1500">
-    <Window.Resources>
-        <local:ByteArrayToBase64UrlConverter x:Key="ByteArrayToBase64UrlConverter" />
-    </Window.Resources>
-    <DockPanel>
+<DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="Load Default _Options">
                 <MenuItem Header="_Microsoft FIDO2" Command="{Binding LoadMicrosoftOptionsCommand}" />

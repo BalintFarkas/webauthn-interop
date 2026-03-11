@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -140,18 +140,14 @@ internal sealed class MainWindowViewModel : BindableBase
         var userName = credential.UserInformation?.Name ?? "Unknown";
         var message = $"Are you sure you want to delete this credential?\n\nRP ID: {rpId}\nUser Name: {userName}";
 
-        var parameters = new DialogParameters
+        DialogService.ShowConfirmationDialog(new ConfirmationDialogParameters
         {
-            { "Message", message },
-            { "Title", "Delete Credential" }
-        };
-
-        DialogService.ShowDialog(nameof(ConfirmationDialog), parameters, result =>
+            Message = message,
+            Title = "Delete Credential"
+        }, confirmed =>
         {
-            if (result.Result != ButtonResult.OK)
-            {
+            if (!confirmed)
                 return;
-            }
 
             try
             {
@@ -160,8 +156,7 @@ internal sealed class MainWindowViewModel : BindableBase
             }
             catch (Exception ex)
             {
-                DialogParameters errorParams = new($"Message={ex.Message}");
-                DialogService.ShowDialog(nameof(NotificationDialog), errorParams);
+                DialogService.ShowNotificationDialog(ex.Message);
             }
         });
     }
@@ -215,8 +210,7 @@ internal sealed class MainWindowViewModel : BindableBase
         }
         catch (Exception ex)
         {
-            var parameters = new DialogParameters($"Message={ex.Message}");
-            DialogService.ShowDialog(nameof(NotificationDialog), parameters);
+            DialogService.ShowNotificationDialog(ex.Message);
         }
     }
 
@@ -268,8 +262,7 @@ internal sealed class MainWindowViewModel : BindableBase
         }
         catch (Exception ex)
         {
-            var parameters = new DialogParameters($"Message={ex.Message}");
-            DialogService.ShowDialog(nameof(NotificationDialog), parameters);
+            DialogService.ShowNotificationDialog(ex.Message);
         }
     }
 
@@ -306,65 +299,76 @@ internal sealed class MainWindowViewModel : BindableBase
         }
         catch (Exception ex)
         {
-            DialogParameters parameters = new($"Message={ex.Message}");
-            DialogService.ShowDialog(nameof(NotificationDialog), parameters);
+            DialogService.ShowNotificationDialog(ex.Message);
         }
     }
 
     private void OnSignAttestation()
     {
-        var parameters = new DialogParameters
-        {
-            { "RelyingParty", AttestationOptionsViewModel.RelyingPartyEntity },
-            { "User", AttestationOptionsViewModel.UserEntity },
-            { "Challenge", AttestationOptionsViewModel.Challenge },
-            { "Algorithms", AttestationOptionsViewModel.PublicKeyCredentialParameters },
-            { "UserVerificationRequirement", AttestationOptionsViewModel.UserVerificationRequirement }
-        };
+        var defaultAlgorithm = AttestationOptionsViewModel.PublicKeyCredentialParameters?.Count > 0
+            ? AttestationOptionsViewModel.PublicKeyCredentialParameters[0]
+            : Algorithm.ES256;
 
-        DialogService.ShowDialog(nameof(AttestationSigningDialog), parameters, result =>
-        {
-            if (result.Result == ButtonResult.OK)
-            {
-                this.AttestationResponse = result.Parameters.GetValue<string>("Response");
-            }
-        });
-    }
-
-    private void OnSignAssertion()
-    {
-        // Try to extract the credential ID from the last attestation response
-        string? credentialId = null;
+        byte[]? lastCredentialId = null;
         if (!string.IsNullOrWhiteSpace(AttestationResponse))
         {
             try
             {
                 var lastAttestation = JsonSerializer.Deserialize(AttestationResponse, _indentedJsonContext.PublicKeyCredential);
                 if (lastAttestation?.Id is { Length: > 0 })
-                {
-                    credentialId = Base64UrlConverter.ToBase64UrlString(lastAttestation.Id);
-                }
+                    lastCredentialId = lastAttestation.Id;
+            }
+            catch (JsonException) { }
+        }
+
+        DialogService.ShowAttestationSigningDialog(new AttestationSigningDialogParameters
+        {
+            RelyingParty = AttestationOptionsViewModel.RelyingPartyEntity,
+            User = AttestationOptionsViewModel.UserEntity,
+            Challenge = AttestationOptionsViewModel.Challenge,
+            UserVerificationRequirement = AttestationOptionsViewModel.UserVerificationRequirement,
+            DefaultAlgorithm = defaultAlgorithm,
+            LastCredentialId = lastCredentialId
+        }, response =>
+        {
+            if (response != null)
+                AttestationResponse = response;
+        });
+    }
+
+    private void OnSignAssertion()
+    {
+        // Try to extract the credential ID from the last attestation response
+        byte[]? lastCredentialId = null;
+        if (!string.IsNullOrWhiteSpace(AttestationResponse))
+        {
+            try
+            {
+                var lastAttestation = JsonSerializer.Deserialize(AttestationResponse, _indentedJsonContext.PublicKeyCredential);
+                if (lastAttestation?.Id is { Length: > 0 })
+                    lastCredentialId = lastAttestation.Id;
             }
             catch (JsonException)
             {
-                // Ignore parse errors; leave credentialId null
+                // Ignore parse errors; leave lastCredentialId null
             }
         }
 
-        var parameters = new DialogParameters
-        {
-            { "RelyingPartyId", AssertionOptionsViewModel.RelyingPartyId },
-            { "Challenge", AssertionOptionsViewModel.Challenge },
-            { "UserVerificationRequirement", AssertionOptionsViewModel.UserVerificationRequirement },
-            { "CredentialId", credentialId }
-        };
+        var defaultAlgorithm = AttestationOptionsViewModel.PublicKeyCredentialParameters?.Count > 0
+            ? AttestationOptionsViewModel.PublicKeyCredentialParameters[0]
+            : Algorithm.ES256;
 
-        DialogService.ShowDialog(nameof(AssertionSigningDialog), parameters, result =>
+        DialogService.ShowAssertionSigningDialog(new AssertionSigningDialogParameters
         {
-            if (result.Result == ButtonResult.OK)
-            {
-                this.AssertionResponse = result.Parameters.GetValue<string>("Response");
-            }
+            RelyingPartyId = AssertionOptionsViewModel.RelyingPartyId ?? string.Empty,
+            Challenge = AssertionOptionsViewModel.Challenge ?? [],
+            UserVerificationRequirement = AssertionOptionsViewModel.UserVerificationRequirement,
+            DefaultAlgorithm = defaultAlgorithm,
+            CredentialId = lastCredentialId
+        }, response =>
+        {
+            if (response != null)
+                AssertionResponse = response;
         });
     }
 
@@ -390,8 +394,7 @@ internal sealed class MainWindowViewModel : BindableBase
         }
         catch (Exception ex)
         {
-            DialogParameters parameters = new($"Message={ex.Message}");
-            DialogService.ShowDialog(nameof(NotificationDialog), parameters);
+            DialogService.ShowNotificationDialog(ex.Message);
         }
     }
 

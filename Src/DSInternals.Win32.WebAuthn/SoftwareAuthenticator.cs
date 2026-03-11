@@ -1,4 +1,4 @@
-#if NET8_0_OR_GREATER
+﻿#if NET5_0_OR_GREATER
 
 using System;
 using System.Buffers.Binary;
@@ -19,7 +19,7 @@ namespace DSInternals.Win32.WebAuthn
     /// </summary>
     public static class SoftwareAuthenticator
     {
-        private const int DefaultCredentialIdLength = 32;
+        public const int DefaultCredentialIdLength = 32;
 
         /// <summary>
         /// Builds a complete attestation response (packed self-attestation) signed with the given private key.
@@ -32,15 +32,16 @@ namespace DSInternals.Win32.WebAuthn
             Guid aaGuid,
             uint signatureCounter,
             AuthenticatorFlags flags,
-            AsymmetricAlgorithm privateKey)
+            AsymmetricAlgorithm privateKey,
+            byte[]? credentialId = null)
         {
             ArgumentNullException.ThrowIfNull(relyingParty);
             ArgumentNullException.ThrowIfNull(user);
             ArgumentNullException.ThrowIfNull(challenge);
             ArgumentNullException.ThrowIfNull(privateKey);
 
-            // Generate random credential ID
-            byte[] credentialId = RandomNumberGenerator.GetBytes(DefaultCredentialIdLength);
+            // Use provided credential ID or generate a random one
+            credentialId ??= RandomNumberGenerator.GetBytes(DefaultCredentialIdLength);
 
             // Build COSE public key
             CBORObject cosePublicKey = BuildCosePublicKey(privateKey, algorithm);

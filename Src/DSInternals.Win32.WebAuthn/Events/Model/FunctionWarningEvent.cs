@@ -1,25 +1,16 @@
-namespace DSInternals.Win32.WebAuthn.Events;
+﻿namespace DSInternals.Win32.WebAuthn.Events;
 
 /// <summary>
-/// Represents a CTAP function warning event (Event IDs 2105, 2270).
+/// Represents a CTAP function warning event (Event ID 2105).
 /// </summary>
 /// <remarks>
-/// <para>Sample event data for FunctionWarning (2105):</para>
+/// <para>Sample event data:</para>
 /// <code>
 /// &lt;EventData&gt;
 ///   &lt;Data Name="Function"&gt;HidSilentGetAssertion&lt;/Data&gt;
 ///   &lt;Data Name="Location"&gt;SendRequest&lt;/Data&gt;
 ///   &lt;Data Name="Error"&gt;0x8009030d&lt;/Data&gt;
 ///   &lt;Data Name="Win32Error"&gt;0x8009030d&lt;/Data&gt;
-/// &lt;/EventData&gt;
-/// </code>
-/// <para>Sample event data for BleFunctionWarning (2270):</para>
-/// <code>
-/// &lt;EventData&gt;
-///   &lt;Data Name="Function"&gt;BleGetAssertion&lt;/Data&gt;
-///   &lt;Data Name="Location"&gt;ConnectDevice&lt;/Data&gt;
-///   &lt;Data Name="Error"&gt;0x80070005&lt;/Data&gt;
-///   &lt;Data Name="Win32Error"&gt;0x80070005&lt;/Data&gt;
 /// &lt;/EventData&gt;
 /// </code>
 /// </remarks>

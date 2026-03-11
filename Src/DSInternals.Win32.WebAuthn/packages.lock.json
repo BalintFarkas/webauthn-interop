@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "dependencies": {
     ".NETFramework,Version=v4.8": {
       "Microsoft.Identity.Client": {
@@ -13,6 +13,12 @@
           "System.Formats.Asn1": "8.0.1",
           "System.ValueTuple": "4.5.0"
         }
+      },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.3, )",
+        "resolved": "10.0.3",
+        "contentHash": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA=="
       },
       "Microsoft.Windows.CsWin32": {
         "type": "Direct",
@@ -258,6 +264,12 @@
           "Microsoft.IdentityModel.Abstractions": "8.14.0"
         }
       },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.3, )",
+        "resolved": "10.0.3",
+        "contentHash": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA=="
+      },
       "Microsoft.Windows.CsWin32": {
         "type": "Direct",
         "requested": "[0.3.269, )",
@@ -278,6 +290,12 @@
           "PeterO.Numbers": "1.8.2",
           "PeterO.URIUtility": "1.0.0"
         }
+      },
+      "Polyfill": {
+        "type": "Direct",
+        "requested": "[9.18.0, )",
+        "resolved": "9.18.0",
+        "contentHash": "jlgewzgbgEFIoplbpdWNPKo/+R9ELej0iL1sdKrVeMzQ0aZCvRCdi/X/4AjRaBqkXoDTWFrOjgVXRukZYSVO+w=="
       },
       "System.Diagnostics.EventLog": {
         "type": "Direct",
@@ -395,6 +413,12 @@
           "Microsoft.IdentityModel.Abstractions": "8.14.0"
         }
       },
+      "Microsoft.NET.ILLink.Tasks": {
+        "type": "Direct",
+        "requested": "[10.0.3, )",
+        "resolved": "10.0.3",
+        "contentHash": "0B6nZyCHWXnvmlB559oduOspVdNOnpNXPjhpWVMovLPAsDVG7A4jJR9rzECf67JUzxP8/ee/wA8clwIzJcWNFA=="
+      },
       "Microsoft.Windows.CsWin32": {
         "type": "Direct",
         "requested": "[0.3.269, )",
@@ -415,6 +439,12 @@
           "PeterO.Numbers": "1.8.2",
           "PeterO.URIUtility": "1.0.0"
         }
+      },
+      "Polyfill": {
+        "type": "Direct",
+        "requested": "[9.18.0, )",
+        "resolved": "9.18.0",
+        "contentHash": "jlgewzgbgEFIoplbpdWNPKo/+R9ELej0iL1sdKrVeMzQ0aZCvRCdi/X/4AjRaBqkXoDTWFrOjgVXRukZYSVO+w=="
       },
       "System.Diagnostics.EventLog": {
         "type": "Direct",

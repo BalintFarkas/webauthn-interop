@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Controls;
 
 namespace DSInternals.Win32.WebAuthn.PasskeyUI;

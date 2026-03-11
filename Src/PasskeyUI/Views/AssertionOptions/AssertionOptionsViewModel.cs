@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Windows.Input;
@@ -71,58 +71,20 @@ internal sealed class AssertionOptionsViewModel : BindableBase, IAssertionOption
         }
     }
 
-    private byte[]? _challenge;
     public byte[]? Challenge
     {
-        get => _challenge;
+        get;
         set
         {
-            if (SetProperty(ref _challenge, value, nameof(Challenge)))
-            {
-                RaisePropertyChanged(nameof(ChallengeString));
+            if (SetProperty(ref field, value))
                 RaisePropertyChanged(nameof(IsFormValid));
-            }
         }
     }
 
-    public string ChallengeString
-    {
-        get => _challenge != null ? Base64UrlConverter.ToBase64UrlString(_challenge) : string.Empty;
-        set
-        {
-            byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
-            if (SetProperty(ref _challenge, binaryValue, nameof(Challenge)))
-            {
-                RaisePropertyChanged(nameof(ChallengeString));
-                RaisePropertyChanged(nameof(IsFormValid));
-            }
-        }
-    }
-
-    private byte[]? _largeBlob;
     public byte[]? LargeBlob
     {
-        get => _largeBlob;
-        set
-        {
-            if (SetProperty(ref _largeBlob, value, nameof(LargeBlob)))
-            {
-                RaisePropertyChanged(nameof(LargeBlobString));
-            }
-        }
-    }
-
-    public string LargeBlobString
-    {
-        get => _largeBlob != null ? Base64UrlConverter.ToBase64UrlString(_largeBlob) : string.Empty;
-        set
-        {
-            byte[] binaryValue = string.IsNullOrEmpty(value) ? null : Base64UrlConverter.FromBase64UrlString(value);
-            if (SetProperty(ref _largeBlob, binaryValue, nameof(LargeBlob)))
-            {
-                RaisePropertyChanged(nameof(LargeBlobString));
-            }
-        }
+        get;
+        set => SetProperty(ref field, value);
     }
 
     public UserVerificationRequirement UserVerificationRequirement
@@ -308,7 +270,7 @@ internal sealed class AssertionOptionsViewModel : BindableBase, IAssertionOption
 
     public bool IsFormValid =>
         !string.IsNullOrWhiteSpace(RelyingPartyId) &&
-        _challenge is { Length: > 0 };
+        Challenge is { Length: > 0 };
 
     private static byte[] GetRandomBytes(uint count)
     {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace DSInternals.Win32.WebAuthn.Events;
 
@@ -122,5 +122,11 @@ public abstract class WebAuthnOperation
     /// USB Product ID parsed from the device path.
     /// </summary>
     public int? ProductId { get; set; }
+
+    /// <summary>
+    /// The user name associated with the operation.
+    /// Populated from the CTAP2 CBOR request for registration; null for authentication.
+    /// </summary>
+    public string? UserName { get; set; }
 
 }

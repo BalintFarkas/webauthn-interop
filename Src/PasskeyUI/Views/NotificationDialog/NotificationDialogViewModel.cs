@@ -1,4 +1,4 @@
-using Prism.Commands;
+﻿using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Mvvm;
 
@@ -34,7 +34,7 @@ internal sealed class NotificationDialogViewModel : BindableBase, IDialogAware
 
     public void OnDialogOpened(IDialogParameters parameters)
     {
-        Message = parameters.GetValue<string>(nameof(Message));
+        Message = NotificationDialogParameters.From(parameters).Message;
     }
 
     public NotificationDialogViewModel()

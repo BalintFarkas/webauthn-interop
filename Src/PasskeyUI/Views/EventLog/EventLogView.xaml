@@ -8,10 +8,7 @@
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1400">
-    <UserControl.Resources>
-        <local:ByteArrayToBase64UrlConverter x:Key="ByteArrayToBase64UrlConverter" />
-    </UserControl.Resources>
-    <DockPanel>
+<DockPanel>
         <Button DockPanel.Dock="Top" Command="{Binding LoadEventsCommand}" HorizontalAlignment="Center">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE72C;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />

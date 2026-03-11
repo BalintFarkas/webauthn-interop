@@ -53,11 +53,11 @@
                                 <TextBox Name="UserDisplayNameTextBox" Text="{Binding UserDisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" TabIndex="1" />
                             </DockPanel>
                             <DockPanel>
-                                <Label Content="Credential ID:" Width="100" VerticalAlignment="Center" />
-                                <Button Name="GenerateUserIdButton" Content="Generate ID" ToolTip="Generate a random credential ID" Command="{Binding GenerateUserIdCommand}" VerticalAlignment="Center" DockPanel.Dock="Right" TabIndex="3" />
-                                <TextBox Name="UserCredentialIdTextBox" VerticalAlignment="Center" TabIndex="2" ToolTip="Unique credential identifier in Base64url encoding">
+                                <Label Content="User ID:" Width="100" VerticalAlignment="Center" />
+                                <Button Name="GenerateUserIdButton" Content="Generate ID" ToolTip="Generate a random user ID" Command="{Binding GenerateUserIdCommand}" VerticalAlignment="Center" DockPanel.Dock="Right" TabIndex="3" />
+                                <TextBox Name="UserIdTextBox" VerticalAlignment="Center" TabIndex="2" ToolTip="Unique user identifier in Base64url encoding">
                                     <TextBox.Text>
-                                        <Binding Path="UserIdString" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                        <Binding Path="UserId" Converter="{StaticResource ByteArrayToBase64UrlConverter}" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                             <Binding.ValidationRules>
                                                 <ExceptionValidationRule />
                                             </Binding.ValidationRules>
@@ -115,7 +115,7 @@
                         <Label Name="CredBlobLabel" Content="Credential blob:" VerticalAlignment="Center" Grid.ColumnSpan="2" Grid.Row="0" Grid.Column="2" />
                         <TextBox Name="CredBlobTextBox" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2" Grid.ColumnSpan="2" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" ToolTip="Credential blob in Base64url encoding" TabIndex="15">
                             <TextBox.Text>
-                                <Binding Path="CredentialBlobString" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                <Binding Path="CredentialBlob" Converter="{StaticResource ByteArrayToBase64UrlConverter}" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <ExceptionValidationRule />
                                     </Binding.ValidationRules>
@@ -149,7 +149,7 @@
                         <Label Name="ChallengeLabel" Content="Challenge:" Width="135" />
                         <TextBox Name="ChallengeTextBox" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" MinHeight="100" ToolTip="Random challenge in Base64url encoding" TabIndex="25">
                             <TextBox.Text>
-                                <Binding Path="ChallengeString" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                <Binding Path="Challenge" Converter="{StaticResource ByteArrayToBase64UrlConverter}" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
                                     <Binding.ValidationRules>
                                         <local:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
                                         <ExceptionValidationRule />

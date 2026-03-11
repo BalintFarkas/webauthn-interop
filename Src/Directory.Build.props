@@ -48,9 +48,9 @@
     <AnalysisMode>All</AnalysisMode>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-    <!-- Add Polyfill package for .NET Framework 4.8 to support newer APIs -->
-    <PackageReference Include="Polyfill" Version="9.18">
+  <ItemGroup>
+    <!-- Add Polyfill package to support newer APIs -->
+    <PackageReference Include="Polyfill">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

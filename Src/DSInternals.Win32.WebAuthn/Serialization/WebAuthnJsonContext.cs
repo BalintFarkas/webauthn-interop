@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using DSInternals.Win32.WebAuthn.EntraID;
 using DSInternals.Win32.WebAuthn.FIDO;
 using DSInternals.Win32.WebAuthn.Interop;
@@ -22,6 +22,7 @@ namespace DSInternals.Win32.WebAuthn
     [JsonSerializable(typeof(OktaWebauthnCredentialCreationOptions))]
     [JsonSerializable(typeof(OktaFido2AuthenticationMethod))]
     [JsonSerializable(typeof(OktaWebauthnAttestationResponse))]
+    [JsonSerializable(typeof(KeePassXCPasskey))]
     public partial class WebAuthnJsonContext : JsonSerializerContext
     {
     }

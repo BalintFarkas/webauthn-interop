@@ -1,4 +1,4 @@
-namespace DSInternals.Win32.WebAuthn.Events;
+﻿namespace DSInternals.Win32.WebAuthn.Events;
 
 /// <summary>
 /// Represents a CTAP name-value pair event (Event ID 2106).

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using DSInternals.Win32.WebAuthn.COSE;
 using Prism.Mvvm;
 

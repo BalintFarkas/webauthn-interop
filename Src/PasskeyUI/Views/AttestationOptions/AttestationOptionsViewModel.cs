@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Windows.Input;
 using DSInternals.Win32.WebAuthn.COSE;
@@ -102,58 +102,19 @@ internal sealed class AttestationOptionsViewModel : BindableBase, IAttestationOp
         set => SetProperty(ref field, value);
     }
 
-    private byte[] _userId;
-
     public byte[] UserId
     {
-        get => _userId;
-        set
-        {
-            if (SetProperty(ref _userId, value, nameof(UserId)))
-            {
-                RaisePropertyChanged(nameof(UserIdString));
-            }
-        }
+        get;
+        set => SetProperty(ref field, value);
     }
 
-    public string UserIdString
-    {
-        get => _userId != null ? Base64UrlConverter.ToBase64UrlString(_userId) : string.Empty;
-        set
-        {
-            byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
-            if (SetProperty(ref _userId, binaryValue, nameof(UserId)))
-            {
-                RaisePropertyChanged(nameof(UserIdString));
-            }
-        }
-    }
-
-    private byte[]? _challenge;
     public byte[]? Challenge
     {
-        get => _challenge;
+        get;
         set
         {
-            if (SetProperty(ref _challenge, value, nameof(Challenge)))
-            {
-                RaisePropertyChanged(nameof(ChallengeString));
+            if (SetProperty(ref field, value))
                 RaisePropertyChanged(nameof(IsFormValid));
-            }
-        }
-    }
-
-    public string ChallengeString
-    {
-        get => _challenge != null ? Base64UrlConverter.ToBase64UrlString(_challenge) : string.Empty;
-        set
-        {
-            byte[] binaryValue = value != null ? Base64UrlConverter.FromBase64UrlString(value) : null;
-            if (SetProperty(ref _challenge, binaryValue, nameof(Challenge)))
-            {
-                RaisePropertyChanged(nameof(ChallengeString));
-                RaisePropertyChanged(nameof(IsFormValid));
-            }
         }
     }
 
@@ -366,30 +327,10 @@ internal sealed class AttestationOptionsViewModel : BindableBase, IAttestationOp
         set => SetProperty(ref field, value);
     }
 
-    private byte[] _credentialBlob;
     public byte[] CredentialBlob
     {
-        get => _credentialBlob;
-        set
-        {
-            if (SetProperty(ref _credentialBlob, value))
-            {
-                RaisePropertyChanged(nameof(CredentialBlobString));
-            }
-        }
-    }
-
-    public string CredentialBlobString
-    {
-        get => _credentialBlob != null ? Base64UrlConverter.ToBase64UrlString(_credentialBlob) : string.Empty;
-        set
-        {
-            byte[] binaryValue = string.IsNullOrEmpty(value) ? null : Base64UrlConverter.FromBase64UrlString(value);
-            if (SetProperty(ref _credentialBlob, binaryValue, nameof(CredentialBlob)))
-            {
-                RaisePropertyChanged(nameof(CredentialBlobString));
-            }
-        }
+        get;
+        set => SetProperty(ref field, value);
     }
 
     public bool IsBrowserPrivateMode
@@ -421,7 +362,7 @@ internal sealed class AttestationOptionsViewModel : BindableBase, IAttestationOp
 
     public bool IsFormValid =>
         !string.IsNullOrWhiteSpace(RpId) &&
-        _challenge is { Length: > 0 } &&
+        Challenge is { Length: > 0 } &&
         !string.IsNullOrWhiteSpace(UserName);
 
     private static byte[] GetRandomBytes(int count)

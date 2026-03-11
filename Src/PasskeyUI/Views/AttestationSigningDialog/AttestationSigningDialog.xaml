@@ -13,9 +13,9 @@
             <Setter Property="ResizeMode" Value="CanResizeWithGrip" />
             <Setter Property="ShowInTaskbar" Value="False"/>
             <Setter Property="SizeToContent" Value="Height"/>
-            <Setter Property="Width" Value="600" />
+            <Setter Property="Width" Value="700" />
             <Setter Property="MinWidth" Value="500" />
-            <Setter Property="MinHeight" Value="370" />
+            <Setter Property="MinHeight" Value="420" />
         </Style>
     </prism:Dialog.WindowStyle>
     <Grid Margin="10">
@@ -23,14 +23,10 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Authenticator Preset -->
-        <local:AuthenticatorPresetMenu Grid.Row="0" Margin="0,0,0,10" PresetSelectedCommand="{Binding SelectPresetCommand}" />
-
         <!-- Authenticator Parameters -->
-        <GroupBox Header="Authenticator Parameters" Grid.Row="1" Margin="0,0,0,10">
+        <GroupBox Header="Authenticator Parameters" Grid.Row="0" Margin="0,0,0,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="130"/>
@@ -44,18 +40,55 @@
                 </Grid.RowDefinitions>
 
                 <Label Content="AAGUID:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" />
-                <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" MaxLength="36" ToolTip="Authenticator Attestation GUID (e.g. 00000000-0000-0000-0000-000000000000)">
-                    <TextBox.Text>
-                        <Binding Path="AaGuidString" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
-                            <Binding.ValidationRules>
-                                <local:GuidValidationRule ValidatesOnTargetUpdated="True" />
-                            </Binding.ValidationRules>
-                        </Binding>
-                    </TextBox.Text>
-                </TextBox>
+                <DockPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+                    <Button DockPanel.Dock="Right" VerticalAlignment="Center" Click="OnLoadPresetClick">
+                        <Button.ContextMenu>
+                            <ContextMenu ItemsSource="{x:Static local:AuthenticatorPreset.KnownPresets}">
+                                <ContextMenu.ItemContainerStyle>
+                                    <Style TargetType="MenuItem">
+                                        <Setter Property="Header" Value="{Binding Name}" />
+                                        <Setter Property="Command" Value="{Binding PlacementTarget.DataContext.SelectPresetCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                        <Setter Property="CommandParameter" Value="{Binding}" />
+                                    </Style>
+                                </ContextMenu.ItemContainerStyle>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE734;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="_Load preset" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <TextBox MaxLength="36" ToolTip="Authenticator Attestation GUID (e.g. 00000000-0000-0000-0000-000000000000)">
+                        <TextBox.Text>
+                            <Binding Path="AaGuid" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                                     Converter="{StaticResource GuidConverter}">
+                                <Binding.ValidationRules>
+                                    <local:GuidValidationRule ValidatesOnTargetUpdated="True" />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </DockPanel>
 
-                <Label Content="Algorithm:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
-                <ComboBox ItemsSource="{Binding Algorithms}" SelectedValue="{Binding SelectedAlgorithm, Mode=TwoWay}" DisplayMemberPath="Value" SelectedValuePath="Key" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" />
+                <Label Content="Credential ID:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" />
+                <DockPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Center">
+                    <Button Command="{Binding GenerateCredentialIdCommand}" DockPanel.Dock="Right" VerticalAlignment="Center"
+                            ToolTip="Generate a random credential ID">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE72C;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="Generate _ID" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <TextBox VerticalAlignment="Center" ToolTip="Credential ID in Base64url encoding">
+                        <TextBox.Text>
+                            <Binding Path="CredentialId" Converter="{StaticResource ByteArrayToBase64UrlConverter}" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged">
+                                <Binding.ValidationRules>
+                                    <local:NotEmptyValidationRule ValidatesOnTargetUpdated="True" />
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
+                </DockPanel>
 
                 <Label Content="Signature counter:" Grid.Row="2" Grid.Column="0" VerticalAlignment="Center" />
                 <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="1" VerticalAlignment="Center">
@@ -78,7 +111,7 @@
         </GroupBox>
 
         <!-- Signing Key -->
-        <GroupBox Header="Signing Key" Grid.Row="2" Margin="0,0,0,10">
+        <GroupBox Header="Signing Key" Grid.Row="1" Margin="0,0,0,10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
@@ -88,8 +121,8 @@
                     <Label Content="Key file:" Width="130" VerticalAlignment="Center" />
                     <Button Command="{Binding BrowseKeyFileCommand}" DockPanel.Dock="Right" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8E5;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
-                            <AccessText Text="_Browse..." VerticalAlignment="Center" />
+                            <TextBlock Text="&#xED25;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <AccessText Text="_Browse" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
                     <TextBox IsReadOnly="True" VerticalAlignment="Center" Margin="0,0,5,0">
@@ -102,22 +135,25 @@
                         </TextBox.Text>
                     </TextBox>
                 </DockPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="1" Margin="0,5,0,0">
-                    <Button Command="{Binding GenerateKeyPairCommand}" ToolTip="Generate a new key pair for the selected algorithm and save to a PEM file">
+                <DockPanel Grid.Row="1" Margin="0,5,0,0">
+                    <Label Content="Algorithm:" Width="130" VerticalAlignment="Center" />
+                    <Button Command="{Binding GenerateKeyPairCommand}" DockPanel.Dock="Right" VerticalAlignment="Center"
+                            ToolTip="Select algorithm, generate a new key pair, and save to a PEM file">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="&#xE72C;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
                             <AccessText Text="_Generate Key Pair" VerticalAlignment="Center" />
                         </StackPanel>
                     </Button>
-                </StackPanel>
+                    <TextBox Text="{Binding SelectedAlgorithm, Converter={StaticResource EnumAdapter}, Mode=OneWay}" IsReadOnly="True" VerticalAlignment="Center" Margin="0,0,5,0" />
+                </DockPanel>
             </Grid>
         </GroupBox>
 
         <!-- Buttons -->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="3" Margin="0,5,0,0">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Grid.Row="2" Margin="0,5,0,0">
             <Button Command="{Binding SignCommand}" IsDefault="True">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xED25;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
+                    <TextBlock Text="&#xE70F;" FontFamily="{StaticResource FluentIcons}" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0" />
                     <AccessText Text="_Sign" VerticalAlignment="Center" />
                 </StackPanel>
             </Button>
