@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <PackageReference Include="Fido2.Models" />
+    <PackageReference Include="Microsoft.Bcl.Memory" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(GITHUB_ACTIONS)' == 'true' AND '$(Configuration)' == 'Release'">

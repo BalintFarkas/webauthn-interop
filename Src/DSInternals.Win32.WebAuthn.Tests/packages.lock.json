@@ -389,7 +389,7 @@
         }
       }
     },
-    ".NETFramework,Version=v4.8/win-x64": {
+    ".NETFramework,Version=v4.8/win-x86": {
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Direct",
         "requested": "[18.1.0, )",
@@ -640,7 +640,7 @@
         }
       }
     },
-    "net10.0-windows7.0/win-x64": {
+    "net10.0-windows7.0/win-x86": {
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Direct",
         "requested": "[18.1.0, )",
@@ -919,7 +919,7 @@
         }
       }
     },
-    "net8.0-windows7.0/win-x64": {
+    "net8.0-windows7.0/win-x86": {
       "Microsoft.Testing.Extensions.CodeCoverage": {
         "type": "Direct",
         "requested": "[18.1.0, )",

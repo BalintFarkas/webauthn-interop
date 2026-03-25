@@ -315,7 +315,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
         {
             string pem = SoftwareAuthenticator.GenerateKeyPairPem(Algorithm.ES256);
 
-            Assert.Contains(pem, "BEGIN PRIVATE KEY");
+            Assert.Contains("BEGIN PRIVATE KEY", pem);
             using var importedKey = SoftwareAuthenticator.ImportPrivateKeyFromPem(pem);
             Assert.IsInstanceOfType<ECDsa>(importedKey);
             Assert.AreEqual(256, ((ECDsa)importedKey).KeySize);
@@ -326,7 +326,7 @@ namespace DSInternals.Win32.WebAuthn.Tests
         {
             string pem = SoftwareAuthenticator.GenerateKeyPairPem(Algorithm.RS256);
 
-            Assert.Contains(pem, "BEGIN PRIVATE KEY");
+            Assert.Contains("BEGIN PRIVATE KEY", pem);
             using var importedKey = SoftwareAuthenticator.ImportPrivateKeyFromPem(pem);
             Assert.IsInstanceOfType<RSA>(importedKey);
         }
