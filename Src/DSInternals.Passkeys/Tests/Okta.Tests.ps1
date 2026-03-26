@@ -1,9 +1,49 @@
-#requires -Version 5.1
-#requires -Modules Pester
+<#
+.SYNOPSIS
+    This script contains Pester tests for Okta passkey registration via the DSInternals.Passkeys PowerShell module.
+.PARAMETER ModulePath
+    Path to the compiled module directory.
+#>
+
+#Requires -Version 5.1
+#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.0' }
+
+param(
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [string] $ModulePath
+)
+
+if ([string]::IsNullOrWhiteSpace($ModulePath)) {
+    # No path has been provided, so use the default value
+    $ModulePath = Join-Path -Path $PSScriptRoot -ChildPath '..\..\..\Build\bin\PSModule\Release\DSInternals.Passkeys' -Resolve -ErrorAction Stop
+}
 
 BeforeAll {
-    Add-Type -Path "./build/bin/DSInternals.Win32.WebAuthn.Tests/release/DSInternals.Win32.WebAuthn.Tests.dll" -ErrorAction Stop
-    Import-Module .\Build\bin\PSModule\Release\DSInternals.Passkeys\DSInternals.Passkeys.psm1 -Force
+    # Select framework based on PowerShell edition/version
+    if ($PSVersionTable.PSEdition -eq 'Desktop' -or $PSVersionTable.PSVersion.Major -lt 7) {
+        $framework = 'net48'
+    }
+    else {
+        $framework = 'net8.0-windows'
+    }
+
+    # Probe for the assembly in common configurations (Release/Debug)
+    $testAssemblyPath = $null
+    foreach ($config in @('Release', 'Debug')) {
+        $candidate = Join-Path -Path $PSScriptRoot -ChildPath "..\..\..\Build\bin\DSInternals.Win32.WebAuthn.Tests\$config\$framework\DSInternals.Win32.WebAuthn.Tests.dll"
+        if (Test-Path -Path $candidate) {
+            $testAssemblyPath = (Resolve-Path -Path $candidate -ErrorAction Stop).Path
+            break
+        }
+    }
+
+    if (-not $testAssemblyPath) {
+        throw "Could not find DSInternals.Win32.WebAuthn.Tests.dll in any known configuration (Release/Debug) or framework for framework '$framework'."
+    }
+
+    Add-Type -Path $testAssemblyPath -ErrorAction Stop
+    Import-Module -Name $ModulePath -ErrorAction Stop -Force
 }
 
 Describe "Okta Tests" {

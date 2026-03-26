@@ -1,9 +1,40 @@
-#requires -Version 5.1
-#requires -Modules Pester
+<#
+.SYNOPSIS
+    This script contains Pester tests for Entra ID passkey registration via the DSInternals.Passkeys PowerShell module.
+.PARAMETER ModulePath
+    Path to the compiled module directory.
+#>
+
+#Requires -Version 5.1
+#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.0' }
+
+param(
+    [Parameter(Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [string] $ModulePath
+)
+
+if ([string]::IsNullOrWhiteSpace($ModulePath)) {
+    # No path has been provided, so use the default value
+    $ModulePath = Join-Path -Path $PSScriptRoot -ChildPath '..\..\..\Build\bin\PSModule\Release\DSInternals.Passkeys' -Resolve -ErrorAction Stop
+}
 
 BeforeAll {
-    Add-Type -Path "./build/bin/DSInternals.Win32.WebAuthn.Tests/release/DSInternals.Win32.WebAuthn.Tests.dll" -ErrorAction Stop
-    Import-Module .\Build\bin\PSModule\Release\DSInternals.Passkeys\DSInternals.Passkeys.psm1 -Force
+    # Derive build configuration (e.g., Release/Debug) from the module path
+    $moduleConfigDirectory = Split-Path -Path (Split-Path -Path $ModulePath -Parent) -Leaf
+
+    # Select framework based on PowerShell version
+    if ($PSVersionTable.PSVersion.Major -lt 6) {
+        $framework = 'net48'
+    }
+    else {
+        $framework = 'net8.0-windows'
+    }
+
+    $testAssemblyPath = Join-Path -Path $PSScriptRoot -ChildPath ("..\..\..\Build\bin\DSInternals.Win32.WebAuthn.Tests\{0}\{1}\DSInternals.Win32.WebAuthn.Tests.dll" -f $moduleConfigDirectory, $framework) -Resolve -ErrorAction Stop
+
+    Add-Type -Path $testAssemblyPath -ErrorAction Stop
+    Import-Module -Name $ModulePath -ErrorAction Stop -Force
 }
 
 Describe 'EntraID Tests' {
