@@ -36,11 +36,6 @@
     <!-- Only use source-generated JSON serializers, not reflection-based -->
     <JsonSerializerIsReflectionEnabledByDefault>false</JsonSerializerIsReflectionEnabledByDefault>
 
-    <!-- Enable Polyfill argument exception improvements for .NET Framework -->
-    <PolyArgumentExceptions>true</PolyArgumentExceptions>
-
-    <!-- Hide Polyfill from InternalsVisibleTo (test projects) -->
-    <PolyUseEmbeddedAttribute>true</PolyUseEmbeddedAttribute>
   </PropertyGroup>
 
   <!-- Enable full analysis mode for Debug builds -->
@@ -48,13 +43,6 @@
     <AnalysisMode>All</AnalysisMode>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- Add Polyfill package to support newer APIs -->
-    <PackageReference Include="Polyfill">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
 
   <!-- Note: Fido2.Models is currently not strong-name signed, so the Adapter DLLs cannot be signed. -->
   <PropertyGroup Condition="

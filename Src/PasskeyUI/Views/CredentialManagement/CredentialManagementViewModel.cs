@@ -1,4 +1,4 @@
-﻿using System.Windows.Input;
+using System.Windows.Input;
 using Prism.Commands;
 using Prism.Mvvm;
 
@@ -20,15 +20,17 @@ internal sealed class CredentialManagementViewModel : BindableBase, ICredentialM
         this.IsBrowserPrivateMode = false;
     }
 
+    private string? _relyingPartyId;
     public string? RelyingPartyId
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _relyingPartyId;
+        set => SetProperty(ref _relyingPartyId, value);
     }
 
+    private bool _isBrowserPrivateMode;
     public bool IsBrowserPrivateMode
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _isBrowserPrivateMode;
+        set => SetProperty(ref _isBrowserPrivateMode, value);
     }
 }

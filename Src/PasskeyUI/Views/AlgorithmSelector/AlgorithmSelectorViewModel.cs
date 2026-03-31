@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using DSInternals.Win32.WebAuthn.COSE;
 using Prism.Mvvm;
 
@@ -102,120 +102,130 @@ internal sealed class AlgorithmSelectorViewModel : BindableBase, IAlgorithmSelec
         }
     }
 
+    private bool _algorithmRS512Enabled;
     public bool AlgorithmRS512Enabled
     {
-        get;
+        get => _algorithmRS512Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmRS512Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmRS384Enabled;
     public bool AlgorithmRS384Enabled
     {
-        get;
+        get => _algorithmRS384Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmRS384Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmRS256Enabled;
     public bool AlgorithmRS256Enabled
     {
-        get;
+        get => _algorithmRS256Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmRS256Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmPS512Enabled;
     public bool AlgorithmPS512Enabled
     {
-        get;
+        get => _algorithmPS512Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmPS512Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmPS384Enabled;
     public bool AlgorithmPS384Enabled
     {
-        get;
+        get => _algorithmPS384Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmPS384Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmPS256Enabled;
     public bool AlgorithmPS256Enabled
     {
-        get;
+        get => _algorithmPS256Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmPS256Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmES512Enabled;
     public bool AlgorithmES512Enabled
     {
-        get;
+        get => _algorithmES512Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmES512Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmES384Enabled;
     public bool AlgorithmES384Enabled
     {
-        get;
+        get => _algorithmES384Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmES384Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmES256Enabled;
     public bool AlgorithmES256Enabled
     {
-        get;
+        get => _algorithmES256Enabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmES256Enabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }
         }
     }
 
+    private bool _algorithmEdDSAEnabled;
     public bool AlgorithmEdDSAEnabled
     {
-        get;
+        get => _algorithmEdDSAEnabled;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _algorithmEdDSAEnabled, value))
             {
                 RaisePropertyChanged(nameof(SelectedAlgorithms));
             }

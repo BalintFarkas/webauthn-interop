@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using DSInternals.Win32.WebAuthn.COSE;
 using Microsoft.Win32;
@@ -24,11 +24,12 @@ internal sealed class KeyGenerationDialogViewModel : BindableBase, IDialogAware
 
     public DelegateCommand SaveCommand { get; }
 
+    private Algorithm _selectedAlgorithm = Algorithm.ES256;
     public Algorithm SelectedAlgorithm
     {
-        get;
-        set => SetProperty(ref field, value);
-    } = Algorithm.ES256;
+        get => _selectedAlgorithm;
+        set => SetProperty(ref _selectedAlgorithm, value);
+    }
 
     public IList<KeyValuePair<Algorithm, string>> Algorithms => AuthenticatorPreset.AlgorithmItems;
 

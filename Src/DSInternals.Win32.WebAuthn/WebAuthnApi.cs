@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
@@ -18,6 +18,7 @@ namespace DSInternals.Win32.WebAuthn
     public partial class WebAuthnApi
     {
         private Guid? _cancellationId;
+        private static ApiVersion? _apiVersion;
 
         /// <summary>
         /// Gets the API version information.
@@ -29,16 +30,15 @@ namespace DSInternals.Win32.WebAuthn
         {
             get
             {
-                if (field.HasValue)
+                if (_apiVersion.HasValue)
                 {
-                    // Cached value
-                    return field;
+                    return _apiVersion;
                 }
                 else
                 {
                     try
                     {
-                        return field = NativeMethods.GetApiVersionNumber();
+                        return _apiVersion = NativeMethods.GetApiVersionNumber();
                     }
                     catch (TypeLoadException)
                     {

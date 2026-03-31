@@ -54,47 +54,54 @@ internal sealed class AssertionSigningDialogViewModel : BindableBase, IDialogAwa
     public DelegateCommand DecrementCounterCommand { get; }
 
     // Authenticator parameters
+    private Algorithm? _selectedAlgorithm;
     public Algorithm? SelectedAlgorithm
     {
-        get;
-        private set => SetProperty(ref field, value);
+        get => _selectedAlgorithm;
+        private set => SetProperty(ref _selectedAlgorithm, value);
     }
 
+    private byte[]? _credentialId;
     public byte[]? CredentialId
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _credentialId;
+        set => SetProperty(ref _credentialId, value);
     }
 
+    private byte[]? _userHandle;
     public byte[]? UserHandle
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _userHandle;
+        set => SetProperty(ref _userHandle, value);
     }
 
+    private uint _signatureCounter;
     public uint SignatureCounter
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _signatureCounter;
+        set => SetProperty(ref _signatureCounter, value);
     }
 
+    private bool _userPresent = true;
     public bool UserPresent
     {
-        get;
-        set => SetProperty(ref field, value);
-    } = true;
+        get => _userPresent;
+        set => SetProperty(ref _userPresent, value);
+    }
 
+    private bool _userVerified = true;
     public bool UserVerified
     {
-        get;
-        set => SetProperty(ref field, value);
-    } = true;
+        get => _userVerified;
+        set => SetProperty(ref _userVerified, value);
+    }
 
     // Signing key
+    private string? _keyFilePath;
     public string? KeyFilePath
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _keyFilePath;
+        set => SetProperty(ref _keyFilePath, value);
     }
 
     public bool CanCloseDialog() => true;

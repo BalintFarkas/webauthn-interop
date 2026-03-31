@@ -5,14 +5,13 @@
 
   <ItemGroup>
     <PackageVersion Include="Fido2.Models" Version="4.0.0" />
-    <PackageVersion Include="Microsoft.Bcl.Memory" Version="10.0.5" />
+    <PackageVersion Include="Microsoft.Bcl.Memory" Version="9.0.14" />
     <PackageVersion Include="Microsoft.Identity.Client" Version="4.80.0" />
-    <PackageVersion Include="Microsoft.NET.ILLink.Tasks" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.NET.ILLink.Tasks" Version="8.0.16" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.269" />
     <PackageVersion Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
     <PackageVersion Include="PeterO.Cbor" Version="4.5.5" />
-    <PackageVersion Include="Polyfill" Version="9.18" />
     <PackageVersion Include="Prism.Unity" Version="9.0.537" />
     <PackageVersion Include="Prism.Wpf" Version="9.0.537" />
     <PackageVersion Include="SharpVectors.Wpf" Version="1.8.4.2" />
@@ -20,6 +19,6 @@
     <PackageVersion Include="System.Formats.Cbor" Version="9.0.3" />
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0" />
     <PackageVersion Include="System.Security.Cryptography.Cng" Version="5.0.0" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.1" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
 </Project>

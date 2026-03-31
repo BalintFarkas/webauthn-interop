@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Windows.Input;
@@ -61,69 +61,78 @@ internal sealed class AssertionOptionsViewModel : BindableBase, IAssertionOption
     }
 
     public uint HmacSecretSaltStringLength => 2 * ApiConstants.CtapOneHmacSecretLength; // HEX length
+
+    private string _relyingPartyId;
     public string RelyingPartyId
     {
-        get;
+        get => _relyingPartyId;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _relyingPartyId, value))
                 RaisePropertyChanged(nameof(IsFormValid));
         }
     }
 
+    private byte[]? _challenge;
     public byte[]? Challenge
     {
-        get;
+        get => _challenge;
         set
         {
-            if (SetProperty(ref field, value))
+            if (SetProperty(ref _challenge, value))
                 RaisePropertyChanged(nameof(IsFormValid));
         }
     }
 
+    private byte[]? _largeBlob;
     public byte[]? LargeBlob
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _largeBlob;
+        set => SetProperty(ref _largeBlob, value);
     }
 
+    private UserVerificationRequirement _userVerificationRequirement;
     public UserVerificationRequirement UserVerificationRequirement
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _userVerificationRequirement;
+        set => SetProperty(ref _userVerificationRequirement, value);
     }
 
     public IList<KeyValuePair<UserVerificationRequirement?, string>> UserVerificationRequirements
     => EnumAdapter.GetComboBoxItems<UserVerificationRequirement>();
 
+    private AuthenticatorAttachment _authenticatorAttachment;
     public AuthenticatorAttachment AuthenticatorAttachment
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _authenticatorAttachment;
+        set => SetProperty(ref _authenticatorAttachment, value);
     }
 
     public IList<KeyValuePair<AuthenticatorAttachment?, string>> AuthenticatorAttachments
      => EnumAdapter.GetComboBoxItems<AuthenticatorAttachment>();
 
+    private CredentialLargeBlobOperation _largeBlobOperation;
     public CredentialLargeBlobOperation LargeBlobOperation
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _largeBlobOperation;
+        set => SetProperty(ref _largeBlobOperation, value);
     }
 
     public IList<KeyValuePair<CredentialLargeBlobOperation?, string>> LargeBlobOperations
      => EnumAdapter.GetComboBoxItems<CredentialLargeBlobOperation>();
 
+    private uint _timeout;
     public uint Timeout
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _timeout;
+        set => SetProperty(ref _timeout, value);
     }
 
+    private string _appId;
     public string AppId
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _appId;
+        set => SetProperty(ref _appId, value);
     }
 
     public AuthenticationExtensionsClientInputs? ClientExtensions
@@ -177,10 +186,11 @@ internal sealed class AssertionOptionsViewModel : BindableBase, IAssertionOption
         }
     }
 
+    private bool _getCredentialBlob;
     public bool GetCredentialBlob
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _getCredentialBlob;
+        set => SetProperty(ref _getCredentialBlob, value);
     }
 
     private byte[] _hmacSecretSalt1;
@@ -247,25 +257,28 @@ internal sealed class AssertionOptionsViewModel : BindableBase, IAssertionOption
         }
     }
 
+    private bool _isBrowserPrivateMode;
     public bool IsBrowserPrivateMode
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _isBrowserPrivateMode;
+        set => SetProperty(ref _isBrowserPrivateMode, value);
     }
 
+    private PublicKeyCredentialHint _credentialHint;
     public PublicKeyCredentialHint CredentialHint
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _credentialHint;
+        set => SetProperty(ref _credentialHint, value);
     }
 
     public IList<KeyValuePair<PublicKeyCredentialHint?, string>> CredentialHints
     => EnumAdapter.GetComboBoxItems<PublicKeyCredentialHint>();
 
+    private string? _remoteWebOrigin;
     public string? RemoteWebOrigin
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _remoteWebOrigin;
+        set => SetProperty(ref _remoteWebOrigin, value);
     }
 
     public bool IsFormValid =>

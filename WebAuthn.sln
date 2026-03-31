@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{4E87E7C5-ED0C-4DED-81A7-4505506636F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSInternals.Win32.WebAuthn", "Src\DSInternals.Win32.WebAuthn\DSInternals.Win32.WebAuthn.csproj", "{4F0E8002-C26B-4F38-9FFE-271C97A5C601}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSInternals.Win32.WebAuthn.Tests", "Src\DSInternals.Win32.WebAuthn.Tests\DSInternals.Win32.WebAuthn.Tests.csproj", "{096D325F-A9BD-4DB9-8A6D-12CD9C12DF0F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PasskeyUI", "Src\PasskeyUI\PasskeyUI.csproj", "{C1EC5763-4B9B-4A3F-A4C3-BAD71B651203}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSInternals.Win32.WebAuthn.Adapter", "Src\DSInternals.Win32.WebAuthn.Adapter\DSInternals.Win32.WebAuthn.Adapter.csproj", "{F3166324-EBDC-48BF-B666-3C8C8EDEB3CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DSInternals.Win32.WebAuthn.Adapter.Tests", "Src\DSInternals.Win32.WebAuthn.Adapter.Tests\DSInternals.Win32.WebAuthn.Adapter.Tests.csproj", "{46B436F6-3541-4A00-B4EF-AF4E1F248A27}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4F0E8002-C26B-4F38-9FFE-271C97A5C601}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F0E8002-C26B-4F38-9FFE-271C97A5C601}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F0E8002-C26B-4F38-9FFE-271C97A5C601}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F0E8002-C26B-4F38-9FFE-271C97A5C601}.Release|Any CPU.Build.0 = Release|Any CPU
+		{096D325F-A9BD-4DB9-8A6D-12CD9C12DF0F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{096D325F-A9BD-4DB9-8A6D-12CD9C12DF0F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{096D325F-A9BD-4DB9-8A6D-12CD9C12DF0F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{096D325F-A9BD-4DB9-8A6D-12CD9C12DF0F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C1EC5763-4B9B-4A3F-A4C3-BAD71B651203}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1EC5763-4B9B-4A3F-A4C3-BAD71B651203}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1EC5763-4B9B-4A3F-A4C3-BAD71B651203}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1EC5763-4B9B-4A3F-A4C3-BAD71B651203}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F3166324-EBDC-48BF-B666-3C8C8EDEB3CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F3166324-EBDC-48BF-B666-3C8C8EDEB3CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F3166324-EBDC-48BF-B666-3C8C8EDEB3CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F3166324-EBDC-48BF-B666-3C8C8EDEB3CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46B436F6-3541-4A00-B4EF-AF4E1F248A27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46B436F6-3541-4A00-B4EF-AF4E1F248A27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46B436F6-3541-4A00-B4EF-AF4E1F248A27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46B436F6-3541-4A00-B4EF-AF4E1F248A27}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4F0E8002-C26B-4F38-9FFE-271C97A5C601} = {4E87E7C5-ED0C-4DED-81A7-4505506636F6}
+		{096D325F-A9BD-4DB9-8A6D-12CD9C12DF0F} = {4E87E7C5-ED0C-4DED-81A7-4505506636F6}
+		{C1EC5763-4B9B-4A3F-A4C3-BAD71B651203} = {4E87E7C5-ED0C-4DED-81A7-4505506636F6}
+		{F3166324-EBDC-48BF-B666-3C8C8EDEB3CA} = {4E87E7C5-ED0C-4DED-81A7-4505506636F6}
+		{46B436F6-3541-4A00-B4EF-AF4E1F248A27} = {4E87E7C5-ED0C-4DED-81A7-4505506636F6}
+	EndGlobalSection
+EndGlobal

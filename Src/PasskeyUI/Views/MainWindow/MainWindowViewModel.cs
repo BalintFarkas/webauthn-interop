@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -100,22 +100,25 @@ internal sealed class MainWindowViewModel : BindableBase
     public ICommand DeleteCredentialCommand { get; private set; }
     public ICommand TestCredentialCommand { get; private set; }
 
+    private int _selectedTabIndex;
     public int SelectedTabIndex
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _selectedTabIndex;
+        set => SetProperty(ref _selectedTabIndex, value);
     }
 
+    private string? _attestationResponse;
     public string? AttestationResponse
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _attestationResponse;
+        set => SetProperty(ref _attestationResponse, value);
     }
 
+    private string? _assertionResponse;
     public string? AssertionResponse
     {
-        get;
-        set => SetProperty(ref field, value);
+        get => _assertionResponse;
+        set => SetProperty(ref _assertionResponse, value);
     }
 
     public ObservableCollection<CredentialDetails> Credentials { get; } = [];

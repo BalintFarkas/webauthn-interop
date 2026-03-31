@@ -1,9 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>DSInternals.Win32.WebAuthn</AssemblyName>
     <RootNamespace>DSInternals.Win32.WebAuthn</RootNamespace>
-    <TargetFrameworks>net10.0-windows;net8.0-windows;net48</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows</TargetFrameworks>
     <PackageId>DSInternals.Win32.WebAuthn</PackageId>
     <Product>WebAuthn Interop Assembly</Product>
     <Title>WebAuthn Interop Assembly</Title>
@@ -46,8 +46,7 @@
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net48'">
-    <!-- Note: Classes from these namespaces are part of .NET Framework -->
+  <ItemGroup>
     <PackageReference Include="System.Diagnostics.EventLog" />
     <PackageReference Include="System.Security.Cryptography.Cng" />
   </ItemGroup>
